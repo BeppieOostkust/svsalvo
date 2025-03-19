@@ -36,8 +36,13 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
     };
 
     return (
-        <AuthLayout title="Reset password" description="Please enter your new password below">
-            <Head title="Reset password" />
+        <AuthLayout title="Wachtwoord resetten" description="Vul hier je nieuwe wachtwoord in">
+            <Head title="Wachtwoord resetten">
+                <link rel="preconnect" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.gstatic.com" />
+                <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet" />
+
+            </Head>
 
             <form onSubmit={submit}>
                 <div className="grid gap-6">
@@ -57,7 +62,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="password">Wachtwoord</Label>
                         <Input
                             id="password"
                             type="password"
@@ -73,7 +78,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="password_confirmation">Confirm password</Label>
+                        <Label htmlFor="password_confirmation">Wachtwoord bevestigen</Label>
                         <Input
                             id="password_confirmation"
                             type="password"
@@ -89,7 +94,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
 
                     <Button type="submit" className="mt-4 w-full" disabled={processing}>
                         {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                        Reset password
+                        Wachtwoord resetten
                     </Button>
                 </div>
             </form>
