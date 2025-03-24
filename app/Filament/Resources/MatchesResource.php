@@ -1,0 +1,78 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\MatchesResource\Pages;
+use App\Filament\Resources\MatchesResource\RelationManagers;
+use App\Models\Matches;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+
+class MatchesResource extends Resource
+{
+    protected static ?string $model = Matches::class;
+
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\TextInput::make('naam'),
+                Forms\Components\TextInput::make(name: 'beschrijving'),
+                Forms\Components\Select::make('status')->options([
+                    'binnenkort' => 'Binnenkort',
+                    'bezig' => 'Bezig',
+                    'geannuleerd' => 'Geannuleerd',
+                    'afgelopen' => 'Afgelopen',
+                ])
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('naam')->label('Name'),
+                Tables\Columns\TextColumn::make('beschrijving')->label('Description'),
+                Tables\Columns\TextColumn::make('status')->label('Status'),
+                Tables\Columns\TextColumn::make('created_at')->label('Gecreëerd op'),
+                Tables\Columns\TextColumn::make('updated_at')->label('Laatst bijgewerkt op'),
+
+            ])
+            ->filters([
+                //
+            ])
+            ->actions([
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListMatches::route('/'),
+            'create' => Pages\CreateMatches::route('/create'),
+            'edit' => Pages\EditMatches::route('/{record}/edit'),
+        ];
+    }
+}
