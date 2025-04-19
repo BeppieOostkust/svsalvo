@@ -25,7 +25,7 @@ class UserResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()
-                    ->label('Name'),
+                    ->label('Naam'),
                 Forms\Components\TextInput::make('email')
                     ->email()
                     ->required()
@@ -33,7 +33,7 @@ class UserResource extends Resource
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->required()
-                    ->label('Password'),
+                    ->label('Wachtwoord'),
             ]);
     }
 
@@ -42,7 +42,7 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Name')
+                    ->label('Naam')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
@@ -50,7 +50,7 @@ class UserResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created At')
+                    ->label('Account aangemaakt')
                     ->dateTime()
                     ->sortable(),
             ])
