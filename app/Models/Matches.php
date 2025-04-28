@@ -19,12 +19,13 @@ class Matches extends Model
         'updated_at',
     ];
 
-    // Define relationships with correct foreign key
     public function gebruikersScores()
     {
-        return $this->hasMany(MatchGebruikerScore::class, 'wedstrijd_id');
+        return $this->hasMany(MatchGebruikerScore::class, 'wedstrijd_id')
+            ->orderByRaw("CASE WHEN kaliber = 'gkp' THEN 0 WHEN kaliber = 'kkp' THEN 1 ELSE 2 END")
+            ->orderByDesc('totale_punten')
+            ->orderByRaw('linker_kaart_6 + linker_kaart_7 + linker_kaart_8 + linker_kaart_9 + linker_kaart_10 DESC');
     }
-
     public function matchUserScores()
     {
         return $this->hasMany(MatchGebruikerScore::class, 'wedstrijd_id');

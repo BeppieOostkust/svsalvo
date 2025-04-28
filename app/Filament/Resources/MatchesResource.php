@@ -17,7 +17,7 @@ class MatchesResource extends Resource
 {
     protected static ?string $model = Matches::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-fire';
 
     public static function form(Form $form): Form
     {
@@ -60,12 +60,34 @@ class MatchesResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
+    public static function getNavigationLabel(): string
     {
-        return [
-            //
-        ];
+        return 'Wedstrijden'; // Instead of "Matches"
     }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Wedstrijd Beheer';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Wedstrijd';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Wedstrijden';
+    }
+
+    public static function getEloquentQuery(): Builder
+{
+    return parent::getEloquentQuery()
+        ->with(['gebruikersScores' => function ($query) {
+            $query->orderByDesc('totale_punten')
+                ->orderByRaw('linker_kaart_6 + linker_kaart_7 + linker_kaart_8 + linker_kaart_9 + linker_kaart_10 DESC');
+        }]);
+}
 
     public static function getPages(): array
     {
@@ -76,3 +98,4 @@ class MatchesResource extends Resource
         ];
     }
 }
+

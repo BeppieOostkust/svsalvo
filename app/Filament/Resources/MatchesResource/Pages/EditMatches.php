@@ -4,6 +4,7 @@ namespace App\Filament\Resources\MatchesResource\Pages;
 
 use App\Filament\Resources\MatchesResource;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Forms\Components\Section;
@@ -54,8 +55,14 @@ class EditMatches extends EditRecord
             Section::make('Speler Scores')
                 ->schema([
                     Repeater::make('gebruikersScores')
-                        ->relationship('gebruikersScores')
+                        ->relationship('gebruikersScores')                
                         ->schema([
+                            Select::make('kaliber')
+                            ->options([
+                                'kkp' => 'KKP (Klein Kaliber Pistool)',
+                                'gkp' => 'GKP (Groot Kaliber Pistool)',
+                            ])
+                            ->required(),
                             Select::make('gebruiker_id')
                                 ->label('Speler')
                                 ->options(User::all()->pluck('name', 'id'))
@@ -70,35 +77,40 @@ class EditMatches extends EditRecord
                                         ->numeric()
                                         ->default(0)
                                         ->reactive()
-                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set)),
+                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set))
+                                        ->required(),
                                     
                                     TextInput::make('linker_kaart_7')
                                         ->label('Aantal schoten in 7 links')
                                         ->numeric()
                                         ->default(0)
                                         ->reactive()
-                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set)),
+                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set))
+                                        ->required(),
                                     
                                     TextInput::make('linker_kaart_8')
                                         ->label('Aantal schoten in 8 links')
                                         ->numeric()
                                         ->default(0)
                                         ->reactive()
-                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set)),
+                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set))
+                                        ->required(),
                                     
                                     TextInput::make('linker_kaart_9')
                                         ->label('Aantal schoten in 9 links')
                                         ->numeric()
                                         ->default(0)
                                         ->reactive()
-                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set)),
+                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set))
+                                        ->required(),
                                     
                                     TextInput::make('linker_kaart_10')
                                         ->label('Aantal schoten in 10 links')
                                         ->numeric()
                                         ->default(0)
                                         ->reactive()
-                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set)),
+                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set))
+                                        ->required(),
                                 ])
                                 ->columns(5),
                             
@@ -109,35 +121,40 @@ class EditMatches extends EditRecord
                                         ->numeric()
                                         ->default(0)
                                         ->reactive()
-                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set)),
+                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set))
+                                        ->required(),
                                     
                                     TextInput::make('rechter_kaart_7')
                                         ->label('Aantal schoten in 7 rechts')
                                         ->numeric()
                                         ->default(0)
                                         ->reactive()
-                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set)),
+                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set))
+                                        ->required(),
                                     
                                     TextInput::make('rechter_kaart_8')
                                         ->label('Aantal schoten in 8 rechts')
                                         ->numeric()
                                         ->default(0)
                                         ->reactive()
-                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set)),
+                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set))
+                                        ->required(),
                                     
                                     TextInput::make('rechter_kaart_9')
                                         ->label('Aantal schoten in 9 rechts')
                                         ->numeric()
                                         ->default(0)
                                         ->reactive()
-                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set)),
+                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set))
+                                        ->required(),
                                     
                                     TextInput::make('rechter_kaart_10')
                                         ->label('Aantal schoten in 10 rechts')
                                         ->numeric()
                                         ->default(0)
                                         ->reactive()
-                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set)),
+                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set))
+                                        ->required(),
                                 ])
                                 ->columns(5),
                             
@@ -148,14 +165,16 @@ class EditMatches extends EditRecord
                                         ->numeric()
                                         ->default(0)
                                         ->reactive()
-                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set)),
+                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set))
+                                        ->required(),
                                     
                                     TextInput::make('afwaarderingen')
                                         ->label('Afwaarderingen')
                                         ->numeric()
                                         ->default(0)
                                         ->reactive()
-                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set)),
+                                        ->afterStateUpdated(fn ($state, callable $set, $get) => $this->updateTotalPoints($get, $set))
+                                        ->required(),
                                 ])
                                 ->columns(2),
                             
@@ -166,9 +185,24 @@ class EditMatches extends EditRecord
                                 ->default(0),
                         ])
                         ->columns(1)
-                        ->itemLabel(fn (array $state): ?string => 
-                            User::find($state['gebruiker_id'] ?? null)?->name ?? 'Nieuwe Speler'
-                        )
+                        ->itemLabel(function (array $state): ?string {
+                            $name = User::find($state['gebruiker_id'] ?? null)?->name ?? 'Nieuwe Speler';
+                            $kaliber = $state['kaliber'] ?? ''; // Changed from soort_pistool to kaliber
+                            $points = $state['totale_punten'] ?? '';
+                            
+                            $kaliberDisplay = '';
+                            if ($kaliber === 'gkp') {
+                                $kaliberDisplay = 'GKP';
+                            } elseif ($kaliber === 'kkp') {
+                                $kaliberDisplay = 'KKP';
+                            }
+                            
+                            if ($points !== '') {
+                                return "$name - $kaliberDisplay - Totaal: $points punten";
+                            }
+                            
+                            return "$name" . ($kaliberDisplay ? " - $kaliberDisplay" : "");
+                        })
                         ->addActionLabel('Speler toevoegen')
                         ->deleteAction(
                             fn (Forms\Components\Actions\Action $action) => $action->requiresConfirmation()
@@ -181,21 +215,57 @@ class EditMatches extends EditRecord
     
     private function updateTotalPoints($get, $set): void
     {
-        // Calculate points from score fields by multiplying count with score value
+
+        Log::info('Score values:', [
+            'L6' => $get('linker_kaart_6'),
+            'L7' => $get('linker_kaart_7'),
+            'L8' => $get('linker_kaart_8'),
+            'L9' => $get('linker_kaart_9'),
+            'L10' => $get('linker_kaart_10'),
+            'R6' => $get('rechter_kaart_6'),
+            'R7' => $get('rechter_kaart_7'),
+            'R8' => $get('rechter_kaart_8'),
+            'R9' => $get('rechter_kaart_9'),
+            'R10' => $get('rechter_kaart_10'),
+            'buiten_tijd' => $get('aantal_schoten_buiten_tijd'),
+            'afwaarderingen' => $get('afwaarderingen'),
+        ]);
+
+        
+        // Safe conversion to integers with fallback to 0 if empty
+        $leftCard6 = !empty($get('linker_kaart_6')) ? (int)$get('linker_kaart_6') : 0;
+        $leftCard7 = !empty($get('linker_kaart_7')) ? (int)$get('linker_kaart_7') : 0;
+        $leftCard8 = !empty($get('linker_kaart_8')) ? (int)$get('linker_kaart_8') : 0;
+        $leftCard9 = !empty($get('linker_kaart_9')) ? (int)$get('linker_kaart_9') : 0;
+        $leftCard10 = !empty($get('linker_kaart_10')) ? (int)$get('linker_kaart_10') : 0;
+        
+        $rightCard6 = !empty($get('rechter_kaart_6')) ? (int)$get('rechter_kaart_6') : 0;
+        $rightCard7 = !empty($get('rechter_kaart_7')) ? (int)$get('rechter_kaart_7') : 0;
+        $rightCard8 = !empty($get('rechter_kaart_8')) ? (int)$get('rechter_kaart_8') : 0;
+        $rightCard9 = !empty($get('rechter_kaart_9')) ? (int)$get('rechter_kaart_9') : 0;
+        $rightCard10 = !empty($get('rechter_kaart_10')) ? (int)$get('rechter_kaart_10') : 0;
+        
+        $outOfTime = !empty($get('aantal_schoten_buiten_tijd')) ? (int)$get('aantal_schoten_buiten_tijd') : 0;
+        $penalties = !empty($get('afwaarderingen')) ? (int)$get('afwaarderingen') : 0;
+        
+        // Calculate the total points
         $total = 
-            (int)($get('linker_kaart_6') ?? 0) * 6 +
-            (int)($get('linker_kaart_7') ?? 0) * 7 +
-            (int)($get('linker_kaart_8') ?? 0) * 8 +
-            (int)($get('linker_kaart_9') ?? 0) * 9 +
-            (int)($get('linker_kaart_10') ?? 0) * 10 +
-            (int)($get('rechter_kaart_6') ?? 0) * 6 +
-            (int)($get('rechter_kaart_7') ?? 0) * 7 +
-            (int)($get('rechter_kaart_8') ?? 0) * 8 +
-            (int)($get('rechter_kaart_9') ?? 0) * 9 +
-            (int)($get('rechter_kaart_10') ?? 0) * 10 -
-            ((int)($get('aantal_schoten_buiten_tijd') ?? 0) * 2) -
-            (int)($get('afwaarderingen') ?? 0);
+            ($leftCard6 * 6) +
+            ($leftCard7 * 7) +
+            ($leftCard8 * 8) +
+            ($leftCard9 * 9) +
+            ($leftCard10 * 10) +
+            ($rightCard6 * 6) +
+            ($rightCard7 * 7) +
+            ($rightCard8 * 8) +
+            ($rightCard9 * 9) +
+            ($rightCard10 * 10) -
+            ($outOfTime * 2) -
+            $penalties;
             
+        // Log the calculated total (optional)
+        // \Log::info('Calculated total points: ' . $total);
+        
         $set('totale_punten', $total);
     }
 }

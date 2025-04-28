@@ -13,6 +13,7 @@ class MatchGebruikerScore extends Model
     protected $table = 'match_gebruikers_scores';
 
     protected $fillable = [
+        'kaliber',
         'wedstrijd_id',
         'gebruiker_id',
         'linker_kaart_6',
@@ -28,6 +29,22 @@ class MatchGebruikerScore extends Model
         'aantal_schoten_buiten_tijd',
         'afwaarderingen',
         'totale_punten',
+    ];
+
+    protected $casts = [
+        'linker_kaart_6' => 'integer',
+        'linker_kaart_7' => 'integer',
+        'linker_kaart_8' => 'integer',
+        'linker_kaart_9' => 'integer',
+        'linker_kaart_10' => 'integer',
+        'rechter_kaart_6' => 'integer',
+        'rechter_kaart_7' => 'integer',
+        'rechter_kaart_8' => 'integer',
+        'rechter_kaart_9' => 'integer',
+        'rechter_kaart_10' => 'integer',
+        'aantal_schoten_buiten_tijd' => 'integer',
+        'afwaarderingen' => 'integer',
+        'totale_punten' => 'integer',
     ];
 
     /**
@@ -51,20 +68,21 @@ class MatchGebruikerScore extends Model
      */
     protected static function booted()
     {
-        static::saving(function ($matchUserScore) {
-            $matchUserScore->totale_punten = 
-                (int)$matchUserScore->linker_kaart_6 +
-                (int)$matchUserScore->linker_kaart_7 +
-                (int)$matchUserScore->linker_kaart_8 +
-                (int)$matchUserScore->linker_kaart_9 +
-                (int)$matchUserScore->linker_kaart_10 +
-                (int)$matchUserScore->rechter_kaart_6 +
-                (int)$matchUserScore->rechter_kaart_7 +
-                (int)$matchUserScore->rechter_kaart_8 +
-                (int)$matchUserScore->rechter_kaart_9 +
-                (int)$matchUserScore->rechter_kaart_10 -
-                ((int)$matchUserScore->aantal_schoten_buiten_tijd * 2) -
-                (int)$matchUserScore->afwaarderingen;
+        static::saving(function ($score) {
+            // Recalculate the total points before saving
+            $score->totale_punten = 
+                ($score->linker_kaart_6 * 6) +
+                ($score->linker_kaart_7 * 7) +
+                ($score->linker_kaart_8 * 8) +
+                ($score->linker_kaart_9 * 9) +
+                ($score->linker_kaart_10 * 10) +
+                ($score->rechter_kaart_6 * 6) +
+                ($score->rechter_kaart_7 * 7) +
+                ($score->rechter_kaart_8 * 8) +
+                ($score->rechter_kaart_9 * 9) +
+                ($score->rechter_kaart_10 * 10) -
+                ($score->aantal_schoten_buiten_tijd * 2) -
+                $score->afwaarderingen;
         });
     }
 }

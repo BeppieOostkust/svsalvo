@@ -17,7 +17,7 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
 
     public static function form(Form $form): Form
     {
@@ -66,6 +66,27 @@ class UserResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    
+    public static function getNavigationLabel(): string
+    {
+        return 'Gebruikers';
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Algemene Beheer';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Gebruiker';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Gebruikers';
     }
 
     public static function getPages(): array
