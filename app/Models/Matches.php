@@ -15,6 +15,7 @@ class Matches extends Model
         'naam',
         'beschrijving',
         'status',
+        'start_datum',
         'created_at',
         'updated_at',
     ];

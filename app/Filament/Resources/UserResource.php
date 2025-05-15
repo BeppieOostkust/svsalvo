@@ -23,6 +23,9 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\TextInput::make('avg_name')
+                    ->required()
+                    ->label('AVG Ledennaam'),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->label('Naam'),
@@ -41,6 +44,10 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make(name: 'avg_name')
+                    ->label('AVG Ledennaam')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Naam')
                     ->sortable()
@@ -71,7 +78,7 @@ class UserResource extends Resource
     
     public static function getNavigationLabel(): string
     {
-        return 'Gebruikers';
+        return 'Leden';
     }
 
     public static function getNavigationGroup(): ?string
@@ -81,12 +88,12 @@ class UserResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return 'Gebruiker';
+        return 'Lid';
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Gebruikers';
+        return 'Leden';
     }
 
     public static function getPages(): array

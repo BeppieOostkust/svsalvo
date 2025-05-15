@@ -30,7 +30,14 @@ class MatchesResource extends Resource
                     'bezig' => 'Bezig',
                     'geannuleerd' => 'Geannuleerd',
                     'afgelopen' => 'Afgelopen',
-                ])
+                ]),
+                Forms\Components\DateTimePicker::make('start_datum')
+                    ->label('Start Datum')
+                    ->required()
+                    ->default(now())
+                    ->displayFormat('d-m-Y H:i:s')
+                    ->seconds(false)
+                    ->timezone('Europe/Amsterdam'),
             ]);
     }
 
@@ -39,6 +46,7 @@ class MatchesResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('naam')->label('Name'),
+                Tables\Columns\TextColumn::make('start_datum')->label('Startdatum')->dateTime('d-m-Y H:i:s'),
                 Tables\Columns\TextColumn::make('beschrijving')->label('Description'),
                 Tables\Columns\TextColumn::make('status')->label('Status'),
                 Tables\Columns\TextColumn::make('created_at')->label('Gecreëerd op'),
@@ -81,13 +89,13 @@ class MatchesResource extends Resource
     }
 
     public static function getEloquentQuery(): Builder
-{
-    return parent::getEloquentQuery()
-        ->with(['gebruikersScores' => function ($query) {
-            $query->orderByDesc('totale_punten')
-                ->orderByRaw('linker_kaart_6 + linker_kaart_7 + linker_kaart_8 + linker_kaart_9 + linker_kaart_10 DESC');
-        }]);
-}
+    {
+        return parent::getEloquentQuery()
+            ->with(['gebruikersScores' => function ($query) {
+                $query->orderByDesc('totale_punten')
+                    ->orderByRaw('linker_kaart_6 + linker_kaart_7 + linker_kaart_8 + linker_kaart_9 + linker_kaart_10 DESC');
+            }]);
+    }
 
     public static function getPages(): array
     {
