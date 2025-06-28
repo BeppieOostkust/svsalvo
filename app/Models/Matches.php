@@ -27,9 +27,37 @@ class Matches extends Model
             ->orderByDesc('totale_punten')
             ->orderByRaw('linker_kaart_6 + linker_kaart_7 + linker_kaart_8 + linker_kaart_9 + linker_kaart_10 DESC');
     }
+    
     public function matchUserScores()
     {
         return $this->hasMany(MatchGebruikerScore::class, 'wedstrijd_id');
+    }
+
+    /**
+     * Get all registrations for this match
+     */
+    public function registrations()
+    {
+        return $this->hasMany(MatchRegistration::class, 'match_id');
+    }
+
+    /**
+     * Get pending registrations that haven't been converted to participants
+     */
+    public function pendingRegistrations()
+    {
+        return $this->hasMany(MatchRegistration::class, 'match_id')
+            ->where('converted_to_participant', false)
+            ->whereIn('status', ['aangemeld', 'bevestigd']);
+    }
+
+    /**
+     * Get confirmed registrations
+     */
+    public function confirmedRegistrations()
+    {
+        return $this->hasMany(MatchRegistration::class, 'match_id')
+            ->where('status', 'bevestigd');
     }
 
     public function users()

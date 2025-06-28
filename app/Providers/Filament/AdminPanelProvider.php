@@ -6,6 +6,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use App\Http\Middleware\AdminMiddleware;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -68,6 +69,7 @@ class AdminPanelProvider extends PanelProvider
             ->font('Geist', provider: GoogleFontProvider::class)
             ->authMiddleware([
                 Authenticate::class,
+                AdminMiddleware::class,
             ]);
     }
 }

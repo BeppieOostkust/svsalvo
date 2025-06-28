@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Article;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -39,10 +40,25 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
+        // Get urgent articles with error handling
+        try {
+            $urgentArticles = Article::with(['author'])
+                ->published()
+                ->urgent()
+                ->orderBy('published_at', 'desc')
+                ->limit(3)
+                ->get(['id', 'title', 'excerpt', 'slug', 'published_at', 'author_id']);
+        } catch (\Exception $e) {
+            // If there's any database error, return empty array and log it
+            \Log::warning('Failed to fetch urgent articles: ' . $e->getMessage());
+            $urgentArticles = [];
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
+            'urgentArticles' => $urgentArticles,
             'auth' => [
                 'user' => $request->user(),
             ],

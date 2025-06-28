@@ -12,6 +12,8 @@ import {
   import { cn } from "@/lib/utils"
   import { Button } from "@/components/ui/button"
   import { Link, usePage, Head } from '@inertiajs/react';
+  import DebugPanel from '@/components/debug-panel';
+  import UrgentArticles from '@/components/urgent-articles';
 
 
 const wedstrijden: {naam: string; href: any; beschrijving: string}[] = [
@@ -43,18 +45,71 @@ const wedstrijden: {naam: string; href: any; beschrijving: string}[] = [
 ];
 
 export default function Header() {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, urgentArticles } = usePage<SharedData>().props;
+    const [bannerDismissed, setBannerDismissed] = React.useState(false);
+    
+    // Check if we have urgent articles to display
+    const hasUrgentArticles = urgentArticles && Array.isArray(urgentArticles) && urgentArticles.length > 0;
+    
+    // Check if any urgent articles are dismissed
+    const [dismissedArticleIds, setDismissedArticleIds] = React.useState<number[]>([]);
+    const visibleUrgentArticles = hasUrgentArticles 
+        ? urgentArticles.filter(article => !dismissedArticleIds.includes(article.id))
+        : [];
+    const hasVisibleUrgentArticles = visibleUrgentArticles.length > 0;
+    
+    const shouldShowBanner = hasVisibleUrgentArticles && !bannerDismissed;
+
+    // Debug logging
+    console.log('Header render:', { 
+        hasUrgentArticles, 
+        hasVisibleUrgentArticles, 
+        bannerDismissed, 
+        shouldShowBanner,
+        dismissedArticleIds 
+    });
+
+    // Load dismissed articles from localStorage on mount
+    React.useEffect(() => {
+        const dismissed = localStorage.getItem('dismissedUrgentArticles');
+        if (dismissed) {
+            const parsedDismissed = JSON.parse(dismissed);
+            setDismissedArticleIds(parsedDismissed);
+            console.log('Header loaded dismissed articles:', parsedDismissed);
+        }
+    }, []);
+
+    // Listen for banner dismissal events
+    React.useEffect(() => {
+        const handleBannerDismissed = () => {
+            console.log('Banner dismissed event received in Header');
+            setBannerDismissed(true);
+        };
+
+        window.addEventListener('urgentBannerDismissed', handleBannerDismissed);
+        
+        return () => {
+            window.removeEventListener('urgentBannerDismissed', handleBannerDismissed);
+        };
+    }, []);
 
     return (
         <div>
             <Head title="Welcome">
 
             </Head>
-            <div className='my-4 mx-auto p-4 w-[90%] border-gray-400 shadow-xl rounded-lg flex flex-row justify-between items-center'>
-                <div className='flex flex-row items-center gap-4'>
+            
+            {/* Urgent Articles Banner */}
+            {shouldShowBanner && (
+                <UrgentArticles urgentArticles={urgentArticles} />
+            )}
+            
+            {/* Main Header - add top padding when urgent banner is present and not dismissed */}
+            <div className={`my-4 mx-auto p-4 w-[90%] border-gray-400 shadow-xl rounded-lg flex flex-row justify-between items-center transition-all duration-500 ease-in-out ${shouldShowBanner ? 'mt-20' : 'mt-4'}`}>
+                <Link href={route("dashboard.home")} className='flex flex-row items-center gap-4 hover:opacity-80 transition-opacity cursor-pointer'>
                     <img src="https://placehold.co/32x32" alt="" className='rounded'/>
                     <span className='text-2xl font-bold'>SSV De Moes</span>
-                </div>
+                </Link>
                 <div>
                     <nav className='flex flex-row gap-4 font-semibold'>
                         <NavigationMenu>
@@ -84,46 +139,21 @@ export default function Header() {
                                 <NavigationMenuItem>
                                     <Link href={route("organisatie")}>
                                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                                        Organisatie
+                                        Over Ons
                                         </NavigationMenuLink>
                                     </Link>
                                 </NavigationMenuItem>
                                 <NavigationMenuItem>
-                                    <NavigationMenuTrigger>Wedstrijden</NavigationMenuTrigger>
-                                    <NavigationMenuContent>
-                                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                                            <li className="row-span-5">
-                                                <NavigationMenuLink asChild>
-                                                    <a
-                                                        className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-blue-300 to-blue-500 p-6 no-underline outline-none focus:shadow-md cursor-pointer"
-                                                        href='https://youtube.com'
-                                                    >
-                                                        <div className="mb-2 mt-4 text-lg font-medium text-white">
-                                                            Wedstrijden
-                                                        </div>
-                                                        <p className="text-sm leading-tight text-foreground">
-                                                            Beautifully designed components built with Radix UI and
-                                                            Tailwind CSS.
-                                                        </p>
-                                                    </a>
-                                                </NavigationMenuLink>
-                                            </li>
-                                            {wedstrijden.map((component) => (
-                                                <ListItem
-                                                    key={component.naam}
-                                                    title={component.naam}
-                                                    href={route("nieuws")}
-                                                >
-                                                    {component.beschrijving}
-                                                </ListItem>
-                                            ))}
-                                        </ul>
-                                    </NavigationMenuContent>
+                                    <Link href={route("regels")}>
+                                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                        Regels
+                                        </NavigationMenuLink>
+                                    </Link>
                                 </NavigationMenuItem>
                                 <NavigationMenuItem>
-                                    <Link href={route("instellingen")}>
+                                    <Link href={route("wedstrijden.index")}>
                                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                                        Instellingen
+                                        Wedstrijden
                                         </NavigationMenuLink>
                                     </Link>
                                 </NavigationMenuItem>
@@ -139,16 +169,21 @@ export default function Header() {
                         
                     </Link>
                 ) : (
-                    <>
+                    <div className="flex gap-2">
                         <Link
                             href={route('login')}
                         >
                             <Button variant={'secondary'}>Log in</Button>
-                            
                         </Link>
-                    </>
+                        <Link
+                            href={route('register')}
+                        >
+                            <Button>Lid worden</Button>
+                        </Link>
+                    </div>
                 )}
             </div>
+            <DebugPanel />
         </div>
     );
 }

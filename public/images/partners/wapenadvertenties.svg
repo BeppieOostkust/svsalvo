@@ -1,0 +1,6 @@
+<svg width="200" height="100" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="50" fill="#8B4513"/>
+  <rect width="200" height="50" y="50" fill="#F4A460"/>
+  <text x="100" y="30" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="white">Wapen</text>
+  <text x="100" y="70" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#333">Advertenties.nl</text>
+</svg>

@@ -105,5 +105,12 @@ class MatchesResource extends Resource
             'edit' => Pages\EditMatches::route('/{record}/edit'),
         ];
     }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\RegistrationsRelationManager::class,
+        ];
+    }
 }
 

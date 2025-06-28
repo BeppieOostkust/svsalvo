@@ -54,6 +54,14 @@ class EditMatches extends EditRecord
         ];
     }
 
+    public function mount(int | string $record): void
+    {
+        parent::mount($record);
+        
+        // Initialize audio player
+        $this->dispatch('init-audio-player');
+    }
+
     public function form(Form $form): Form
     {
         return $form->schema([
@@ -215,15 +223,6 @@ class EditMatches extends EditRecord
                                         ->numeric()
                                         ->default(0)
                                         ->required(),
-                                    
-                                    Forms\Components\Actions::make([
-                                        Forms\Components\Actions\Action::make('play_sound')
-                                            ->label('Speel geluid af')
-                                            ->icon('heroicon-o-speaker-wave')
-                                            ->action(function () {
-                                                $this->dispatch('play-sound', soundPath: asset('sounds/notification.mp3'));
-                                            }),
-                                    ])->columnSpan(2),
                                 ])
                                 ->columns(2),
                             
@@ -433,6 +432,18 @@ class EditMatches extends EditRecord
                $penalties;
     }
     
+    protected function getViewData(): array
+    {
+        return [
+            'record' => $this->record,
+        ];
+    }
+    
+    public function getView(): string
+    {
+        return 'filament.resources.matches-resource.pages.edit-matches';
+    }
+
     // For refreshing list after save
     protected function getRedirectUrl(): ?string
     {

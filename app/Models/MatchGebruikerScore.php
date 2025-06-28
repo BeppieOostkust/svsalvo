@@ -62,6 +62,11 @@ class MatchGebruikerScore extends Model
     {
         return $this->belongsTo(User::class, 'gebruiker_id');
     }
+
+    public function gebruiker(): BelongsTo
+    {
+        return $this->user();
+    }
     
     /**
      * Auto-update total points before saving

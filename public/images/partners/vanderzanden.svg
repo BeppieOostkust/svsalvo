@@ -1,0 +1,6 @@
+<svg width="200" height="100" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="100" fill="#f8f9fa" stroke="#e9ecef" stroke-width="2"/>
+  <text x="100" y="35" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#2c3e50">Wapenhandel</text>
+  <text x="100" y="55" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#27ae60">van der Zanden</text>
+  <text x="100" y="75" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#7f8c8d">Jacht &amp; Schietsport</text>
+</svg>
