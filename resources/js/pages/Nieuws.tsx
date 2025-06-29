@@ -143,6 +143,7 @@ export default function Nieuws() {
                         {articles.prev_page_url && (
                             <Link
                                 href={articles.prev_page_url}
+                                preserveScroll
                                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                             >
                                 Vorige
@@ -156,6 +157,7 @@ export default function Nieuws() {
                         {articles.next_page_url && (
                             <Link
                                 href={articles.next_page_url}
+                                preserveScroll
                                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                             >
                                 Volgende

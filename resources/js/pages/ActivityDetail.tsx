@@ -208,9 +208,21 @@ export default function ActivityDetail() {
                         {activity.additional_info && Object.keys(activity.additional_info).length > 0 && (
                             <div className="mb-8">
                                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Aanvullende Informatie</h2>
-                                <div className="text-gray-700">
-                                    {/* Render additional info based on its structure */}
-                                    <pre className="whitespace-pre-wrap">{JSON.stringify(activity.additional_info, null, 2)}</pre>
+                                <div className="space-y-3">
+                                    {Object.entries(activity.additional_info).map(([key, value]) => (
+                                        <div key={key} className="flex flex-col">
+                                            <span className="text-sm font-medium text-gray-700">
+                                                {key.split('_')
+                                                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                                    .join(' ')}
+                                            </span>
+                                            <span className="text-gray-600">{
+                                                typeof value === 'boolean' 
+                                                    ? (value ? 'Ja' : 'Nee')
+                                                    : String(value)
+                                            }</span>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         )}

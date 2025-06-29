@@ -12,33 +12,25 @@ use Filament\Tables\Table;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Eloquent\Collection;
 
 class RegistrationsRelationManager extends RelationManager
 {
     protected static string $relationship = 'registrations';
 
-    protected static ?string $title = 'Inschrijvingen';
+    protected static ?string $title = 'Aanmeldingen';
+
+    protected static ?string $recordTitleAttribute = 'id';
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('user_id')
-                    ->label('Gebruiker')
-                    ->options(User::all()->pluck('name', 'id'))
+                    ->relationship('user', 'name')
+                    ->required()
                     ->searchable()
-                    ->required(),
-                Forms\Components\Select::make('status')
-                    ->label('Status')
-                    ->options([
-                        'aangemeld' => 'Aangemeld',
-                        'bevestigd' => 'Bevestigd',
-                        'geweigerd' => 'Geweigerd',
-                        'geannuleerd' => 'Geannuleerd',
-                        'aanwezig' => 'Aanwezig',
-                        'afwezig' => 'Afwezig',
-                    ])
-                    ->required(),
+                    ->preload(),
                 Forms\Components\Select::make('caliber')
                     ->label('Kaliber')
                     ->options([
@@ -46,76 +38,61 @@ class RegistrationsRelationManager extends RelationManager
                         'gkp' => 'GKP (Groot Kaliber Pistool)',
                     ])
                     ->required(),
-                Forms\Components\Textarea::make('notes')
-                    ->label('Opmerkingen')
-                    ->rows(3),
-                Forms\Components\Toggle::make('payment_confirmed')
-                    ->label('Betaling bevestigd'),
-                Forms\Components\TextInput::make('paid_amount')
-                    ->label('Betaald bedrag')
-                    ->numeric()
-                    ->default(0.00),
+                Forms\Components\Select::make('status')
+                    ->options([
+                        'aangemeld' => 'Aangemeld',
+                        'bevestigd' => 'Bevestigd',
+                        'afgemeld' => 'Afgemeld',
+                        'aanwezig' => 'Aanwezig',
+                        'afwezig' => 'Afwezig',
+                    ])
+                    ->required(),
             ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('user.name')
+            ->recordTitleAttribute('id')
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
-                    ->label('Gebruiker')
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\BadgeColumn::make('status')
-                    ->label('Status')
-                    ->colors([
-                        'warning' => 'aangemeld',
-                        'success' => 'bevestigd',
-                        'danger' => 'geweigerd',
-                        'secondary' => 'geannuleerd',
-                        'info' => 'aanwezig',
-                        'gray' => 'afwezig',
-                    ]),
+                    ->label('Naam')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('caliber')
                     ->label('Kaliber')
-                    ->formatStateUsing(fn (string $state): string => strtoupper($state))
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'kkp' => 'KKP',
+                        'gkp' => 'GKP',
+                        default => $state,
+                    }),
+                Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        'kkp' => 'info',
-                        'gkp' => 'warning',
+                        'aangemeld' => 'gray',
+                        'bevestigd' => 'warning',
+                        'afgemeld' => 'danger',
+                        'aanwezig' => 'success',
+                        'afwezig' => 'danger',
                         default => 'gray',
                     }),
+                Tables\Columns\TextColumn::make('registered_at')
+                    ->label('Aangemeld op')
+                    ->dateTime('d-m-Y H:i')
+                    ->sortable(),
                 Tables\Columns\IconColumn::make('converted_to_participant')
                     ->label('Deelnemer')
                     ->boolean()
-                    ->tooltip(fn ($record) => $record->converted_to_participant ? 'Al toegevoegd als deelnemer' : 'Nog niet toegevoegd als deelnemer'),
-                Tables\Columns\IconColumn::make('payment_confirmed')
-                    ->label('Betaald')
-                    ->boolean(),
-                Tables\Columns\TextColumn::make('registered_at')
-                    ->label('Ingeschreven op')
-                    ->dateTime('d-m-Y H:i')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('notes')
-                    ->label('Opmerkingen')
-                    ->limit(30)
-                    ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
-                        $state = $column->getState();
-                        if (strlen($state) <= 30) {
-                            return null;
-                        }
-                        return $state;
-                    }),
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle'),
             ])
+            ->defaultSort('registered_at', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
-                    ->label('Status')
                     ->options([
                         'aangemeld' => 'Aangemeld',
                         'bevestigd' => 'Bevestigd',
-                        'geweigerd' => 'Geweigerd',
-                        'geannuleerd' => 'Geannuleerd',
+                        'afgemeld' => 'Afgemeld',
                         'aanwezig' => 'Aanwezig',
                         'afwezig' => 'Afwezig',
                     ]),
@@ -125,8 +102,6 @@ class RegistrationsRelationManager extends RelationManager
                         'kkp' => 'KKP',
                         'gkp' => 'GKP',
                     ]),
-                Tables\Filters\TernaryFilter::make('converted_to_participant')
-                    ->label('Al deelnemer'),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
@@ -136,75 +111,92 @@ class RegistrationsRelationManager extends RelationManager
                     }),
             ])
             ->actions([
-                Tables\Actions\Action::make('convert_to_participant')
-                    ->label('Voeg toe als deelnemer')
-                    ->icon('heroicon-o-plus-circle')
-                    ->color('success')
-                    ->visible(fn (MatchRegistration $record): bool => !$record->converted_to_participant && in_array($record->status, ['bevestigd', 'aangemeld']))
-                    ->requiresConfirmation()
-                    ->modalHeading('Voeg toe als deelnemer')
-                    ->modalDescription(fn (MatchRegistration $record): string => "Weet je zeker dat je {$record->user->name} wilt toevoegen als deelnemer voor deze wedstrijd?")
-                    ->action(function (MatchRegistration $record): void {
-                        try {
-                            $participant = $record->convertToParticipant();
-                            
-                            Notification::make()
-                                ->title('Deelnemer toegevoegd')
-                                ->body("{$record->user->name} is succesvol toegevoegd als deelnemer.")
-                                ->success()
-                                ->send();
-                        } catch (\Exception $e) {
-                            Notification::make()
-                                ->title('Fout bij toevoegen')
-                                ->body('Er is een fout opgetreden bij het toevoegen van de deelnemer: ' . $e->getMessage())
-                                ->danger()
-                                ->send();
-                        }
-                    }),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('convert')
+                    ->label('Toevoegen als deelnemer')
+                    ->icon('heroicon-o-user-plus')
+                    ->requiresConfirmation()
+                    ->action(function ($record) {
+                        // Voeg de gebruiker toe als deelnemer met een lege score
+                        $record->matches->gebruikersScores()->create([
+                            'gebruiker_id' => $record->user_id,
+                            'kaliber' => $record->caliber,
+                            'totale_punten' => 0,
+                            'linker_kaart_6' => 0,
+                            'linker_kaart_7' => 0,
+                            'linker_kaart_8' => 0,
+                            'linker_kaart_9' => 0,
+                            'linker_kaart_10' => 0,
+                            'rechter_kaart_6' => 0,
+                            'rechter_kaart_7' => 0,
+                            'rechter_kaart_8' => 0,
+                            'rechter_kaart_9' => 0,
+                            'rechter_kaart_10' => 0,
+                            'aantal_schoten_buiten_tijd' => 0,
+                            'afwaarderingen' => 0,
+                        ]);
+                        
+                        // Update de registratie status
+                        $record->update([
+                            'status' => 'aanwezig',
+                            'converted_to_participant' => true,
+                        ]);
+
+                        Notification::make()
+                            ->title('Deelnemer toegevoegd')
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(fn ($record) => !$record->converted_to_participant),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('convert_selected')
-                        ->label('Voeg geselecteerden toe als deelnemers')
-                        ->icon('heroicon-o-plus-circle')
-                        ->color('success')
+                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('convertSelected')
+                        ->label('Geselecteerde toevoegen als deelnemers')
+                        ->icon('heroicon-o-users')
                         ->requiresConfirmation()
-                        ->modalHeading('Geselecteerde registraties converteren')
-                        ->modalDescription('Weet je zeker dat je alle geselecteerde registraties wilt converteren naar deelnemers?')
-                        ->action(function ($records) {
-                            $converted = 0;
-                            $errors = [];
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (Collection $records) {
+                            $addedCount = 0;
                             
                             foreach ($records as $record) {
-                                if (!$record->converted_to_participant && in_array($record->status, ['bevestigd', 'aangemeld'])) {
-                                    try {
-                                        $record->convertToParticipant();
-                                        $converted++;
-                                    } catch (\Exception $e) {
-                                        $errors[] = "{$record->user->name}: {$e->getMessage()}";
-                                    }
+                                if (!$record->converted_to_participant) {
+                                    // Voeg de gebruiker toe als deelnemer met een lege score
+                                    $record->matches->gebruikersScores()->create([
+                                        'gebruiker_id' => $record->user_id,
+                                        'kaliber' => $record->caliber,
+                                        'totale_punten' => 0,
+                                        'linker_kaart_6' => 0,
+                                        'linker_kaart_7' => 0,
+                                        'linker_kaart_8' => 0,
+                                        'linker_kaart_9' => 0,
+                                        'linker_kaart_10' => 0,
+                                        'rechter_kaart_6' => 0,
+                                        'rechter_kaart_7' => 0,
+                                        'rechter_kaart_8' => 0,
+                                        'rechter_kaart_9' => 0,
+                                        'rechter_kaart_10' => 0,
+                                        'aantal_schoten_buiten_tijd' => 0,
+                                        'afwaarderingen' => 0,
+                                    ]);
+                                    
+                                    // Update de registratie status
+                                    $record->update([
+                                        'status' => 'aanwezig',
+                                        'converted_to_participant' => true,
+                                    ]);
+                                    
+                                    $addedCount++;
                                 }
                             }
-                            
-                            if ($converted > 0) {
-                                Notification::make()
-                                    ->title("Deelnemers toegevoegd")
-                                    ->body("{$converted} registraties zijn succesvol geconverteerd naar deelnemers.")
-                                    ->success()
-                                    ->send();
-                            }
-                            
-                            if (!empty($errors)) {
-                                Notification::make()
-                                    ->title('Enkele fouten opgetreden')
-                                    ->body(implode(', ', $errors))
-                                    ->warning()
-                                    ->send();
-                            }
-                        }),
-                    Tables\Actions\DeleteBulkAction::make(),
+
+                            Notification::make()
+                                ->title($addedCount . ' deelnemer(s) toegevoegd')
+                                ->success()
+                                ->send();
+                        })
                 ]),
             ]);
     }

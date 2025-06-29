@@ -4,6 +4,7 @@ namespace App\Filament\Resources\MatchesResource\Pages;
 
 use App\Filament\Resources\MatchesResource;
 use App\Models\User;
+use DateTime;
 use Illuminate\Support\Facades\Log;
 use Filament\Actions;
 use Filament\Forms;
@@ -15,6 +16,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Form;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Support\Enums\ActionSize;
 use Filament\Forms\Components\Actions\Action as FormAction;
 
@@ -81,6 +83,9 @@ class EditMatches extends EditRecord
                             'afgelopen' => 'Afgelopen',
                             'geannuleerd' => 'Geannuleerd',
                         ])
+                        ->required(),
+                    DateTimePicker::make('start_datum')
+                        ->label('Startdatum')
                         ->required(),
                 ])
                 ->columns(2),

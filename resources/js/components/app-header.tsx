@@ -120,6 +120,16 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                         )}
                                     </NavigationMenuItem>
                                 ))}
+                                <NavigationMenuItem>
+                                    <Link href="/activiteiten" className={navigationMenuTriggerStyle()}>
+                                        Activiteiten
+                                    </Link>
+                                </NavigationMenuItem>
+                                <NavigationMenuItem>
+                                    <Link href="/leden" className={navigationMenuTriggerStyle()}>
+                                        Ledencontact
+                                    </Link>
+                                </NavigationMenuItem>
                             </NavigationMenuList>
                         </NavigationMenu>
                     </div>

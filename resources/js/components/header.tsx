@@ -130,12 +130,17 @@ export default function Header() {
                                     </Link>
                                 </NavigationMenuItem>
                                 <NavigationMenuItem>
-                                    <Link href={route("activiteiten")}>
-                                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                    <Link href="/activiteiten" className={navigationMenuTriggerStyle()}>
                                         Activiteiten
-                                        </NavigationMenuLink>
                                     </Link>
                                 </NavigationMenuItem>
+                                {auth?.user && (
+                                    <NavigationMenuItem>
+                                        <Link href="/leden" className={navigationMenuTriggerStyle()}>
+                                            Ledencontact
+                                        </Link>
+                                    </NavigationMenuItem>
+                                )}
                                 <NavigationMenuItem>
                                     <Link href={route("organisatie")}>
                                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>

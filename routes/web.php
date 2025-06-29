@@ -12,13 +12,17 @@ use App\Http\Controllers\PublicController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\MembershipApplicationController;
 use App\Http\Controllers\PublicScoresController;
+use App\Http\Controllers\MemberContactController;
 
 // Public homepage - accessible to everyone, invites visitors to join
 Route::get('/', [PublicController::class, 'index'])->name('home');
 
-// Membership application route - public access
+// Membership application routes
 Route::post('/lidmaatschap-aanvragen', [MembershipApplicationController::class, 'store'])->name('membership.apply');
 Route::get('/lidmaatschap-succes', [MembershipApplicationController::class, 'success'])->name('membership.success');
+Route::get('/lidmaatschap-gesloten', function () {
+    return Inertia::render('membership/closed');
+})->name('membership.closed');
 
 // Test route for urgent banner functionality
 Route::get('/test-urgent', function () {
@@ -99,6 +103,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/wedstrijd/{id}/aanmelden', [WedstrijdenController::class, 'register'])->name('wedstrijd.register');
     Route::delete('/wedstrijd/{id}/afmelden', [WedstrijdenController::class, 'unregister'])->name('wedstrijd.unregister');
     Route::get('/wedstrijd/{id}/deelnemers', [WedstrijdenController::class, 'participants'])->name('wedstrijd.participants');
+
+    // Member contact routes
+    Route::get('/leden', [MemberContactController::class, 'index'])->name('leden.contact');
+    Route::post('/leden/privacy-settings', [MemberContactController::class, 'updatePrivacySettings'])->name('leden.privacy');
+    Route::post('/leden/update-profile', [MemberContactController::class, 'updateProfile'])->name('leden.profile');
 });
 
 // User Dashboard routes (protected by auth middleware)
@@ -116,11 +125,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // Legacy match registration routes (for backward compatibility) - moved to auth middleware above
 
-// Public scores page
-Route::get('/scores/openbaar', [PublicScoresController::class, 'index'])->name('scores.public');
+// Public scores overview page
+Route::get('/scores/openbaar', [PublicScoresController::class, 'index'])
+    ->name('scores.public')
+    ->middleware(['auth']);
 
 // Public scores detail page
-Route::get('/scores/openbaar/{user}', [PublicScoresController::class, 'show'])->name('scores.public.user');
+Route::get('/scores/openbaar/{user}', [PublicScoresController::class, 'show'])
+    ->name('scores.public.user')
+    ->middleware(['auth']);
 
 // Fallback route for 404 errors
 Route::fallback(function () {
