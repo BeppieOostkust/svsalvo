@@ -287,7 +287,6 @@ export default function Activiteiten() {
                     </div>
                 )}
             </div>
-            {/* <Footer /> */}
         </>
     );
 }
