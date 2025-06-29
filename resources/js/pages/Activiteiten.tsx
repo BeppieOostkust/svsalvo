@@ -3,6 +3,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import Header from '@/components/header';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import Footer from '@/components/footer';
 
 interface Activity {
     id: number;
@@ -286,6 +287,7 @@ export default function Activiteiten() {
                     </div>
                 )}
             </div>
+            {/* <Footer /> */}
         </>
     );
 }

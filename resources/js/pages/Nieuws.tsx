@@ -79,7 +79,7 @@ export default function Nieuws() {
                             <Link
                                 key={article.id}
                                 href={`/nieuws/${article.slug}`}
-                                className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 block relative flex flex-col h-full ${
+                                className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 relative flex flex-col h-full ${
                                     article.is_urgent ? 'ring-2 ring-red-500 shadow-red-100' : ''
                                 }`}
                             >
