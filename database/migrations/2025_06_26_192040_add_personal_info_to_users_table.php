@@ -16,7 +16,12 @@ return new class extends Migration
             $table->string('first_name')->nullable()->after('name');
             $table->string('last_name')->nullable()->after('first_name');
             $table->date('date_of_birth')->nullable()->after('last_name');
-            $table->string('phone')->nullable()->after('date_of_birth');
+            
+            // Only add phone if it doesn't already exist
+            if (!Schema::hasColumn('users', 'phone')) {
+                $table->string('phone')->nullable()->after('date_of_birth');
+            }
+            
             $table->text('address')->nullable()->after('phone');
             $table->string('city')->nullable()->after('address');
             $table->string('postal_code')->nullable()->after('city');
