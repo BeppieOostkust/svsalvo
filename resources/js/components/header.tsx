@@ -134,13 +134,13 @@ export default function Header() {
                                         Activiteiten
                                     </Link>
                                 </NavigationMenuItem>
-                                <NavigationMenuItem>
+                                {/* <NavigationMenuItem>
                                     <Link href={route("vereniging")}>
                                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                                         Leden
                                         </NavigationMenuLink>
                                     </Link>
-                                </NavigationMenuItem>
+                                </NavigationMenuItem> */}
                                 <NavigationMenuItem>
                                     <Link href={route("organisatie")}>
                                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
