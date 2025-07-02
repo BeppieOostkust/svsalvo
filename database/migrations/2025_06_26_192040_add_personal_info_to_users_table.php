@@ -13,39 +13,77 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             // Personal Information
-            $table->string('first_name')->nullable()->after('name');
-            $table->string('last_name')->nullable()->after('first_name');
-            $table->date('date_of_birth')->nullable()->after('last_name');
+            if (!Schema::hasColumn('users', 'first_name')) {
+                $table->string('first_name')->nullable()->after('name');
+            }
+            if (!Schema::hasColumn('users', 'last_name')) {
+                $table->string('last_name')->nullable()->after('first_name');
+            }
+            if (!Schema::hasColumn('users', 'date_of_birth')) {
+                $table->date('date_of_birth')->nullable()->after('last_name');
+            }
             
             // Only add phone if it doesn't already exist
             if (!Schema::hasColumn('users', 'phone')) {
                 $table->string('phone')->nullable()->after('date_of_birth');
             }
             
-            $table->text('address')->nullable()->after('phone');
-            $table->string('city')->nullable()->after('address');
-            $table->string('postal_code')->nullable()->after('city');
-            $table->string('country')->default('Nederland')->after('postal_code');
+            if (!Schema::hasColumn('users', 'address')) {
+                $table->text('address')->nullable()->after('phone');
+            }
+            if (!Schema::hasColumn('users', 'city')) {
+                $table->string('city')->nullable()->after('address');
+            }
+            if (!Schema::hasColumn('users', 'postal_code')) {
+                $table->string('postal_code')->nullable()->after('city');
+            }
+            if (!Schema::hasColumn('users', 'country')) {
+                $table->string('country')->default('Nederland')->after('postal_code');
+            }
             
             // Club/Organization Information (optional - for board members etc.)
-            $table->string('position')->nullable()->after('country'); // Chairman, Secretary, etc.
-            $table->text('bio')->nullable()->after('position');
-            $table->string('profile_image')->nullable()->after('bio');
-            $table->boolean('show_in_organization')->default(false)->after('profile_image');
-            $table->integer('organization_sort_order')->default(0)->after('show_in_organization');
-            $table->date('member_since')->nullable()->after('organization_sort_order');
+            if (!Schema::hasColumn('users', 'position')) {
+                $table->string('position')->nullable()->after('country'); // Chairman, Secretary, etc.
+            }
+            if (!Schema::hasColumn('users', 'bio')) {
+                $table->text('bio')->nullable()->after('position');
+            }
+            if (!Schema::hasColumn('users', 'profile_image')) {
+                $table->string('profile_image')->nullable()->after('bio');
+            }
+            if (!Schema::hasColumn('users', 'show_in_organization')) {
+                $table->boolean('show_in_organization')->default(false)->after('profile_image');
+            }
+            if (!Schema::hasColumn('users', 'organization_sort_order')) {
+                $table->integer('organization_sort_order')->default(0)->after('show_in_organization');
+            }
+            if (!Schema::hasColumn('users', 'member_since')) {
+                $table->date('member_since')->nullable()->after('organization_sort_order');
+            }
             
             // Shooting Information
-            $table->string('preferred_discipline')->nullable()->after('member_since'); // pistol, rifle, etc.
-            $table->string('license_number')->nullable()->after('preferred_discipline');
-            $table->date('license_expiry')->nullable()->after('license_number');
+            if (!Schema::hasColumn('users', 'preferred_discipline')) {
+                $table->string('preferred_discipline')->nullable()->after('member_since'); // pistol, rifle, etc.
+            }
+            if (!Schema::hasColumn('users', 'license_number')) {
+                $table->string('license_number')->nullable()->after('preferred_discipline');
+            }
+            if (!Schema::hasColumn('users', 'license_expiry')) {
+                $table->date('license_expiry')->nullable()->after('license_number');
+            }
             
             // Privacy Settings
-            $table->boolean('show_contact_info')->default(false)->after('license_expiry');
-            $table->boolean('show_scores_public')->default(true)->after('show_contact_info');
+            if (!Schema::hasColumn('users', 'show_contact_info')) {
+                $table->boolean('show_contact_info')->default(false)->after('license_expiry');
+            }
+            if (!Schema::hasColumn('users', 'show_scores_public')) {
+                $table->boolean('show_scores_public')->default(true)->after('show_contact_info');
+            }
             
             // Status
-            $table->boolean('is_active_member')->default(true)->after('is_admin');
+            if (!Schema::hasColumn('users', 'is_active_member')) {
+                $table->boolean('is_active_member')->default(true)->after('is_admin');
+            }
         });
     }
 
