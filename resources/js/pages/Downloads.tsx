@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Head, Link, usePage } from '@inertiajs/react';
 import Header from '@/components/header';
+import Layout from '@/components/Layout';
 
 interface Download {
     id: number;
@@ -163,9 +164,9 @@ export default function Downloads() {
     const allDownloads = Object.values(downloads).flat();
 
     return (
-        <>
+        <Layout>
             <Head title="Downloads" />
-            <Header />
+            
             
             <div className="w-[90%] mx-auto px-4 py-8">
                 {/* Header */}
@@ -260,6 +261,6 @@ export default function Downloads() {
                     </div>
                 )}
             </div>
-        </>
+        </Layout>
     );
 }

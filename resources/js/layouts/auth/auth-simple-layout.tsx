@@ -32,7 +32,6 @@ export default function AuthSimpleLayout({ children, title, description }: Props
                     </div>
                 </div>
             </div>
-            <Footer />
         </div>
     );
 }

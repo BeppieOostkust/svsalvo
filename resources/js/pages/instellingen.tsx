@@ -1,12 +1,13 @@
 import React from 'react';
 import { Head } from '@inertiajs/react';
 import Header from '@/components/header';
+import Layout from '@/components/Layout';
 
 export default function Instellingen() {
     return (
-        <>
+        <Layout>
             <Head title="Instellingen" />
-            <Header />
+            
             
             <div className="w-[90%] mx-auto px-4 py-8">
                 {/* Header */}
@@ -250,6 +251,6 @@ export default function Instellingen() {
                     </div>
                 </div>
             </div>
-        </>
+        </Layout>
     );
 }

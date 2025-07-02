@@ -27,6 +27,14 @@ class ArticleResource extends Resource
     
     protected static ?string $pluralModelLabel = 'artikelen';
 
+    protected static ?string $navigationGroup = 'Content Beheer';
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        return $user && ($user->canAccessAll() || $user->is_admin);
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -225,6 +233,12 @@ class ArticleResource extends Resource
     public static function getNavigationGroup(): ?string
     {
         return 'Algemene Beheer';
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = auth()->user();
+        return $user && ($user->canAccessAll() || $user->is_admin);
     }
 
     public static function getPages(): array

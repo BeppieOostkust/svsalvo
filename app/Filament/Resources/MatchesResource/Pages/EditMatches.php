@@ -443,11 +443,6 @@ class EditMatches extends EditRecord
             'record' => $this->record,
         ];
     }
-    
-    public function getView(): string
-    {
-        return 'filament.resources.matches-resource.pages.edit-matches';
-    }
 
     // For refreshing list after save
     protected function getRedirectUrl(): ?string
@@ -460,5 +455,15 @@ class EditMatches extends EditRecord
         
         // Stay on the same page by default
         return null;
+    }
+
+    public function hasCombinedRelationManagerTabsWithContent(): bool
+    {
+        return true;
+    }
+
+    public function getRelationManagers(): array
+    {
+        return $this->getResource()::getRelations();
     }
 }

@@ -3,6 +3,7 @@ import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import Header from '@/components/header';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import Layout from '@/components/Layout';
 
 interface ActivityRegistration {
     id: number;
@@ -143,9 +144,9 @@ export default function ActivityDetail() {
     const isRegistrationExpired = activity.registration_deadline && new Date() > new Date(activity.registration_deadline);
 
     return (
-        <>
+        <Layout>
             <Head title={activity.title} />
-            <Header />
+            
             
             <div className="w-[90%] mx-auto px-4 py-8">
                 {/* Breadcrumb */}
@@ -390,6 +391,6 @@ export default function ActivityDetail() {
                     </div>
                 </div>
             </div>
-        </>
+        </Layout>
     );
 }

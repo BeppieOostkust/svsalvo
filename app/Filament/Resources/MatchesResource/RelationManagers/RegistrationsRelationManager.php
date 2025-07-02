@@ -22,6 +22,22 @@ class RegistrationsRelationManager extends RelationManager
 
     protected static ?string $recordTitleAttribute = 'id';
 
+    public function getTableHeading(): string
+    {
+        $totalCount = $this->getOwnerRecord()->registrations()->count();
+        $pendingCount = $this->getOwnerRecord()
+            ->registrations()
+            ->whereIn('status', ['aangemeld', 'bevestigd'])
+            ->where('converted_to_participant', false)
+            ->count();
+        $participantCount = $this->getOwnerRecord()
+            ->registrations()
+            ->where('converted_to_participant', true)
+            ->count();
+            
+        return "Aanmeldingen ({$totalCount} totaal, {$pendingCount} wachtend, {$participantCount} deelnemers)";
+    }
+
     public function form(Form $form): Form
     {
         return $form
@@ -109,6 +125,76 @@ class RegistrationsRelationManager extends RelationManager
                         $data['registered_at'] = now();
                         return $data;
                     }),
+                
+                Tables\Actions\Action::make('convertAllPending')
+                    ->label('🚀 Alle aangemelde toevoegen als deelnemers')
+                    ->icon('heroicon-o-user-group')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Alle aangemelde gebruikers toevoegen als deelnemers')
+                    ->modalDescription('Dit zal alle aangemelde gebruikers (status: aangemeld of bevestigd) die nog geen deelnemer zijn toevoegen als deelnemers met lege scores.')
+                    ->modalSubmitActionLabel('Ja, voeg alle toe')
+                    ->action(function () {
+                        $pendingRegistrations = $this->getOwnerRecord()
+                            ->registrations()
+                            ->whereIn('status', ['aangemeld', 'bevestigd'])
+                            ->where('converted_to_participant', false)
+                            ->get();
+                        
+                        $addedCount = 0;
+                        $addedNames = [];
+                        
+                        foreach ($pendingRegistrations as $registration) {
+                            // Voeg de gebruiker toe als deelnemer met een lege score
+                            $registration->match->gebruikersScores()->create([
+                                'gebruiker_id' => $registration->user_id,
+                                'kaliber' => $registration->caliber,
+                                'totale_punten' => 0,
+                                'linker_kaart_6' => 0,
+                                'linker_kaart_7' => 0,
+                                'linker_kaart_8' => 0,
+                                'linker_kaart_9' => 0,
+                                'linker_kaart_10' => 0,
+                                'rechter_kaart_6' => 0,
+                                'rechter_kaart_7' => 0,
+                                'rechter_kaart_8' => 0,
+                                'rechter_kaart_9' => 0,
+                                'rechter_kaart_10' => 0,
+                                'aantal_schoten_buiten_tijd' => 0,
+                                'afwaarderingen' => 0,
+                            ]);
+                            
+                            // Update de registratie status
+                            $registration->update([
+                                'status' => 'aanwezig',
+                                'converted_to_participant' => true,
+                            ]);
+                            
+                            $addedCount++;
+                            $addedNames[] = $registration->user->name;
+                        }
+                        
+                        if ($addedCount > 0) {
+                            Notification::make()
+                                ->title('Alle aangemelde deelnemers toegevoegd')
+                                ->body($addedCount . ' deelnemer(s) toegevoegd: ' . implode(', ', $addedNames))
+                                ->success()
+                                ->persistent()
+                                ->send();
+                        } else {
+                            Notification::make()
+                                ->title('Geen aanmeldingen om toe te voegen')
+                                ->body('Alle aangemelde gebruikers zijn al deelnemers.')
+                                ->warning()
+                                ->send();
+                        }
+                    })
+                    ->visible(fn () => $this->getOwnerRecord()
+                        ->registrations()
+                        ->whereIn('status', ['aangemeld', 'bevestigd'])
+                        ->where('converted_to_participant', false)
+                        ->exists()
+                    ),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -119,7 +205,7 @@ class RegistrationsRelationManager extends RelationManager
                     ->requiresConfirmation()
                     ->action(function ($record) {
                         // Voeg de gebruiker toe als deelnemer met een lege score
-                        $record->matches->gebruikersScores()->create([
+                        $record->match->gebruikersScores()->create([
                             'gebruiker_id' => $record->user_id,
                             'kaliber' => $record->caliber,
                             'totale_punten' => 0,
@@ -152,19 +238,24 @@ class RegistrationsRelationManager extends RelationManager
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\BulkAction::make('convertSelected')
-                        ->label('Geselecteerde toevoegen als deelnemers')
-                        ->icon('heroicon-o-users')
+                        ->label('✅ Toevoegen als deelnemers')
+                        ->icon('heroicon-o-user-plus')
+                        ->color('success')
                         ->requiresConfirmation()
+                        ->modalHeading('Geselecteerde aanmeldingen toevoegen als deelnemers')
+                        ->modalDescription('Weet je zeker dat je de geselecteerde aanmeldingen wilt toevoegen als deelnemers? Ze krijgen lege scores die je later kunt invullen.')
+                        ->modalSubmitActionLabel('Ja, toevoegen als deelnemers')
                         ->deselectRecordsAfterCompletion()
                         ->action(function (Collection $records) {
                             $addedCount = 0;
+                            $skippedCount = 0;
+                            $addedNames = [];
                             
                             foreach ($records as $record) {
                                 if (!$record->converted_to_participant) {
                                     // Voeg de gebruiker toe als deelnemer met een lege score
-                                    $record->matches->gebruikersScores()->create([
+                                    $record->match->gebruikersScores()->create([
                                         'gebruiker_id' => $record->user_id,
                                         'kaliber' => $record->caliber,
                                         'totale_punten' => 0,
@@ -189,14 +280,74 @@ class RegistrationsRelationManager extends RelationManager
                                     ]);
                                     
                                     $addedCount++;
+                                    $addedNames[] = $record->user->name;
+                                } else {
+                                    $skippedCount++;
                                 }
                             }
 
+                            $message = $addedCount . ' deelnemer(s) toegevoegd';
+                            if ($skippedCount > 0) {
+                                $message .= ' (' . $skippedCount . ' overgeslagen omdat ze al deelnemers waren)';
+                            }
+                            
+                            if ($addedCount > 0) {
+                                $message .= ': ' . implode(', ', $addedNames);
+                            }
+
                             Notification::make()
-                                ->title($addedCount . ' deelnemer(s) toegevoegd')
+                                ->title('Deelnemers toegevoegd')
+                                ->body($message)
+                                ->success()
+                                ->persistent()
+                                ->send();
+                        }),
+                    
+                    Tables\Actions\BulkAction::make('bulkUpdateStatus')
+                        ->label('📝 Status wijzigen')
+                        ->icon('heroicon-o-pencil-square')
+                        ->color('warning')
+                        ->form([
+                            Forms\Components\Select::make('status')
+                                ->label('Nieuwe status')
+                                ->options([
+                                    'aangemeld' => 'Aangemeld',
+                                    'bevestigd' => 'Bevestigd',
+                                    'afgemeld' => 'Afgemeld',
+                                    'aanwezig' => 'Aanwezig',
+                                    'afwezig' => 'Afwezig',
+                                ])
+                                ->required(),
+                        ])
+                        ->action(function (Collection $records, array $data) {
+                            $updatedCount = 0;
+                            
+                            foreach ($records as $record) {
+                                $record->update(['status' => $data['status']]);
+                                $updatedCount++;
+                            }
+
+                            Notification::make()
+                                ->title($updatedCount . ' aanmelding(en) bijgewerkt')
                                 ->success()
                                 ->send();
                         })
+                        ->deselectRecordsAfterCompletion(),
+                    
+                    Tables\Actions\BulkAction::make('selectAll')
+                        ->label('🎯 Alle niet-geconverteerde selecteren')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('info')
+                        ->action(function () {
+                            // This will be handled by JavaScript to select all non-converted records
+                            $this->dispatch('selectNonConverted');
+                        }),
+                        
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->label('🗑️ Verwijderen')
+                        ->requiresConfirmation()
+                        ->modalHeading('Geselecteerde aanmeldingen verwijderen')
+                        ->modalDescription('Weet je zeker dat je deze aanmeldingen wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.'),
                 ]),
             ]);
     }

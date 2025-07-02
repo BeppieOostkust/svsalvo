@@ -10,7 +10,7 @@ export default function TestUrgent() {
         <div className="min-h-screen bg-gray-50">
             <Head title="Test Urgent Banner" />
             
-            <Header />
+            
             
             <div className="max-w-4xl mx-auto py-8 px-4">
                 <h1 className="text-3xl font-bold mb-6">Test Urgent Banner</h1>

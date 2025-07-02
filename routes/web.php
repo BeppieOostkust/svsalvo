@@ -13,6 +13,7 @@ use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\MembershipApplicationController;
 use App\Http\Controllers\PublicScoresController;
 use App\Http\Controllers\MemberContactController;
+use App\Http\Controllers\PasswordChangeController;
 
 // Public homepage - accessible to everyone, invites visitors to join
 Route::get('/', [PublicController::class, 'index'])->name('home');
@@ -62,7 +63,7 @@ Route::get('/debug-urgent', function () {
 })->middleware('auth');
 
 // Protected routes - only for authenticated users
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'legal.check'])->group(function () {
     // Authenticated member homepage
     Route::get('/home', [HomeController::class, 'index'])->name('dashboard.home');
     
@@ -92,7 +93,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('instellingen');
 
     Route::get('/regels', function () {
-        return Inertia::render('regels');
+        $rules = \App\Models\Rule::active()->ordered()->get();
+        $prices = \App\Models\Price::active()->ordered()->get();
+        
+        return Inertia::render('regels', [
+            'rules' => $rules,
+            'prices' => $prices,
+        ]);
     })->name('regels');
 
     // Match routes
@@ -111,7 +118,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // User Dashboard routes (protected by auth middleware)
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'legal.check'])->group(function () {
     Route::get('dashboard', [\App\Http\Controllers\UserDashboardController::class, 'index'])->name('dashboard');
     Route::get('profile', [\App\Http\Controllers\UserDashboardController::class, 'profile'])->name('profile');
     Route::patch('profile', [\App\Http\Controllers\UserDashboardController::class, 'updateProfile'])->name('profile.update');
@@ -144,6 +151,12 @@ Route::fallback(function () {
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
 
+// Password change routes (must be accessible when password change is required)
+Route::middleware('auth')->group(function () {
+    Route::get('/change-password', [PasswordChangeController::class, 'showForm'])->name('password.change.form');
+    Route::post('/change-password', [PasswordChangeController::class, 'change'])->name('password.change');
+});
+
 // Debug routes - Only available in local environment
 if (config('app.env') === 'local') {
     Route::prefix('debug')->name('debug.')->group(function () {
@@ -168,3 +181,9 @@ if (config('app.env') === 'local') {
         })->name('users');
     });
 }
+
+// Verenigingspagina route
+Route::get('/vereniging', [App\Http\Controllers\VereenigingController::class, 'index'])->name('vereniging')->middleware(['auth']);
+
+// Legal routes
+require __DIR__.'/legal.php';

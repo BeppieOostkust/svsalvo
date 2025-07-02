@@ -134,13 +134,13 @@ export default function Header() {
                                         Activiteiten
                                     </Link>
                                 </NavigationMenuItem>
-                                {auth?.user && (
-                                    <NavigationMenuItem>
-                                        <Link href="/leden" className={navigationMenuTriggerStyle()}>
-                                            Ledencontact
-                                        </Link>
-                                    </NavigationMenuItem>
-                                )}
+                                <NavigationMenuItem>
+                                    <Link href={route("vereniging")}>
+                                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                        Leden
+                                        </NavigationMenuLink>
+                                    </Link>
+                                </NavigationMenuItem>
                                 <NavigationMenuItem>
                                     <Link href={route("organisatie")}>
                                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
@@ -167,12 +167,22 @@ export default function Header() {
                     </nav>
                 </div>
                 {auth.user ? (
-                    <Link
-                        href={route('dashboard')}
-                    >
-                        <Button>Dashboard</Button>
-                        
-                    </Link>
+                    <div className="flex gap-2">
+                        <Link
+                            href={route('dashboard')}
+                        >
+                            <Button>Dashboard</Button>
+                        </Link>
+                        {(auth.user.is_admin || (auth.user.roles && auth.user.roles.length > 0)) && (
+                            <Link
+                                href="/admin"
+                            >
+                                <Button variant="outline" className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700">
+                                    Admin
+                                </Button>
+                            </Link>
+                        )}
+                    </div>
                 ) : (
                     <div className="flex gap-2">
                         <Link

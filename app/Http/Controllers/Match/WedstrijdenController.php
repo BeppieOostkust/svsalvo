@@ -15,8 +15,11 @@ class WedstrijdenController extends Controller
 {
     public function index()
     {
-        // Fetch matches with related gebruikersScores and their users
-        $matches = Matches::with(['gebruikersScores.gebruiker'])
+        // Fetch matches with related gebruikersScores, registrations and their users
+        $matches = Matches::with([
+                'gebruikersScores.gebruiker',
+                'registrations.user'
+            ])
             ->orderBy('start_datum', 'desc')
             ->get();
         

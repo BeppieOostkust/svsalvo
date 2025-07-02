@@ -116,9 +116,9 @@ export default function UserScores({ user, scores }: PageProps) {
     };
 
     return (
-        <>
+        <Layout>
             <Head title={`Scores van ${user.first_name || user.name}`} />
-            <Header />
+            
 
             <div className="w-[90%] mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {/* User Header */}
@@ -301,6 +301,6 @@ export default function UserScores({ user, scores }: PageProps) {
                     </Link>
                 </div>
             </div>
-        </>
+        </Layout>
     );
 }

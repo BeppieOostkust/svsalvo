@@ -1,6 +1,6 @@
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import Header from '@/components/header';
+import Layout from '@/components/Layout';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 
@@ -16,16 +16,14 @@ export default function Home() {
     const { auth, latestNews, featuredNews, upcomingActivities, upcomingMatches, partners } = usePage<HomeProps>().props;
 
     return (
-        <>
+        <Layout>
             <Head title="Schietvereniging De Moes - Home">
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" />
                 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet" />
             </Head>
             
-            <Header />
-
-            <main className="min-h-screen bg-gray-50">
+            <main className="bg-gray-50">{/* remove min-h-screen as Layout handles this */}
                 {/* Hero Section */}
                 <section className="bg-gradient-to-r from-green-700 to-green-600 text-white py-20">
                     <div className="container mx-auto px-4">
@@ -277,6 +275,6 @@ export default function Home() {
                     </div>
                 </section>
             </main>
-        </>
+        </ Layout>
     );
 }

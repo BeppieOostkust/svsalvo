@@ -21,7 +21,19 @@ class ActivityResource extends Resource
     
     protected static ?string $navigationLabel = 'Activiteiten';
     
-    protected static ?string $navigationGroup = 'Algemene Beheer';
+    protected static ?string $navigationGroup = 'Activiteiten Beheer';
+    
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        return $user && ($user->canAccessActivities() || $user->is_admin);
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = auth()->user();
+        return $user && ($user->canAccessActivities() || $user->is_admin);
+    }
     
     protected static ?int $navigationSort = 10;
     

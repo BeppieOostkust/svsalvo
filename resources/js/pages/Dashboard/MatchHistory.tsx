@@ -92,9 +92,9 @@ export default function MatchHistory() {
     };
 
     return (
-        <>
+        <Layout>
             <Head title="Mijn Scores" />
-            <Header />
+            
             
             <div className="w-[90%] mx-auto px-4 py-8">
                 {/* Header */}
@@ -382,6 +382,6 @@ export default function MatchHistory() {
                     </div>
                 )}
             </div>
-        </>
+        </Layout>
     );
 }

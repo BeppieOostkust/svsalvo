@@ -44,6 +44,18 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
+                \App\Filament\Widgets\BlockedUsersWidget::class,
+                \App\Filament\Widgets\RecentBlockActionsWidget::class,
+            ])
+            ->navigationGroups([
+                'Dashboard',
+                'Leden Beheer', // Voor secretaris, webmaster, voorzitter
+                'Wedstrijd Beheer', // Voor wedstrijdcommisie
+                'Activiteiten Beheer', // Voor activiteitencommisie
+                'Financieel Beheer', // Voor kascommisie
+                'Content Beheer', // Voor secretaris, webmaster, voorzitter
+                'Organisatie', // Voor secretaris, webmaster, voorzitter
+                'Beheer', // Voor secretaris, webmaster, voorzitter
             ])
             ->plugins([
                 FilamentBackgroundsPlugin::make()

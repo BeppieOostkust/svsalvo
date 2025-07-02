@@ -56,6 +56,16 @@ export default function Footer() {
                                     KNSA
                                 </a>
                             </li>
+                            <li>
+                                <Link href={route('privacy-policy')} className="hover:text-white hover:underline">
+                                    Privacy Policy
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href={route('terms-conditions')} className="hover:text-white hover:underline">
+                                    Algemene Voorwaarden
+                                </Link>
+                            </li>
                         </ul>
                     </div>
                 </div>

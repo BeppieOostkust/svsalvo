@@ -2,6 +2,7 @@ import React from 'react';
 import { Head, usePage } from '@inertiajs/react';
 import Header from '@/components/header';
 import { type SharedData, type OrganizationPageProps } from '@/types';
+import Layout from '@/components/Layout';
 
 interface OrganizationData extends SharedData, OrganizationPageProps {}
 
@@ -36,9 +37,9 @@ export default function Organisatie() {
         return colors[color] || colors['blue'];
     };
     return (
-        <>
+        <Layout>
             <Head title="Organisatie" />
-            <Header />
+            
             
             <div className="w-[90%] mx-auto px-4 py-8">
                 {/* Header */}
@@ -191,7 +192,9 @@ export default function Organisatie() {
                                         <svg className="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                         </svg>
-                                        <span>{contactInfo.main.data.email}</span>
+                                        <a href={`mailto:${contactInfo.main.data.email}`} className="text-blue-600 hover:text-blue-800 transition-colors">
+                                            {contactInfo.main.data.email}
+                                        </a>
                                     </div>
                                 )}
                                 {contactInfo.main?.data?.phone && (
@@ -199,105 +202,136 @@ export default function Organisatie() {
                                         <svg className="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                         </svg>
-                                        <span>{contactInfo.main.data.phone}</span>
+                                        <a href={`tel:${contactInfo.main.data.phone}`} className="text-blue-600 hover:text-blue-800 transition-colors">
+                                            {contactInfo.main.data.phone}
+                                        </a>
+                                    </div>
+                                )}
+
+                                {/* Fallback contact info if no data is available */}
+                                {!contactInfo.main?.data?.email && !contactInfo.main?.data?.phone && (
+                                    <div className="space-y-3">
+                                        <div className="flex items-center">
+                                            <svg className="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                            <a href="mailto:info@ssvdemoes.nl" className="text-blue-600 hover:text-blue-800 transition-colors">
+                                                info@ssvdemoes.nl
+                                            </a>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <svg className="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                            </svg>
+                                            <a href="tel:+31162123456" className="text-blue-600 hover:text-blue-800 transition-colors">
+                                                0162 - 123 456
+                                            </a>
+                                        </div>
                                     </div>
                                 )}
                             </div>
                             
                             {/* Opening Hours */}
                             {contactInfo.hours && (
-                                <>
-                                    <h4 className="text-md font-semibold text-gray-900 mt-6 mb-3">
-                                        {contactInfo.hours.title}
+                                <div className="mt-6">
+                                    <h4 className="text-md font-semibold text-gray-900 mb-3">
+                                        {contactInfo.hours.title || 'Openingstijden'}
                                     </h4>
                                     <div className="space-y-2 text-sm">
                                         {contactInfo.hours.data?.hours && Array.isArray(contactInfo.hours.data.hours) ? 
                                             contactInfo.hours.data.hours.map((schedule: {day: string; hours: string}, index: number) => (
                                                 <div key={index} className="flex justify-between">
-                                                    <span>{schedule.day}</span>
+                                                    <span className="font-medium">{schedule.day}</span>
                                                     <span>{schedule.hours}</span>
                                                 </div>
                                             ))
                                         : contactInfo.hours.data && typeof contactInfo.hours.data === 'object' && 
                                             Object.entries(contactInfo.hours.data).map(([day, hours]: [string, any]) => (
                                                 <div key={day} className="flex justify-between">
-                                                    <span>{day}</span>
+                                                    <span className="font-medium">{day}</span>
                                                     <span>{hours}</span>
                                                 </div>
                                             ))
                                         }
                                     </div>
-                                </>
+                                </div>
                             )}
                         </div>
 
-                        {/* Address */}
+                        {/* Address & Map */}
                         <div className="bg-white rounded-lg shadow-md p-6">
                             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                                {contactInfo.address?.title || 'Adres'}
+                                Bezoekadres
                             </h3>
-                            <div className="space-y-3">
-                                {contactInfo.address?.data && (
+                            
+                            {/* Address */}
+                            <div className="mb-6">
+                                {contactInfo.address?.data ? (
                                     <div className="flex items-start">
                                         <svg className="w-5 h-5 text-gray-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                         </svg>
                                         <div>
-                                            {contactInfo.address.data.street && <div>{contactInfo.address.data.street}</div>}
+                                            {contactInfo.address.data.street && <div className="font-medium">{contactInfo.address.data.street}</div>}
                                             {contactInfo.address.data.postal_code && contactInfo.address.data.city && (
-                                                <div>{contactInfo.address.data.postal_code} {contactInfo.address.data.city}</div>
+                                                <div className="text-gray-600">{contactInfo.address.data.postal_code} {contactInfo.address.data.city}</div>
                                             )}
-                                            {contactInfo.address.data.country && <div>{contactInfo.address.data.country}</div>}
+                                            {contactInfo.address.data.country && <div className="text-gray-600">{contactInfo.address.data.country}</div>}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-start">
+                                        <svg className="w-5 h-5 text-gray-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <div>
+                                            <div className="font-medium">De Schacht 5</div>
+                                            <div className="text-gray-600">5107 RD Dongen</div>
+                                            <div className="text-gray-600">Nederland</div>
                                         </div>
                                     </div>
                                 )}
                             </div>
                             
-                            <div className="mt-4">
-                                {contactInfo.address?.data ? (
-                                    <div className="space-y-3">
-                                        {/* Google Maps Embed */}
-                                        <div className="w-full h-64 bg-gray-200 rounded-lg overflow-hidden">
-                                            <iframe
-                                                src={`https://www.google.com/maps?q=${encodeURIComponent(
-                                                    'De Schacht 5, 5107 RD Dongen, Nederland'
-                                                )}&output=embed`}
-                                                width="100%"
-                                                height="100%"
-                                                style={{ border: 0 }}
-                                                allowFullScreen
-                                                loading="lazy"
-                                                referrerPolicy="no-referrer-when-downgrade"
-                                                title="Locatie op Google Maps"
-                                            ></iframe>
-                                        </div>
-                                        
-                                        {/* Google Maps Link */}
-                                        <div className="flex justify-center">
-                                            <a
-                                                href="https://maps.app.goo.gl/SGMjk71W4rH9JT7g7"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                                            >
-                                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                </svg>
-                                                Bekijk in Google Maps
-                                            </a>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="w-full h-32 bg-gray-200 rounded-lg flex items-center justify-center">
-                                        <span className="text-gray-500">Geen adresgegevens beschikbaar</span>
-                                    </div>
-                                )}
+                            {/* Google Maps */}
+                            <div className="space-y-3">
+                                {/* Google Maps Embed */}
+                                <div className="w-full h-64 bg-gray-200 rounded-lg overflow-hidden">
+                                    <iframe
+                                        src={`https://www.google.com/maps?q=${encodeURIComponent(
+                                            'De Schacht 5, 5107 RD Dongen, Nederland'
+                                        )}&output=embed`}
+                                        width="100%"
+                                        height="100%"
+                                        style={{ border: 0 }}
+                                        allowFullScreen
+                                        loading="lazy"
+                                        referrerPolicy="no-referrer-when-downgrade"
+                                        title="Locatie op Google Maps"
+                                    ></iframe>
+                                </div>
+                                
+                                {/* Google Maps Link */}
+                                <div className="flex justify-center">
+                                    <a
+                                        href="https://maps.app.goo.gl/SGMjk71W4rH9JT7g7"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                    >
+                                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                        Bekijk in Google Maps
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </>
+        </Layout>
     );
 }

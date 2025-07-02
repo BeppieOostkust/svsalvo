@@ -1,6 +1,6 @@
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import Footer from '@/components/footer';
+import Layout from '@/components/Layout';
 
 interface PublicHomeProps extends SharedData {
     featuredNews: any[];
@@ -222,7 +222,6 @@ export default function PublicHome() {
                     </div>
                 </section>
             </main>
-            <Footer />
         </>
     );
 }

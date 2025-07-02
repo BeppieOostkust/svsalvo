@@ -3,6 +3,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import Header from '@/components/header';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import Layout from '@/components/Layout';
 
 interface Activity {
     id: number;
@@ -110,9 +111,9 @@ export default function Activiteiten() {
     };
 
     return (
-        <>
+        <Layout>
             <Head title="Activiteiten" />
-            <Header />
+            
             
             <div className="w-[90%] mx-auto px-4 py-8">
                 {/* Header */}
@@ -286,6 +287,6 @@ export default function Activiteiten() {
                     </div>
                 )}
             </div>
-        </>
+        </Layout>
     );
 }

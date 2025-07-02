@@ -75,6 +75,7 @@ class UserDashboardController extends Controller
             'preferred_discipline' => 'nullable|string|max:255',
             'show_contact_info' => 'boolean',
             'show_scores_public' => 'boolean',
+            'show_in_participants' => 'boolean',
         ]);
 
         // Validate profile image separately to handle both file uploads and remove action

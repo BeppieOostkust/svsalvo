@@ -13,6 +13,16 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::observe(\App\Observers\UserObserver::class);
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
@@ -42,7 +52,16 @@ class User extends Authenticatable
         'license_expiry',
         'show_contact_info',
         'show_scores_public',
+        'show_in_participants',
         'is_active_member',
+        'membership_status',
+        'membership_number',
+        'is_blocked',
+        'blocked_reason',
+        'blocked_at',
+        'password_change_required',
+        'email_verified_at',
+        'roles',
     ];
 
     /**
@@ -73,7 +92,11 @@ class User extends Authenticatable
             'show_contact_info' => 'boolean',
             'show_scores_public' => 'boolean',
             'is_active_member' => 'boolean',
+            'is_blocked' => 'boolean',
             'organization_sort_order' => 'integer',
+            'blocked_at' => 'datetime',
+            'password_change_required' => 'boolean',
+            'roles' => 'array',
         ];
     }
 
@@ -108,10 +131,13 @@ class User extends Authenticatable
      */
     public function getFullNameAttribute(): string
     {
-        if ($this->first_name && $this->last_name) {
-            return $this->first_name . ' ' . $this->last_name;
+        // Check if first_name and last_name attributes are loaded by checking the attributes array
+        if (array_key_exists('first_name', $this->attributes) && array_key_exists('last_name', $this->attributes)) {
+            return ($this->attributes['first_name'] ?? '') . ' ' . ($this->attributes['last_name'] ?? '');
         }
-        return $this->name;
+        
+        // Fall back to name if first_name/last_name are not available
+        return $this->name ?? 'Unknown User';
     }
 
     /**
@@ -119,6 +145,11 @@ class User extends Authenticatable
      */
     public function getProfileImageUrlAttribute(): ?string
     {
+        // Check if profile_image attribute is loaded
+        if (!array_key_exists('profile_image', $this->attributes)) {
+            return null;
+        }
+        
         if (!$this->profile_image) {
             return null;
         }
@@ -195,5 +226,109 @@ class User extends Authenticatable
     public function scores()
     {
         return $this->hasMany(\App\Models\MatchGebruikerScore::class, 'gebruiker_id')->with('matches');
+    }
+
+    /**
+     * Get user's legal document acceptances
+     */
+    public function legalAcceptances()
+    {
+        return $this->hasMany(\App\Models\UserLegalAcceptance::class);
+    }
+
+    /**
+     * Role constants
+     */
+    public const ROLES = [
+        'wedstrijdcommisie' => 'Wedstrijdcommisie',
+        'secretaris' => 'Secretaris',
+        'webmaster' => 'Webmaster',
+        'activiteitencommisie' => 'Activiteitencommisie',
+        'kascommisie' => 'Kascommisie',
+        'voorzitter' => 'Voorzitter',
+    ];
+
+    /**
+     * Check if user has specific role
+     */
+    public function hasRole(string $role): bool
+    {
+        return in_array($role, $this->roles ?? []);
+    }
+
+    /**
+     * Check if user has any of the specified roles
+     */
+    public function hasAnyRole(array $roles): bool
+    {
+        return !empty(array_intersect($this->roles ?? [], $roles));
+    }
+
+    /**
+     * Check if user can access all admin areas (super admin roles)
+     */
+    public function canAccessAll(): bool
+    {
+        return $this->is_admin || $this->hasAnyRole(['secretaris', 'webmaster', 'voorzitter']);
+    }
+
+    /**
+     * Check if user can access matches/competitions
+     */
+    public function canAccessMatches(): bool
+    {
+        return $this->canAccessAll() || $this->hasRole('wedstrijdcommisie');
+    }
+
+    /**
+     * Check if user can access activities
+     */
+    public function canAccessActivities(): bool
+    {
+        return $this->canAccessAll() || $this->hasRole('activiteitencommisie');
+    }
+
+    /**
+     * Check if user can access financial areas (prices)
+     */
+    public function canAccessFinancial(): bool
+    {
+        return $this->canAccessAll() || $this->hasRole('kascommisie');
+    }
+
+    /**
+     * Get formatted roles for display
+     */
+    public function getFormattedRolesAttribute(): string
+    {
+        if (empty($this->roles)) {
+            return 'Geen rollen';
+        }
+        
+        return collect($this->roles)
+            ->map(fn($role) => self::ROLES[$role] ?? $role)
+            ->join(', ');
+    }
+
+    /**
+     * Add a role to the user
+     */
+    public function addRole(string $role): void
+    {
+        $roles = $this->roles ?? [];
+        if (!in_array($role, $roles)) {
+            $roles[] = $role;
+            $this->update(['roles' => $roles]);
+        }
+    }
+
+    /**
+     * Remove a role from the user
+     */
+    public function removeRole(string $role): void
+    {
+        $roles = $this->roles ?? [];
+        $roles = array_filter($roles, fn($r) => $r !== $role);
+        $this->update(['roles' => array_values($roles)]);
     }
 }

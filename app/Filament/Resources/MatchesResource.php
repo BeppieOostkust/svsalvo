@@ -19,6 +19,14 @@ class MatchesResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-fire';
 
+    protected static ?string $navigationGroup = 'Wedstrijd Beheer';
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        return $user && ($user->canAccessMatches() || $user->is_admin);
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -111,6 +119,12 @@ class MatchesResource extends Resource
         return [
             RelationManagers\RegistrationsRelationManager::class,
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = auth()->user();
+        return $user && ($user->canAccessMatches() || $user->is_admin);
     }
 }
 

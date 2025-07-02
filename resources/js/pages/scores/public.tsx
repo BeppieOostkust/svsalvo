@@ -4,6 +4,7 @@ import Header from '@/components/header';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import Layout from '@/components/Layout';
 
 interface User {
     id: number;
@@ -57,9 +58,9 @@ export default function PublicScores({ users }: PageProps) {
     };
 
     return (
-        <>
+        <Layout>
             <Head title="Openbare Scores" />
-            <Header />
+            
 
             <div className="w-[90%] mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="mb-8">
@@ -130,6 +131,6 @@ export default function PublicScores({ users }: PageProps) {
                     )}
                 </div>
             </div>
-        </>
+        </Layout>
     );
 }

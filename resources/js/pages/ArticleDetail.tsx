@@ -3,6 +3,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import Header from '@/components/header';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import Layout from '@/components/Layout';
 
 interface ArticleComment {
     id: number;
@@ -56,9 +57,9 @@ export default function ArticleDetail() {
     };
 
     return (
-        <>
+        <Layout>
             <Head title={article.title} />
-            <Header />
+            
             
             <div className="w-[90%] mx-auto px-4 py-8">
                 {/* Breadcrumb */}
@@ -242,6 +243,6 @@ export default function ArticleDetail() {
                     </div>
                 </div>
             </div>
-        </>
+        </Layout>
     );
 }

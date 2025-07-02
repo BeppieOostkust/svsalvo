@@ -32,6 +32,12 @@ class FacilityResource extends Resource
     
     protected static ?string $navigationGroup = 'Organisatie';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        return $user && ($user->canAccessAll() || $user->is_admin);
+    }
+
     public static function form(Form $form): Form
     {
         return $form

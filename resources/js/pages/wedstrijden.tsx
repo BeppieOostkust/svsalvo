@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Head, Link, usePage, router } from '@inertiajs/react';
-import Header from "@/components/header";
+import Layout from "@/components/Layout";
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
 
@@ -120,6 +120,22 @@ interface MatchGebruikerScore {
     };
 }
 
+interface MatchRegistration {
+    id: number;
+    match_id: number;
+    user_id: number;
+    caliber: string;
+    status: string;
+    registered_at: string;
+    notes?: string;
+    converted_to_participant: boolean;
+    user?: {
+        id: number;
+        name: string;
+        show_in_participants: boolean;
+    };
+}
+
 interface Match {
     id: number;
     naam: string;
@@ -129,6 +145,7 @@ interface Match {
     created_at: string;
     updated_at: string;
     gebruikersScores: MatchGebruikerScore[];
+    registrations?: MatchRegistration[];
     is_user_registered?: boolean;
     is_participant?: boolean;
     has_registration?: boolean;
@@ -272,17 +289,9 @@ export default function Wedstrijden() {
         });
     };
 
-    const getParticipantsList = (match: Match) => {
-        const participants = match.gebruikersScores?.map(score => score.gebruiker?.name).filter(Boolean) || [];
-        if (participants.length === 0) return 'Geen deelnemers';
-        if (participants.length <= 3) return participants.join(', ');
-        return `${participants.slice(0, 3).join(', ')} en ${participants.length - 3} anderen`;
-    };
-
     return (
-        <>
+        <Layout>
             <Head title="Wedstrijden" />
-            <Header />
             <div className="w-[90%] mx-auto px-4 py-8">
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-3xl font-bold">Wedstrijden</h1>
@@ -319,28 +328,7 @@ export default function Wedstrijden() {
                                     {match.beschrijving && (
                                         <p className="text-gray-700 mb-4">{match.beschrijving}</p>
                                     )}
-                                    
-                                    {/* Participants section */}
-                                    <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <span className="text-sm font-medium text-gray-700">
-                                                Deelnemers ({match.gebruikersScores?.length || 0})
-                                            </span>
-                                            {match.is_participant && (
-                                                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                                                    Deelnemer
-                                                </span>
-                                            )}
-                                            {match.has_registration && !match.is_participant && (
-                                                <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">
-                                                    Aangemeld
-                                                </span>
-                                            )}
-                                        </div>
-                                        <p className="text-xs text-gray-600">
-                                            {getParticipantsList(match)}
-                                        </p>
-                                    </div>
+                                
                                     
                                     {/* Action buttons */}
                                     <div className="flex gap-2 mb-4">
@@ -409,6 +397,6 @@ export default function Wedstrijden() {
                 matchName={registrationModal.match?.naam || ''}
                 loading={loading === registrationModal.match?.id}
             />
-        </>
+        </Layout>
     );
 }

@@ -3,6 +3,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import Header from '@/components/header';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import Layout from '@/components/Layout';
 
 interface User {
     id: number;
@@ -162,9 +163,9 @@ export default function UserDashboard() {
     };
 
     return (
-        <>
+        <Layout>
             <Head title="Dashboard" />
-            <Header />
+            
             
             <div className="w-[90%] mx-auto px-4 py-8">
                 {/* Welcome Section */}
@@ -342,7 +343,7 @@ export default function UserDashboard() {
                                     Je hebt nog geen wedstrijdscores.
                                 </p>
                             ) : (
-                                <>
+                                <div>
                                     {/* Caliber Filter */}
                                     {matchScores.length > 1 && (
                                         <div className="mb-6">
@@ -527,7 +528,7 @@ export default function UserDashboard() {
                                             </Link>
                                         </div>
                                     )}
-                                </>
+                                </div>
                             )}
                         </div>
 
@@ -584,6 +585,6 @@ export default function UserDashboard() {
                     </div>
                 </div>
             </div>
-        </>
+        </Layout>
     );
 }

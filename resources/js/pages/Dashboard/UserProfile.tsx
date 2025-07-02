@@ -2,6 +2,7 @@ import React from 'react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import Header from '@/components/header';
 import { format } from 'date-fns';
+import Layout from '@/components/Layout';
 
 interface User {
     id: number;
@@ -70,9 +71,9 @@ export default function UserProfile() {
     };
 
     return (
-        <>
+        <Layout>
             <Head title="Profiel bewerken" />
-            <Header />
+            
             
             <div className="w-[90%] mx-auto px-4 py-8">
                 {/* Back Button */}
@@ -442,6 +443,6 @@ export default function UserProfile() {
                     </div>
                 </div>
             </div>
-        </>
+        </Layout>
     );
 }

@@ -3,6 +3,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import Header from '@/components/header';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import Layout from '@/components/Layout';
 
 interface Article {
     id: number;
@@ -59,9 +60,9 @@ export default function Nieuws() {
     };
 
     return (
-        <>
+        <Layout>
             <Head title="Nieuws" />
-            <Header />
+            
             
             <div className="w-[90%] mx-auto px-6 py-12">
                 <div className="mb-12">
@@ -166,6 +167,6 @@ export default function Nieuws() {
                     </div>
                 )}
             </div>
-        </>
+        </Layout>
     );
 }
