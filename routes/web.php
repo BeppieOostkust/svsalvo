@@ -14,6 +14,7 @@ use App\Http\Controllers\MembershipApplicationController;
 use App\Http\Controllers\PublicScoresController;
 use App\Http\Controllers\MemberContactController;
 use App\Http\Controllers\PasswordChangeController;
+use App\Http\Controllers\VereenigingController;
 
 // Public homepage - accessible to everyone, invites visitors to join
 Route::get('/', [PublicController::class, 'index'])->name('home');
@@ -83,6 +84,7 @@ Route::middleware(['auth', 'verified', 'legal.check'])->group(function () {
 
     // Organization and contact pages
     Route::get('/organisatie', [OrganizationController::class, 'index'])->name('organisatie');
+
 
     Route::get('/contact', function () {
         return Inertia::render('contact');
@@ -183,7 +185,7 @@ if (config('app.env') === 'local') {
 }
 
 // Verenigingspagina route
-Route::get('/vereniging', [App\Http\Controllers\VereenigingController::class, 'index'])->name('vereniging')->middleware(['auth']);
+Route::get('/vereniging', [VereenigingController::class, 'index'])->name('vereniging')->middleware(['auth']);
 
 // Legal routes
 require __DIR__.'/legal.php';
