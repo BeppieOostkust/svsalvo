@@ -52,10 +52,6 @@ export default function MembershipSuccess() {
                     <h3 className="font-semibold text-blue-900 mb-3">Contact</h3>
                     <div className="space-y-2 text-sm text-blue-800">
                         <div className="flex items-center gap-2">
-                            <Phone className="h-4 w-4" />
-                            <span>+31 33 123 4567</span>
-                        </div>
-                        <div className="flex items-center gap-2">
                             <Mail className="h-4 w-4" />
                             <span>info@ssvdemoes.nl</span>
                         </div>

@@ -174,7 +174,7 @@ export default function Register() {
                     <ul className="text-sm text-blue-800 list-disc list-inside space-y-1">
                         <li>Je aanvraag wordt beoordeeld door het bestuur</li>
                         <li>We nemen binnen 5 werkdagen contact met je op</li>
-                        <li>Voor vragen kun je ons bellen: +31 33 123 4567</li>
+                        <li>Voor vragen kun je ons mailen: info@ssvdemoes.nl</li>
                     </ul>
                 </div>
             </form>
