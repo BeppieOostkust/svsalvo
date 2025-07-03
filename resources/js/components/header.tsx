@@ -15,35 +15,6 @@ import {
   import DebugPanel from '@/components/debug-panel';
   import UrgentArticles from '@/components/urgent-articles';
 
-
-const wedstrijden: {naam: string; href: any; beschrijving: string}[] = [
-    {
-        naam: "Service Pistool",
-        href: route("nieuws"),
-        beschrijving: "Schieten"
-    },
-    {
-        naam: "Test",
-        href: route("nieuws") || "#",
-        beschrijving: "Testen",
-    },
-    {
-        naam: "Kleinkaliber Geweer",
-        href: route("nieuws") || "#",
-        beschrijving: "Precisieschieten met kleinkaliber geweer",
-    },
-    {
-        naam: "Luchtgeweer",
-        href: route("nieuws") || "#",
-        beschrijving: "Schieten met luchtgeweer",
-    },
-    {
-        naam: "Boogschieten",
-        href: route("nieuws") || "#",
-        beschrijving: "Schieten met boog",
-    }
-];
-
 export default function Header() {
     const { auth, urgentArticles } = usePage<SharedData>().props;
     const [bannerDismissed, setBannerDismissed] = React.useState(false);
@@ -95,9 +66,6 @@ export default function Header() {
 
     return (
         <div>
-            <Head title="Welcome">
-
-            </Head>
             
             {/* Urgent Articles Banner */}
             {shouldShowBanner && (
@@ -107,7 +75,7 @@ export default function Header() {
             {/* Main Header - add top padding when urgent banner is present and not dismissed */}
             <div className={`my-4 mx-auto p-4 w-[90%] border-gray-400 shadow-xl rounded-lg flex flex-row justify-between items-center transition-all duration-500 ease-in-out ${shouldShowBanner ? 'mt-20' : 'mt-4'}`}>
                 <Link href={route("dashboard.home")} className='flex flex-row items-center gap-4 hover:opacity-80 transition-opacity cursor-pointer'>
-                    <img src="https://placehold.co/32x32" alt="" className='rounded'/>
+                    <img src="/images/logo.png" alt="" className='rounded w-12'/>
                     <span className='text-2xl font-bold'>SSV De Moes</span>
                 </Link>
                 <div>
@@ -134,13 +102,13 @@ export default function Header() {
                                         Activiteiten
                                     </Link>
                                 </NavigationMenuItem>
-                                {/* <NavigationMenuItem>
+                                <NavigationMenuItem>
                                     <Link href={route("vereniging")}>
                                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                                         Leden
                                         </NavigationMenuLink>
                                     </Link>
-                                </NavigationMenuItem> */}
+                                </NavigationMenuItem>
                                 <NavigationMenuItem>
                                     <Link href={route("organisatie")}>
                                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
@@ -182,6 +150,15 @@ export default function Header() {
                                 </Button>
                             </Link>
                         )}
+                        <Link
+                            href={route('logout')}
+                            method="post"
+                            as="button"
+                        >
+                            <Button variant="outline" className="border-gray-300 text-gray-600 hover:bg-gray-50 hover:text-gray-700">
+                                Uitloggen
+                            </Button>
+                        </Link>
                     </div>
                 ) : (
                     <div className="flex gap-2">

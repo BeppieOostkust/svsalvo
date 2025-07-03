@@ -193,7 +193,10 @@ export default function ActivityDetail() {
                         <div className="mb-8">
                             <h2 className="text-xl font-semibold text-gray-900 mb-4">Beschrijving</h2>
                             <div className="prose max-w-none">
-                                <p className="text-gray-700 whitespace-pre-line">{activity.description}</p>
+                                <div 
+                                    className="text-gray-700"
+                                    dangerouslySetInnerHTML={{ __html: activity.description }}
+                                />
                             </div>
                         </div>
 
@@ -201,7 +204,10 @@ export default function ActivityDetail() {
                         {activity.requirements && (
                             <div className="mb-8">
                                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Vereisten</h2>
-                                <p className="text-gray-700 whitespace-pre-line">{activity.requirements}</p>
+                                <div 
+                                    className="text-gray-700 prose max-w-none"
+                                    dangerouslySetInnerHTML={{ __html: activity.requirements }}
+                                />
                             </div>
                         )}
 
@@ -232,7 +238,10 @@ export default function ActivityDetail() {
                         {activity.contact_info && (
                             <div className="mb-8">
                                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Contact</h2>
-                                <p className="text-gray-700 whitespace-pre-line">{activity.contact_info}</p>
+                                <div 
+                                    className="text-gray-700 prose max-w-none"
+                                    dangerouslySetInnerHTML={{ __html: activity.contact_info }}
+                                />
                             </div>
                         )}
                     </div>

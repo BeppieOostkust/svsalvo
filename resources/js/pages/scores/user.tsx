@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
-import Header from '@/components/header';
+import Layout from '@/components/Layout';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';

@@ -164,9 +164,10 @@ export default function Activiteiten() {
                                             </Link>
                                         </h3>
                                         
-                                        <p className="text-gray-600 mb-4 line-clamp-3">
-                                            {activity.description}
-                                        </p>
+                                        <div 
+                                            className="text-gray-600 mb-4 line-clamp-3"
+                                            dangerouslySetInnerHTML={{ __html: activity.description }}
+                                        />
                                         
                                         <div className="space-y-2 text-sm text-gray-600 mb-4">
                                             <div className="flex items-center">
@@ -248,9 +249,10 @@ export default function Activiteiten() {
                                             </Link>
                                         </h3>
                                         
-                                        <p className="text-gray-600 mb-4 line-clamp-3">
-                                            {activity.description}
-                                        </p>
+                                        <div 
+                                            className="text-gray-600 mb-4 line-clamp-3"
+                                            dangerouslySetInnerHTML={{ __html: activity.description }}
+                                        />
                                         
                                         <div className="space-y-2 text-sm text-gray-600 mb-4">
                                             <div className="flex items-center">

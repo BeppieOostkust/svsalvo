@@ -54,8 +54,19 @@ class WedstrijdenController extends Controller
      */
     public function show($id)
     {
-        $match = Matches::with(['gebruikersScores.gebruiker'])
+        $match = Matches::with(['gebruikersScores' => function($query) {
+                $query->with(['gebruiker' => function($userQuery) {
+                    $userQuery->select('id', 'name', 'show_in_participants');
+                }]);
+            }])
             ->findOrFail($id);
+
+        // Filter out scores from users who don't want to be shown in participants
+        if ($match->gebruikersScores) {
+            $match->gebruikersScores = $match->gebruikersScores->filter(function($score) {
+                return $score->gebruiker && $score->gebruiker->show_in_participants;
+            })->values();
+        }
 
         return Inertia::render('wedstrijd-detail', [
             'match' => $match

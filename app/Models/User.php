@@ -64,6 +64,7 @@ class User extends Authenticatable
         'password_change_required',
         'email_verified_at',
         'roles',
+        'remember_token',
     ];
 
     /**

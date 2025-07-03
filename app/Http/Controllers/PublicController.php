@@ -38,7 +38,7 @@ class PublicController extends Controller
         // Get some basic organization stats
         $stats = [
             'established_year' => '1997',
-            'member_count' => '150+',
+            'member_count' => '70+',
             'disciplines' => [
                 'Luchtdruk pistool',
                 'Klein kaliber pistool', 

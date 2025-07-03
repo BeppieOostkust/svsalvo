@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
-import Header from '@/components/header';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';

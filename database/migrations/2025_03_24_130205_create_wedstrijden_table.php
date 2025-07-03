@@ -13,7 +13,7 @@ class CreateWedstrijdenTable extends Migration
             $table->string('naam'); // Nieuw veld voor de naam van de wedstrijd
             $table->date('start_datum')->required(); // Nieuw veld voor de startdatum
             $table->text('beschrijving')->nullable(); // Nieuw veld voor de beschrijving
-            $table->string('categorie')->nullable(); // Nieuw veld voor de categorie
+            $table->string('status')->nullable(); // Nieuw veld voor de categorie
             $table->timestamps();
         });
     }

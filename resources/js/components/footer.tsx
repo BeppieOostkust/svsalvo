@@ -9,7 +9,7 @@ export default function Footer() {
                     {/* Logo & About */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-2">
-                            <img src="/images/logo.png" alt="SSV De Moes" className="h-8 w-auto" />
+                            <img src="/images/logo_white.png" alt="SSV De Moes" className="h-8 w-auto" />
                             <span className="text-lg font-semibold">SSV De Moes</span>
                         </div>
                         <p className="max-w-sm text-sm text-gray-400">
@@ -24,14 +24,12 @@ export default function Footer() {
                             <li className="flex items-center gap-2">
                                 <Mail className="h-4 w-4" /> info@ssvdemoes.nl
                             </li>
-                            <li className="flex items-center gap-2">
-                                <Phone className="h-4 w-4" /> +31 (0)6 12345678
-                            </li>
                             <li className="flex items-start gap-2">
                                 <MapPin className="mt-0.5 h-4 w-4" />
                                 <span>
                                     Schietbaan De Moes
-                                    <br />1234 AB Voorbeeld
+                                    <br />5107 RD Dongen
+                                    <br />De Schacht 5
                                 </span>
                             </li>
                         </ul>

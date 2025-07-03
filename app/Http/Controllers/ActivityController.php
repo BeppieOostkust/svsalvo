@@ -17,7 +17,7 @@ class ActivityController extends Controller
     {
         $upcomingActivities = Activity::with(['organizer'])
             ->whereIn('status', ['gepland', 'bevestigd'])
-            ->where('start_date', '>=', now())
+            ->where('start_date', '>=', now()->subDay()->startOfDay())
             ->orderBy('start_date', 'asc')
             ->get();
 

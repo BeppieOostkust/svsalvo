@@ -50,7 +50,7 @@ class HomeController extends Controller
         $partners = [
             [
                 'name' => 'Wapenhandel van der Zanden',
-                'logo' => '/images/partners/vanderzanden.svg',
+                'logo' => 'https://ssvdemoes.nl/wp-content/uploads/zan.jpg',
                 'website' => 'https://www.vanderzanden.nl',
                 'description' => 'Jacht & Schietsport'
             ],
