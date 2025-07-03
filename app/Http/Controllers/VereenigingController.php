@@ -13,8 +13,9 @@ class VereenigingController extends Controller
      */
     public function index()
     {
-        // Get all active members
+        // Get all active members, sorted so that those who share contact info come first
         $members = User::where('is_active_member', true)
+            ->orderByRaw('show_contact_info DESC') // Those who share contact info first (1 before 0)
             ->orderBy('position', 'asc')
             ->orderBy('last_name', 'asc')
             ->orderBy('first_name', 'asc')
@@ -63,6 +64,7 @@ class VereenigingController extends Controller
             });
 
         // Separate board members (with positions) from regular members
+        // Both groups will maintain the same sorting (contact sharers first)
         $boardMembers = $members->filter(function ($member) {
             return !empty($member['position']);
         });
