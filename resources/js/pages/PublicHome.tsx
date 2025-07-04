@@ -10,10 +10,11 @@ interface PublicHomeProps extends SharedData {
         member_count: string;
         disciplines: string[];
     };
+    membershipApplicationsOpen: boolean;
 }
 
 export default function PublicHome() {
-    const { featuredNews, upcomingActivities, stats } = usePage<PublicHomeProps>().props;
+    const { featuredNews, upcomingActivities, stats, membershipApplicationsOpen } = usePage<PublicHomeProps>().props;
 
     return (
         <>
@@ -28,7 +29,7 @@ export default function PublicHome() {
                 <div className="container mx-auto px-4">
                     <div className="flex items-center justify-between h-16">
                         <div className="flex items-center">
-                            <img src="/logo.svg" alt="SSV De Moes" className="h-8 w-auto mr-3" />
+                            <img src="images/logo.png" alt="SSV De Moes" className="h-8 w-auto mr-3" />
                             <h1 className="text-xl font-bold text-gray-900">SSV De Moes</h1>
                         </div>
                         <div className="flex items-center space-x-4">
@@ -38,12 +39,18 @@ export default function PublicHome() {
                             >
                                 Inloggen
                             </Link>
-                            <Link 
-                                href={route("register")}
-                                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-medium transition-colors"
-                            >
-                                Lid Worden
-                            </Link>
+                            {membershipApplicationsOpen ? (
+                                <Link 
+                                    href={route("register")}
+                                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-medium transition-colors"
+                                >
+                                    Lid Worden
+                                </Link>
+                            ) : (
+                                <span className="bg-gray-400 text-white px-4 py-2 rounded-lg font-medium cursor-not-allowed">
+                                    Lidmaatschap Gesloten
+                                </span>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -63,12 +70,18 @@ export default function PublicHome() {
                                 Al sinds {stats.established_year} staan veiligheid, kwaliteit en kameraadschap bij ons centraal.
                             </p>
                             <div className="flex flex-wrap justify-center gap-4">
-                                <Link 
-                                    href="/register" 
-                                    className="bg-white text-green-700 px-8 py-4 rounded-lg font-bold text-lg hover:bg-green-50 transition-colors shadow-lg"
-                                >
-                                    Word Lid →
-                                </Link>
+                                {membershipApplicationsOpen ? (
+                                    <Link 
+                                        href="/register" 
+                                        className="bg-white text-green-700 px-8 py-4 rounded-lg font-bold text-lg hover:bg-green-50 transition-colors shadow-lg"
+                                    >
+                                        Word Lid →
+                                    </Link>
+                                ) : (
+                                    <div className="bg-gray-300 text-gray-600 px-8 py-4 rounded-lg font-bold text-lg cursor-not-allowed shadow-lg">
+                                        Lidmaatschap Gesloten
+                                    </div>
+                                )}
                                 <a 
                                     href="#meer-info" 
                                     className="border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-green-700 transition-colors"
@@ -197,20 +210,40 @@ export default function PublicHome() {
                 <section className="py-20 bg-gradient-to-r from-green-600 to-green-700 text-white">
                     <div className="container mx-auto px-4">
                         <div className="max-w-4xl mx-auto text-center">
-                            <h2 className="text-4xl font-bold mb-6">
-                                Klaar om te beginnen?
-                            </h2>
-                            <p className="text-xl mb-8 text-green-100">
-                                Word lid van onze gemeenschap en ontdek de passie voor schietsport.
-                                We staan klaar om je te begeleiden in deze fascinerende sport!
-                            </p>
+                            {membershipApplicationsOpen ? (
+                                <>
+                                    <h2 className="text-4xl font-bold mb-6">
+                                        Klaar om te beginnen?
+                                    </h2>
+                                    <p className="text-xl mb-8 text-green-100">
+                                        Word lid van onze gemeenschap en ontdek de passie voor schietsport.
+                                        We staan klaar om je te begeleiden in deze fascinerende sport!
+                                    </p>
+                                </>
+                            ) : (
+                                <>
+                                    <h2 className="text-4xl font-bold mb-6">
+                                        Helaas is er een ledenstop
+                                    </h2>
+                                    <p className="text-xl mb-8 text-green-100">
+                                        Echter zou je ons altijd nog kunnen contacteren via e-mail om te kijken wat er nog valt te doen voor je!
+                                    </p>
+                                </>
+                            )}
+
                             <div className="flex flex-wrap justify-center gap-4">
-                                <Link 
-                                    href="/register" 
-                                    className="bg-white text-green-700 px-8 py-4 rounded-lg font-bold text-lg hover:bg-green-50 transition-colors shadow-lg"
-                                >
-                                    Schrijf je in als lid
-                                </Link>
+                                {membershipApplicationsOpen ? (
+                                    <Link 
+                                        href="/register" 
+                                        className="bg-white text-green-700 px-8 py-4 rounded-lg font-bold text-lg hover:bg-green-50 transition-colors shadow-lg"
+                                    >
+                                        Word Lid →
+                                    </Link>
+                                ) : (
+                                    <div className="bg-gray-300 text-gray-600 px-8 py-4 rounded-lg font-bold text-lg cursor-not-allowed shadow-lg">
+                                        Lidmaatschap Gesloten
+                                    </div>
+                                )}
                                 <a 
                                     href="mailto:info@ssvdemoes.nl" 
                                     className="border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-green-700 transition-colors"

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\Activity;
 use App\Models\Matches;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -17,6 +18,9 @@ class PublicController extends Controller
             // Redirect authenticated users to their authenticated homepage
             return redirect()->route('dashboard.home');
         }
+
+        // Check if membership applications are open
+        $membershipApplicationsOpen = Setting::get('membership_applications_open', true);
 
         // Get some public preview content to showcase the organization
         $featuredNews = Article::with(['author'])
@@ -52,6 +56,7 @@ class PublicController extends Controller
             'featuredNews' => $featuredNews,
             'upcomingActivities' => $upcomingActivities,
             'stats' => $stats,
+            'membershipApplicationsOpen' => $membershipApplicationsOpen,
         ]);
     }
 }

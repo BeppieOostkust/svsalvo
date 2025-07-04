@@ -11,6 +11,7 @@
         "filament/filament": "^3.3",
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/framework": "^12.0",
+        "laravel/nightwatch": "^1.10",
         "laravel/tinker": "^2.10.1",
         "swisnl/filament-backgrounds": "^1.1",
         "tightenco/ziggy": "^2.4"
