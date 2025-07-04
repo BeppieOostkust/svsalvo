@@ -3,8 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Filament\Facades\Filament;
-use Illuminate\Support\Facades\Gate;
 use App\Models\ActivityRegistration;
 use App\Observers\ActivityRegistrationObserver;
 use App\Models\Matches;
@@ -28,10 +26,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::shouldBeStrict(!$this->app->isProduction());
 
-        // Restrict Filament access to admin users only
-        Gate::define('viewFilament', function ($user) {
-            return $user->isAdmin();
-        });
+        // Note: Filament access is now controlled by the FilamentUser contract
+        // implemented in the User model via canAccessPanel() method
 
         // Register observers
         ActivityRegistration::observe(ActivityRegistrationObserver::class);
