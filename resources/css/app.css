@@ -188,3 +188,44 @@ body {
 .animate-fadeIn {
     animation: fadeIn 0.8s ease-out;
 }
+
+/* 404 Page Animations */
+@keyframes fadeIn404 {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes float404 {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes shake404 {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
+}
+
+.animate-fadeIn404 {
+    animation: fadeIn404 0.6s ease-out forwards;
+}
+
+.animate-float404 {
+    animation: float404 3s ease-in-out infinite;
+}
+
+.animate-shake404 {
+    animation: shake404 0.5s ease-in-out;
+}
+
+/* End 404 Page Animations */
