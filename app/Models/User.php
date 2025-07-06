@@ -162,7 +162,22 @@ class User extends Authenticatable implements FilamentUser
             return $this->profile_image;
         }
         
-        // Otherwise, construct the storage URL
+        // Check if the file exists in storage
+        $storagePath = storage_path('app/public/' . $this->profile_image);
+        $publicPath = public_path('storage/' . $this->profile_image);
+        
+        // If file exists in public/storage (shared hosting fallback)
+        if (file_exists($publicPath)) {
+            return asset('storage/' . $this->profile_image);
+        }
+        
+        // If file exists in storage but not accessible via symlink, try direct access
+        if (file_exists($storagePath)) {
+            // For shared hosting, sometimes we need a different approach
+            return route('storage.image', ['path' => $this->profile_image]);
+        }
+        
+        // Otherwise, construct the standard storage URL
         return asset('storage/' . $this->profile_image);
     }
 

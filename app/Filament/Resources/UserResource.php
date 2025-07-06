@@ -100,11 +100,21 @@ class UserResource extends Resource
                             ->disk('public')
                             ->directory('profile-images')
                             ->visibility('public')
-                            ->acceptedFileTypes(['image/jpeg', 'image/png'])
-                            ->maxSize(512) // Further reduced to 512KB
-                            ->helperText('Maximaal 512KB. Formaten: JPEG, PNG')
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg'])
+                            ->maxSize(1024) // 1MB max
+                            ->helperText('Maximaal 1MB. Formaten: JPEG, JPG, PNG')
                             ->enableOpen(false)
-                            ->enableDownload(false),
+                            ->enableDownload(false)
+                            ->imageEditor()
+                            ->imageEditorAspectRatios([
+                                '1:1',
+                            ])
+                            ->imageResizeMode('cover')
+                            ->imageCropAspectRatio('1:1')
+                            ->imageResizeTargetWidth('300')
+                            ->imageResizeTargetHeight('300')
+                            ->optimize('webp')
+                            ->orientImagesFromExif(false),
                         Forms\Components\Toggle::make('show_in_organization')
                             ->label('Toon in organisatie overzicht'),
                         Forms\Components\TextInput::make('organization_sort_order')

@@ -144,6 +144,22 @@ Route::get('/scores/openbaar/{user}', [PublicScoresController::class, 'show'])
     ->name('scores.public.user')
     ->middleware(['auth']);
 
+// Storage image route for shared hosting compatibility
+Route::get('/storage-image/{path}', function ($path) {
+    $filePath = storage_path('app/public/' . $path);
+    
+    if (!file_exists($filePath)) {
+        abort(404);
+    }
+    
+    $mimeType = mime_content_type($filePath);
+    
+    return response()->file($filePath, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=31536000',
+    ]);
+})->where('path', '.*')->name('storage.image');
+
 // Fallback route for 404 errors
 Route::fallback(function () {
     return Inertia::render('errors.404');
@@ -181,6 +197,11 @@ if (config('app.env') === 'local') {
             $users = \App\Models\User::select('id', 'name', 'email', 'is_admin')->get();
             return response()->json($users);
         })->name('users');
+
+        // Storage debug route (remove in production)
+        Route::get('/debug-storage', [App\Http\Controllers\StorageDebugController::class, 'debug'])
+            ->middleware('auth')
+            ->name('debug.storage');
     });
 }
 
