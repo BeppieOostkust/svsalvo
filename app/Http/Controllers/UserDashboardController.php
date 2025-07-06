@@ -18,9 +18,10 @@ class UserDashboardController extends Controller
     {
         $user = auth()->user();
         
-        // Get user's match scores with match information
+        // Get user's match scores with match information (only official scores)
         $matchScores = MatchGebruikerScore::with(['matches'])
             ->where('gebruiker_id', $user->id)
+            ->where('is_official', true)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -137,6 +138,7 @@ class UserDashboardController extends Controller
         
         $matchScores = MatchGebruikerScore::with(['matches'])
             ->where('gebruiker_id', $user->id)
+            ->where('is_official', true)
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
@@ -152,14 +154,20 @@ class UserDashboardController extends Controller
     {
         $user = auth()->user();
         
-        // Get user's score for this specific match
-        $matchScore = MatchGebruikerScore::with(['matches'])
+        // Get user's scores for this specific match (both official and fun games)
+        $matchScores = MatchGebruikerScore::with(['matches'])
             ->where('gebruiker_id', $user->id)
             ->where('wedstrijd_id', $matchId)
-            ->firstOrFail();
+            ->orderBy('round_number')
+            ->get();
+
+        if ($matchScores->isEmpty()) {
+            abort(404, 'No scores found for this match');
+        }
 
         return Inertia::render('Dashboard/MatchDetail', [
-            'matchScore' => $matchScore,
+            'matchScores' => $matchScores,
+            'match' => $matchScores->first()->matches,
         ]);
     }
 }

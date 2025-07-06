@@ -15,9 +15,11 @@ class WedstrijdenController extends Controller
 {
     public function index()
     {
-        // Fetch matches with related gebruikersScores, registrations and their users
+        // Fetch matches with related gebruikersScores (only official ones), registrations and their users
         $matches = Matches::with([
-                'gebruikersScores.gebruiker',
+                'gebruikersScores' => function($query) {
+                    $query->where('is_official', true)->with('gebruiker');
+                },
                 'registrations.user'
             ])
             ->orderBy('start_datum', 'desc')
@@ -55,7 +57,7 @@ class WedstrijdenController extends Controller
     public function show($id)
     {
         $match = Matches::with(['gebruikersScores' => function($query) {
-                $query->with(['gebruiker' => function($userQuery) {
+                $query->where('is_official', true)->with(['gebruiker' => function($userQuery) {
                     $userQuery->select('id', 'name', 'show_in_participants');
                 }]);
             }])
@@ -183,7 +185,9 @@ class WedstrijdenController extends Controller
      */
     public function participants($matchId)
     {
-        $match = Matches::with(['gebruikersScores.gebruiker'])
+        $match = Matches::with(['gebruikersScores' => function($query) {
+                $query->where('is_official', true)->with('gebruiker');
+            }])
             ->findOrFail($matchId);
 
         return Inertia::render('wedstrijd-deelnemers', [

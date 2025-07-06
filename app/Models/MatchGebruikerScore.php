@@ -14,6 +14,8 @@ class MatchGebruikerScore extends Model
 
     protected $fillable = [
         'kaliber',
+        'round_number',
+        'is_official',
         'wedstrijd_id',
         'gebruiker_id',
         'linker_kaart_6',
@@ -29,9 +31,12 @@ class MatchGebruikerScore extends Model
         'aantal_schoten_buiten_tijd',
         'afwaarderingen',
         'totale_punten',
+        'notes',
     ];
 
     protected $casts = [
+        'round_number' => 'integer',
+        'is_official' => 'boolean',
         'linker_kaart_6' => 'integer',
         'linker_kaart_7' => 'integer',
         'linker_kaart_8' => 'integer',
@@ -89,5 +94,44 @@ class MatchGebruikerScore extends Model
                 ($score->aantal_schoten_buiten_tijd * 2) -
                 $score->afwaarderingen;
         });
+    }
+
+    /**
+     * Scope to get only official scores (the ones that count for rankings)
+     */
+    public function scopeOfficial($query)
+    {
+        return $query->where('is_official', true);
+    }
+    
+    /**
+     * Scope to get scores for a specific round
+     */
+    public function scopeRound($query, $roundNumber)
+    {
+        return $query->where('round_number', $roundNumber);
+    }
+    
+    /**
+     * Get the round name for display
+     */
+    public function getRoundNameAttribute()
+    {
+        $roundNames = [
+            1 => '1e Serie',
+            2 => '2e Serie', 
+            3 => '3e Serie',
+            4 => '4e Serie'
+        ];
+        
+        return $roundNames[$this->round_number] ?? "Serie {$this->round_number}";
+    }
+    
+    /**
+     * Check if this is the official score for this player/caliber combination
+     */
+    public function getIsOfficialScoreAttribute()
+    {
+        return $this->is_official;
     }
 }

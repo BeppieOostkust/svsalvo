@@ -224,9 +224,19 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Get user's public scores with match relation
+     * Get user's public scores with match relation (only official scores)
      */
     public function scores()
+    {
+        return $this->hasMany(\App\Models\MatchGebruikerScore::class, 'gebruiker_id')
+            ->where('is_official', true)
+            ->with('matches');
+    }
+
+    /**
+     * Get all user's scores including fun games
+     */
+    public function allScores()
     {
         return $this->hasMany(\App\Models\MatchGebruikerScore::class, 'gebruiker_id')->with('matches');
     }

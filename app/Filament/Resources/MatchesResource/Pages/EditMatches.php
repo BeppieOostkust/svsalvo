@@ -19,6 +19,10 @@ use Filament\Notifications\Notification;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Support\Enums\ActionSize;
 use Filament\Forms\Components\Actions\Action as FormAction;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Placeholder;
+use Filament\Support\Colors\Color;
 
 class EditMatches extends EditRecord
 {
@@ -92,70 +96,106 @@ class EditMatches extends EditRecord
 
             // Player scores section
             Section::make('Speler Scores')
+                ->description('Beheer de scores van alle spelers voor deze wedstrijd.')
                 ->schema([
                     Repeater::make('gebruikersScores')
-                        ->relationship('gebruikersScores')                
+                        ->relationship('gebruikersScores')
                         ->schema([
-                            Select::make('kaliber')
-                            ->options([
-                                'kkp' => 'KKP (Klein Kaliber Pistool)',
-                                'gkp' => 'GKP (Groot Kaliber Pistool)',
-                            ])
-                            ->required(),
-                            Select::make('gebruiker_id')
-                                ->label('Speler')
-                                ->options(options: User::all()->pluck('name', 'id'))
-                                ->searchable()
-                                ->required(),
+                            Grid::make(3)
+                                ->schema([
+                                    Select::make('gebruiker_id')
+                                        ->label('Speler')
+                                        ->options(User::all()->pluck('name', 'id'))
+                                        ->searchable()
+                                        ->required()
+                                        ->columnSpan(1),
+                                    Select::make('kaliber')
+                                        ->options([
+                                            'kkp' => 'KKP (Klein Kaliber Pistool)',
+                                            'gkp' => 'GKP (Groot Kaliber Pistool)',
+                                        ])
+                                        ->required()
+                                        ->columnSpan(1),
+                                    Select::make('round_number')
+                                        ->label('Serie')
+                                        ->options([
+                                            1 => '1e Serie',
+                                            2 => '2e Serie',
+                                            3 => '3e Serie',
+                                            4 => '4e Serie',
+                                        ])
+                                        ->default(1)
+                                        ->required()
+                                        ->columnSpan(1),
+                                ]),
+                            
+                            Grid::make(2)
+                                ->schema([
+                                    Toggle::make('is_official')
+                                        ->label('Officiële Score')
+                                        ->helperText('Vink aan als dit de officiële score is die telt voor de ranglijst')
+                                        ->default(true)
+                                        ->columnSpan(1),
+                                    Placeholder::make('score_info')
+                                        ->label('')
+                                        ->content(function (callable $get) {
+                                            if ($get('is_official')) {
+                                                return '✅ Deze score telt mee voor de ranglijst';
+                                            }
+                                            return '🎯 Deze score is voor de fun/oefening';
+                                        })
+                                        ->columnSpan(1),
+                                ]),
                             
                             Section::make('Linker Kaart Scores')
                                 ->schema([
-                                    TextInput::make('linker_kaart_6')
-                                        ->label('Aantal schoten in 6 links')
-                                        ->numeric()
-                                        ->default(0)
-                                        ->required()
-                                        ->validationAttribute('Aantal schoten in 6 links'),
-                                    
-                                    TextInput::make('linker_kaart_7')
-                                        ->label('Aantal schoten in 7 links')
-                                        ->numeric()
-                                        ->default(0)
-                                        ->required(),
-                                    
-                                    TextInput::make('linker_kaart_8')
-                                        ->label('Aantal schoten in 8 links')
-                                        ->numeric()
-                                        ->default(0)
-                                        ->required(),
-                                    
-                                    TextInput::make('linker_kaart_9')
-                                        ->label('Aantal schoten in 9 links')
-                                        ->numeric()
-                                        ->default(0)
-                                        ->required(),
-                                    
-                                    TextInput::make('linker_kaart_10')
-                                        ->label('Aantal schoten in 10 links')
-                                        ->numeric()
-                                        ->default(0)
-                                        ->required(),
+                                    Grid::make(5)
+                                        ->schema([
+                                            TextInput::make('linker_kaart_6')
+                                                ->label('6-ring')
+                                                ->numeric()
+                                                ->default(0)
+                                                ->required()
+                                                ->columnSpan(1),
+                                            TextInput::make('linker_kaart_7')
+                                                ->label('7-ring')
+                                                ->numeric()
+                                                ->default(0)
+                                                ->required()
+                                                ->columnSpan(1),
+                                            TextInput::make('linker_kaart_8')
+                                                ->label('8-ring')
+                                                ->numeric()
+                                                ->default(0)
+                                                ->required()
+                                                ->columnSpan(1),
+                                            TextInput::make('linker_kaart_9')
+                                                ->label('9-ring')
+                                                ->numeric()
+                                                ->default(0)
+                                                ->required()
+                                                ->columnSpan(1),
+                                            TextInput::make('linker_kaart_10')
+                                                ->label('10-ring')
+                                                ->numeric()
+                                                ->default(0)
+                                                ->required()
+                                                ->columnSpan(1),
+                                        ])
                                 ])
-                                ->columns(5)
                                 ->extraAttributes(function (callable $get) {
-                                    $leftCard6 = (int)$get('linker_kaart_6');
-                                    $leftCard7 = (int)$get('linker_kaart_7');
-                                    $leftCard8 = (int)$get('linker_kaart_8');
-                                    $leftCard9 = (int)$get('linker_kaart_9');
-                                    $leftCard10 = (int)$get('linker_kaart_10');
-                                    
-                                    $leftTotal = $leftCard6 + $leftCard7 + $leftCard8 + $leftCard9 + $leftCard10;
+                                    $leftTotal = $this->countTotalShots([
+                                        $get('linker_kaart_6') ?? 0,
+                                        $get('linker_kaart_7') ?? 0,
+                                        $get('linker_kaart_8') ?? 0,
+                                        $get('linker_kaart_9') ?? 0,
+                                        $get('linker_kaart_10') ?? 0
+                                    ]);
                                     
                                     if ($leftTotal > 12) {
                                         return [
                                             'class' => 'border-danger-600 bg-danger-50',
-                                            'data-tooltip-content' => 'Telfout! Tel opnieuw! Meer dan 12 schoten op linker kaart.',
-                                            'data-tooltip-placement' => 'top',
+                                            'data-tooltip' => 'Telfout! Meer dan 12 schoten op linker kaart.',
                                         ];
                                     }
                                     
@@ -164,155 +204,148 @@ class EditMatches extends EditRecord
                             
                             Section::make('Rechter Kaart Scores')
                                 ->schema([
-                                    TextInput::make('rechter_kaart_6')
-                                        ->label('Aantal schoten in 6 rechts')
-                                        ->numeric()
-                                        ->default(0)
-                                        ->required(),
-                                    
-                                    TextInput::make('rechter_kaart_7')
-                                        ->label('Aantal schoten in 7 rechts')
-                                        ->numeric()
-                                        ->default(0)
-                                        ->required(),
-                                    
-                                    TextInput::make('rechter_kaart_8')
-                                        ->label('Aantal schoten in 8 rechts')
-                                        ->numeric()
-                                        ->default(0)
-                                        ->required(),
-                                    
-                                    TextInput::make('rechter_kaart_9')
-                                        ->label('Aantal schoten in 9 rechts')
-                                        ->numeric()
-                                        ->default(0)
-                                        ->required(),
-                                    
-                                    TextInput::make('rechter_kaart_10')
-                                        ->label('Aantal schoten in 10 rechts')
-                                        ->numeric()
-                                        ->default(0)
-                                        ->required(),
+                                    Grid::make(5)
+                                        ->schema([
+                                            TextInput::make('rechter_kaart_6')
+                                                ->label('6-ring')
+                                                ->numeric()
+                                                ->default(0)
+                                                ->required()
+                                                ->columnSpan(1),
+                                            TextInput::make('rechter_kaart_7')
+                                                ->label('7-ring')
+                                                ->numeric()
+                                                ->default(0)
+                                                ->required()
+                                                ->columnSpan(1),
+                                            TextInput::make('rechter_kaart_8')
+                                                ->label('8-ring')
+                                                ->numeric()
+                                                ->default(0)
+                                                ->required()
+                                                ->columnSpan(1),
+                                            TextInput::make('rechter_kaart_9')
+                                                ->label('9-ring')
+                                                ->numeric()
+                                                ->default(0)
+                                                ->required()
+                                                ->columnSpan(1),
+                                            TextInput::make('rechter_kaart_10')
+                                                ->label('10-ring')
+                                                ->numeric()
+                                                ->default(0)
+                                                ->required()
+                                                ->columnSpan(1),
+                                        ])
                                 ])
-                                ->columns(5)
                                 ->extraAttributes(function (callable $get) {
-                                    $rightCard6 = (int)$get('rechter_kaart_6');
-                                    $rightCard7 = (int)$get('rechter_kaart_7');
-                                    $rightCard8 = (int)$get('rechter_kaart_8');
-                                    $rightCard9 = (int)$get('rechter_kaart_9');
-                                    $rightCard10 = (int)$get('rechter_kaart_10');
-                                    
-                                    $rightTotal = $rightCard6 + $rightCard7 + $rightCard8 + $rightCard9 + $rightCard10;
+                                    $rightTotal = $this->countTotalShots([
+                                        $get('rechter_kaart_6') ?? 0,
+                                        $get('rechter_kaart_7') ?? 0,
+                                        $get('rechter_kaart_8') ?? 0,
+                                        $get('rechter_kaart_9') ?? 0,
+                                        $get('rechter_kaart_10') ?? 0
+                                    ]);
                                     
                                     if ($rightTotal > 12) {
                                         return [
                                             'class' => 'border-danger-600 bg-danger-50',
-                                            'data-tooltip-content' => 'Telfout! Tel opnieuw! Meer dan 12 schoten op rechter kaart.',
-                                            'data-tooltip-placement' => 'top',
+                                            'data-tooltip' => 'Telfout! Meer dan 12 schoten op rechter kaart.',
                                         ];
                                     }
                                     
                                     return [];
                                 }),
                             
-                            Section::make('Penalties')
+                            Section::make('Penalties & Totaal')
                                 ->schema([
-                                    TextInput::make('aantal_schoten_buiten_tijd')
-                                        ->label('Schoten buiten de tijd')
-                                        ->numeric()
-                                        ->default(0)
-                                        ->required(),
-                                    
-                                    TextInput::make('afwaarderingen')
-                                        ->label('Afwaarderingen')
-                                        ->numeric()
-                                        ->default(0)
-                                        ->required(),
-                                ])
-                                ->columns(2),
+                                    Grid::make(3)
+                                        ->schema([
+                                            TextInput::make('aantal_schoten_buiten_tijd')
+                                                ->label('Schoten buiten tijd')
+                                                ->numeric()
+                                                ->default(0)
+                                                ->required()
+                                                ->columnSpan(1),
+                                            TextInput::make('afwaarderingen')
+                                                ->label('Afwaarderingen')
+                                                ->numeric()
+                                                ->default(0)
+                                                ->required()
+                                                ->columnSpan(1),
+                                            TextInput::make('totale_punten')
+                                                ->label('Totale Punten')
+                                                ->numeric()
+                                                ->disabled()
+                                                ->default(0)
+                                                ->columnSpan(1)
+                                                ->extraAttributes(function (callable $get) {
+                                                    $totalPoints = (int)$get('totale_punten');
+                                                    $leftTotal = $this->countTotalShots([
+                                                        $get('linker_kaart_6') ?? 0,
+                                                        $get('linker_kaart_7') ?? 0,
+                                                        $get('linker_kaart_8') ?? 0,
+                                                        $get('linker_kaart_9') ?? 0,
+                                                        $get('linker_kaart_10') ?? 0
+                                                    ]);
+                                                    $rightTotal = $this->countTotalShots([
+                                                        $get('rechter_kaart_6') ?? 0,
+                                                        $get('rechter_kaart_7') ?? 0,
+                                                        $get('rechter_kaart_8') ?? 0,
+                                                        $get('rechter_kaart_9') ?? 0,
+                                                        $get('rechter_kaart_10') ?? 0
+                                                    ]);
+                                                    
+                                                    if ($totalPoints > 240 || $leftTotal > 12 || $rightTotal > 12) {
+                                                        return [
+                                                            'class' => 'text-danger-600 font-bold',
+                                                            'data-tooltip' => 'Telfout! Controleer de scores!',
+                                                        ];
+                                                    }
+                                                    
+                                                    return [];
+                                                }),
+                                        ])
+                                ]),
                             
-                            TextInput::make('totale_punten')
-                                ->label('Totale Punten')
-                                ->numeric()
-                                ->disabled()
-                                ->default(0)
-                                ->extraAttributes(function (callable $get) {
-                                    $totalPoints = (int)$get('totale_punten');
-                                    $leftCard6 = (int)$get('linker_kaart_6');
-                                    $leftCard7 = (int)$get('linker_kaart_7');
-                                    $leftCard8 = (int)$get('linker_kaart_8');
-                                    $leftCard9 = (int)$get('linker_kaart_9');
-                                    $leftCard10 = (int)$get('linker_kaart_10');
-                                    $rightCard6 = (int)$get('rechter_kaart_6');
-                                    $rightCard7 = (int)$get('rechter_kaart_7');
-                                    $rightCard8 = (int)$get('rechter_kaart_8');
-                                    $rightCard9 = (int)$get('rechter_kaart_9');
-                                    $rightCard10 = (int)$get('rechter_kaart_10');
-                                    
-                                    $leftTotal = $leftCard6 + $leftCard7 + $leftCard8 + $leftCard9 + $leftCard10;
-                                    $rightTotal = $rightCard6 + $rightCard7 + $rightCard8 + $rightCard9 + $rightCard10;
-                                    
-                                    $hasWarning = $totalPoints > 240 || $leftTotal > 12 || $rightTotal > 12;
-                                    
-                                    if ($hasWarning) {
-                                        return [
-                                            'class' => 'text-danger-600 font-bold',
-                                            'data-tooltip-content' => 'Telfout! Tel opnieuw!',
-                                            'data-tooltip-placement' => 'top',
-                                            'style' => 'position: relative;'
-                                        ];
-                                    }
-                                    
-                                    return [];
-                                })
-                                ->suffixIcon(function (callable $get) {
-                                    $totalPoints = (int)$get('totale_punten');
-                                    $leftCard6 = (int)$get('linker_kaart_6');
-                                    $leftCard7 = (int)$get('linker_kaart_7');
-                                    $leftCard8 = (int)$get('linker_kaart_8');
-                                    $leftCard9 = (int)$get('linker_kaart_9');
-                                    $leftCard10 = (int)$get('linker_kaart_10');
-                                    $rightCard6 = (int)$get('rechter_kaart_6');
-                                    $rightCard7 = (int)$get('rechter_kaart_7');
-                                    $rightCard8 = (int)$get('rechter_kaart_8');
-                                    $rightCard9 = (int)$get('rechter_kaart_9');
-                                    $rightCard10 = (int)$get('rechter_kaart_10');
-                                    
-                                    $leftTotal = $leftCard6 + $leftCard7 + $leftCard8 + $leftCard9 + $leftCard10;
-                                    $rightTotal = $rightCard6 + $rightCard7 + $rightCard8 + $rightCard9 + $rightCard10;
-                                    
-                                    if ($totalPoints > 240 || $leftTotal > 12 || $rightTotal > 12) {
-                                        return 'heroicon-o-exclamation-circle';
-                                    }
-                                    
-                                    return null;
-                                }),
+                            Textarea::make('notes')
+                                ->label('Notities')
+                                ->placeholder('Optionele notities over deze score...')
+                                ->rows(2)
+                                ->columnSpanFull(),
                         ])
                         ->columns(1)
                         ->itemLabel(function (array $state): ?string {
-                            $name = User::find($state['gebruiker_id'] ?? null)?->name ?? 'Nieuwe Speler';
+                            $user = User::find($state['gebruiker_id'] ?? null);
+                            $name = $user?->name ?? 'Nieuwe Speler';
                             $kaliber = $state['kaliber'] ?? '';
+                            $round = $state['round_number'] ?? 1;
                             $points = $state['totale_punten'] ?? '';
+                            $isOfficial = $state['is_official'] ?? true;
                             
-                            $kaliberDisplay = '';
-                            if ($kaliber === 'gkp') {
-                                $kaliberDisplay = 'GKP';
-                            } elseif ($kaliber === 'kkp') {
-                                $kaliberDisplay = 'KKP';
-                            }
+                            $kaliberDisplay = $kaliber === 'gkp' ? 'GKP' : ($kaliber === 'kkp' ? 'KKP' : '');
+                            $roundDisplay = match($round) {
+                                1 => '1e Serie',
+                                2 => '2e Serie',
+                                3 => '3e Serie',
+                                4 => '4e Serie',
+                                default => "Serie {$round}"
+                            };
                             
-                            if ($points !== '') {
-                                return "$name - $kaliberDisplay - Totaal: $points punten";
-                            }
+                            $officialBadge = $isOfficial ? '✅' : '🎯';
+                            $pointsDisplay = $points !== '' ? " - {$points} punten" : '';
                             
-                            return "$name" . ($kaliberDisplay ? " - $kaliberDisplay" : "");
+                            return "{$officialBadge} {$name} - {$kaliberDisplay} - {$roundDisplay}{$pointsDisplay}";
                         })
                         ->addActionLabel('Speler toevoegen')
                         ->deleteAction(
                             fn (Forms\Components\Actions\Action $action) => $action->requiresConfirmation()
                         )
                         ->collapsible()
-                        ->defaultItems(0),
+                        ->cloneable()
+                        ->reorderable()
+                        ->defaultItems(0)
+                        ->live(),
                 ]),
         ]);
     }
@@ -333,7 +366,14 @@ class EditMatches extends EditRecord
                 if ($total > 240) {
                     $hasWarning = true;
                     $playerName = User::find($scoreData['gebruiker_id'] ?? null)?->name ?? 'Onbekende speler';
-                    $warningMessages[] = "{$playerName}: Totaal punten hoger dan 240!";
+                    $roundName = match($scoreData['round_number'] ?? 1) {
+                        1 => '1e Serie',
+                        2 => '2e Serie',
+                        3 => '3e Serie',
+                        4 => '4e Serie',
+                        default => "Serie {$scoreData['round_number']}"
+                    };
+                    $warningMessages[] = "{$playerName} ({$roundName}): Totaal punten hoger dan 240!";
                 }
                 
                 // Check for more than 12 shots on one side
@@ -356,7 +396,14 @@ class EditMatches extends EditRecord
                 if ($leftTotal > 12 || $rightTotal > 12) {
                     $hasWarning = true;
                     $playerName = User::find($scoreData['gebruiker_id'] ?? null)?->name ?? 'Onbekende speler';
-                    $warningMessages[] = "{$playerName}: Meer dan 12 schoten op één kaart!";
+                    $roundName = match($scoreData['round_number'] ?? 1) {
+                        1 => '1e Serie',
+                        2 => '2e Serie',
+                        3 => '3e Serie',
+                        4 => '4e Serie',
+                        default => "Serie {$scoreData['round_number']}"
+                    };
+                    $warningMessages[] = "{$playerName} ({$roundName}): Meer dan 12 schoten op één kaart!";
                 }
             }
         }
