@@ -12,6 +12,7 @@ class CreateWedstrijdGebruikersScoresTable extends Migration
             $table->id();
             $table->foreignId('wedstrijd_id')->constrained('matches')->onDelete('cascade');
             $table->foreignId('gebruiker_id')->constrained('users')->onDelete('cascade');
+            $table->string('kaliber');
             $table->integer('linker_kaart_6')->default(0);
             $table->integer('linker_kaart_7')->default(0);
             $table->integer('linker_kaart_8')->default(0);
