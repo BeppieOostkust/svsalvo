@@ -113,7 +113,6 @@ class UserResource extends Resource
                             ->imageCropAspectRatio('1:1')
                             ->imageResizeTargetWidth('300')
                             ->imageResizeTargetHeight('300')
-                            ->optimize('webp')
                             ->orientImagesFromExif(false),
                         Forms\Components\Toggle::make('show_in_organization')
                             ->label('Toon in organisatie overzicht'),
