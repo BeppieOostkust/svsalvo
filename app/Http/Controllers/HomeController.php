@@ -50,37 +50,37 @@ class HomeController extends Controller
         $partners = [
             [
                 'name' => 'Wapenhandel van der Zanden',
-                'logo' => 'https://ssvdemoes.nl/wp-content/uploads/zan.jpg',
+                'logo' => '/images/partners/zan.jpg',
                 'website' => 'https://www.vanderzanden.nl',
                 'description' => 'Jacht & Schietsport'
             ],
             [
                 'name' => 'KNSA',
-                'logo' => '/images/partners/knsa.svg',
+                'logo' => '/images/partners/knsa.jpg',
                 'website' => 'https://www.knsa.nl',
                 'description' => 'Koninklijke Nederlandse Schietsport Associatie'
             ],
             [
                 'name' => 'Vuurwapens.net',
-                'logo' => '/images/partners/vuurwapens.svg',
+                'logo' => '/images/partners/vwnet.jpg',
                 'website' => 'https://www.vuurwapens.net',
                 'description' => 'Vuurwapen informatie en community'
             ],
             [
-                'name' => 'Schietsport Centrum Tichelrij',
-                'logo' => '/images/partners/tichelrij.svg',
+                'name' => 'Schietsport Centrum Tichelrijt',
+                'logo' => '/images/partners/blh.jpg',
                 'website' => 'https://www.schietsportcentrumtichelrij.nl',
                 'description' => 'Schietsport training en faciliteiten'
             ],
             [
                 'name' => 'Wapen Advertenties',
-                'logo' => '/images/partners/wapenadvertenties.svg',
+                'logo' => '/images/partners/wpa.png',
                 'website' => 'https://www.wapenadvertenties.nl',
                 'description' => 'Marktplaats voor wapens en accessoires'
             ],
             [
                 'name' => 'MH Schietsport',
-                'logo' => '/images/partners/mh-schietsport.svg',
+                'logo' => '/images/partners/mh.png',
                 'website' => 'https://www.mhschietsport.nl',
                 'description' => 'Schietsport artikelen en onderdelen'
             ]
