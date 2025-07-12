@@ -98,16 +98,21 @@ class NotificationService
      */
     public function notifyProfileUpdated(User $user, array $updatedFields = []): Notification
     {
-        $fieldsText = empty($updatedFields) ? 'profiel' : implode(', ', $updatedFields);
+        if (empty($updatedFields)) {
+            $message = "Je profielinformatie is bijgewerkt door een beheerder.";
+        } else {
+            $fieldsText = implode(', ', $updatedFields);
+            $message = "De volgende gegevens zijn bijgewerkt door een beheerder: {$fieldsText}.";
+        }
         
         return $this->createForUser(
             $user,
             'profile_updated',
-            'Profiel bijgewerkt',
-            "Je {$fieldsText} is bijgewerkt door een beheerder.",
+            'Persoonlijke gegevens bijgewerkt',
+            $message,
             [
                 'updated_fields' => $updatedFields,
-                'url' => '/dashboard/profile',
+                'url' => '/profile',
             ]
         );
     }

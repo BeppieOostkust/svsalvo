@@ -78,20 +78,29 @@ class UserObserver
             }
         }
 
-        // Notify user when their profile is updated by an admin
+        // Notify user when their important personal information is updated by an admin
         if (auth()->check() && auth()->user()->isAdmin() && auth()->user()->id !== $user->id) {
             $changedFields = [];
+            
+            // Only notify for these critical personal information fields
             $importantFields = [
-                'name' => 'naam',
+                'first_name' => 'voornaam',
+                'last_name' => 'achternaam', 
+                'name' => 'volledige naam',
                 'email' => 'e-mailadres',
                 'phone' => 'telefoonnummer',
                 'address' => 'adres',
                 'city' => 'woonplaats',
                 'postal_code' => 'postcode',
+                'country' => 'land',
                 'date_of_birth' => 'geboortedatum',
-                'roles' => 'rollen',
-                'is_admin' => 'admin status',
-                'is_active_member' => 'lidmaatschap status',
+                'membership_number' => 'lidnummer',
+                'license_number' => 'licentienummer',
+                'license_expiry' => 'licentie vervaldatum',
+                'membership_status' => 'lidmaatschap status',
+                'is_active_member' => 'actief lidmaatschap',
+                'roles' => 'rollen/functies',
+                'is_admin' => 'admin rechten',
             ];
 
             foreach ($importantFields as $field => $displayName) {
