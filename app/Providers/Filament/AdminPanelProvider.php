@@ -12,6 +12,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets;
+use Filament\Navigation\UserMenuItem;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -78,6 +79,13 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(asset('images/logo.png'))
             ->brandLogoHeight('40px')
             ->font('Geist', provider: GoogleFontProvider::class)
+            ->userMenuItems([
+                UserMenuItem::make()
+                    ->label('Terug naar website')
+                    ->url('/')
+                    ->icon('heroicon-o-home')
+                    ->sort(-1), // Put it at the top
+            ])
             ->authMiddleware([
                 Authenticate::class,
                 AdminMiddleware::class,
