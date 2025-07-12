@@ -16,7 +16,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Bind the NotificationService
+        $this->app->singleton(\App\Services\NotificationService::class);
     }
 
     /**
@@ -32,5 +33,11 @@ class AppServiceProvider extends ServiceProvider
         // Register observers
         ActivityRegistration::observe(ActivityRegistrationObserver::class);
         Matches::observe(MatchObserver::class);
+        
+        // Register notification system observers
+        \App\Models\Article::observe(\App\Observers\ArticleObserver::class);
+        \App\Models\Activity::observe(\App\Observers\ActivityObserver::class);
+        \App\Models\Matches::observe(\App\Observers\MatchesObserver::class);
+        // Note: UserObserver is already registered in the User model boot method
     }
 }

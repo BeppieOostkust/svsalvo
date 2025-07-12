@@ -130,6 +130,13 @@ Route::middleware(['auth', 'verified', 'legal.check'])->group(function () {
     
     // My registrations page
     Route::get('mijn-inschrijvingen', [\App\Http\Controllers\MatchRegistrationController::class, 'myRegistrations'])->name('my.registrations');
+    
+    // Notification routes
+    Route::get('notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('notifications/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::delete('notifications/{notification}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::get('notifications/unread-count', [\App\Http\Controllers\NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
 });
 
 // Legacy match registration routes (for backward compatibility) - moved to auth middleware above

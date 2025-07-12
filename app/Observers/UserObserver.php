@@ -4,10 +4,15 @@ namespace App\Observers;
 
 use App\Models\User;
 use App\Notifications\UserBlockedNotification;
+use App\Services\NotificationService;
 use Filament\Notifications\Notification;
 
 class UserObserver
 {
+    public function __construct(
+        private NotificationService $notificationService
+    ) {}
+
     /**
      * Handle the User "updating" event.
      */
@@ -70,6 +75,33 @@ class UserObserver
                             ->button(),
                     ])
                     ->sendToDatabase(auth()->user());
+            }
+        }
+
+        // Notify user when their profile is updated by an admin
+        if (auth()->check() && auth()->user()->isAdmin() && auth()->user()->id !== $user->id) {
+            $changedFields = [];
+            $importantFields = [
+                'name' => 'naam',
+                'email' => 'e-mailadres',
+                'phone' => 'telefoonnummer',
+                'address' => 'adres',
+                'city' => 'woonplaats',
+                'postal_code' => 'postcode',
+                'date_of_birth' => 'geboortedatum',
+                'roles' => 'rollen',
+                'is_admin' => 'admin status',
+                'is_active_member' => 'lidmaatschap status',
+            ];
+
+            foreach ($importantFields as $field => $displayName) {
+                if ($user->wasChanged($field)) {
+                    $changedFields[] = $displayName;
+                }
+            }
+
+            if (!empty($changedFields)) {
+                $this->notificationService->notifyProfileUpdated($user, $changedFields);
             }
         }
     }

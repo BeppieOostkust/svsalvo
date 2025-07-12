@@ -54,11 +54,26 @@ class HandleInertiaRequests extends Middleware
             $urgentArticles = [];
         }
 
+        // Get user notifications if authenticated
+        $notifications = [];
+        if ($request->user()) {
+            try {
+                $notifications = $request->user()
+                    ->notifications()
+                    ->limit(10)
+                    ->get(['id', 'type', 'title', 'message', 'data', 'read_at', 'created_at']);
+            } catch (\Exception $e) {
+                \Log::warning('Failed to fetch notifications: ' . $e->getMessage());
+                $notifications = [];
+            }
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'urgentArticles' => $urgentArticles,
+            'notifications' => $notifications,
             'auth' => [
                 'user' => $request->user(),
             ],

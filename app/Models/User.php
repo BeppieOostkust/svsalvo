@@ -265,6 +265,22 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * Get user's notifications
+     */
+    public function notifications()
+    {
+        return $this->hasMany(\App\Models\Notification::class)->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Get user's unread notifications
+     */
+    public function unreadNotifications()
+    {
+        return $this->hasMany(\App\Models\Notification::class)->whereNull('read_at')->orderBy('created_at', 'desc');
+    }
+
+    /**
      * Role constants
      */
     public const ROLES = [

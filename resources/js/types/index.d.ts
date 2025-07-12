@@ -27,6 +27,7 @@ export interface SharedData {
     quote: { message: string; author: string };
     auth: Auth;
     urgentArticles: UrgentArticle[];
+    notifications: Notification[];
     ziggy: Config & { location: string };
     [key: string]: unknown;
 }
@@ -55,6 +56,23 @@ export interface UrgentArticle {
     author: {
         name: string;
     };
+}
+
+export interface Notification {
+    id: number;
+    type: 'activity' | 'match' | 'nieuws' | 'profile_updated' | 'general';
+    title: string;
+    message: string;
+    data?: {
+        [key: string]: any;
+        url?: string;
+        activity_id?: number;
+        match_id?: number;
+        article_id?: number;
+    };
+    read_at: string | null;
+    created_at: string;
+    updated_at: string;
 }
 
 // Organization page interfaces
