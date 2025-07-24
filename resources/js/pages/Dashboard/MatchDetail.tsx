@@ -32,12 +32,36 @@ interface MatchScore {
 }
 
 interface PageProps {
-    matchScore: MatchScore;
+    matchScores: MatchScore[];
+    match: {
+        id: number;
+        naam: string;
+        beschrijving: string;
+        status: string;
+        start_datum: string;
+    };
     [key: string]: any;
 }
 
 export default function MatchDetail() {
-    const { matchScore } = usePage<PageProps>().props;
+    const { matchScores, match } = usePage<PageProps>().props;
+
+    // Guard clause - only show loading if matchScores is not available or empty
+    if (!matchScores || matchScores.length === 0) {
+        return (
+            <Layout>
+                <div className="w-[90%] max-w-4xl mx-auto px-4 py-8">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                        <p className="mt-4 text-gray-600">Gegevens laden...</p>
+                    </div>
+                </div>
+            </Layout>
+        );
+    }
+
+    // For now, let's take the first (latest) score
+    const matchScore = matchScores[0];
 
     const formatDateTime = (dateString: string) => {
         try {
@@ -66,27 +90,27 @@ export default function MatchDetail() {
         return colors[discipline as keyof typeof colors] || 'bg-gray-100 text-gray-800';
     };
 
-    // Calculate subtotals
+    // Calculate subtotals with safe defaults
     const linkerSubtotaal = 
-        matchScore.linker_kaart_6 * 6 +
-        matchScore.linker_kaart_7 * 7 +
-        matchScore.linker_kaart_8 * 8 +
-        matchScore.linker_kaart_9 * 9 +
-        matchScore.linker_kaart_10 * 10;
+        (matchScore.linker_kaart_6 || 0) * 6 +
+        (matchScore.linker_kaart_7 || 0) * 7 +
+        (matchScore.linker_kaart_8 || 0) * 8 +
+        (matchScore.linker_kaart_9 || 0) * 9 +
+        (matchScore.linker_kaart_10 || 0) * 10;
 
     const rechterSubtotaal = 
-        matchScore.rechter_kaart_6 * 6 +
-        matchScore.rechter_kaart_7 * 7 +
-        matchScore.rechter_kaart_8 * 8 +
-        matchScore.rechter_kaart_9 * 9 +
-        matchScore.rechter_kaart_10 * 10;
+        (matchScore.rechter_kaart_6 || 0) * 6 +
+        (matchScore.rechter_kaart_7 || 0) * 7 +
+        (matchScore.rechter_kaart_8 || 0) * 8 +
+        (matchScore.rechter_kaart_9 || 0) * 9 +
+        (matchScore.rechter_kaart_10 || 0) * 10;
 
     const brutoTotaal = linkerSubtotaal + rechterSubtotaal;
-    const totalePenalties = (matchScore.aantal_schoten_buiten_tijd * 2) + matchScore.afwaarderingen;
+    const totalePenalties = ((matchScore.aantal_schoten_buiten_tijd || 0) * 2) + (matchScore.afwaarderingen || 0);
 
     return (
         <Layout>
-            <Head title={`Wedstrijd Details - ${matchScore.matches.naam}`} />
+            <Head title={`Wedstrijd Details${match?.naam ? ` - ${match.naam}` : ''}`} />
             
             
             <div className="w-[90%] max-w-4xl mx-auto px-4 py-8">
@@ -103,14 +127,16 @@ export default function MatchDetail() {
                     </Link>
                     
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        {matchScore.matches.naam}
+                        {match?.naam || 'Wedstrijd Details'}
                     </h1>
-                    <p className="text-gray-600 mb-2">
-                        {formatDateTime(matchScore.matches.start_datum)}
-                    </p>
-                    {matchScore.matches.beschrijving && (
+                    {match?.start_datum && (
+                        <p className="text-gray-600 mb-2">
+                            {formatDateTime(match.start_datum)}
+                        </p>
+                    )}
+                    {match?.beschrijving && (
                         <p className="text-gray-700">
-                            {matchScore.matches.beschrijving}
+                            {match.beschrijving}
                         </p>
                     )}
                 </div>
@@ -120,16 +146,18 @@ export default function MatchDetail() {
                     <div className="text-center mb-6">
                         <h2 className="text-2xl font-semibold mb-4">Mijn Score</h2>
                         <div className="flex items-center justify-center space-x-4">
-                            <span className={`text-5xl font-bold ${getScoreColor(matchScore.totale_punten)}`}>
-                                {matchScore.totale_punten}
+                            <span className={`text-5xl font-bold ${getScoreColor(matchScore.totale_punten || 0)}`}>
+                                {matchScore.totale_punten || 0}
                             </span>
-                            <span className={`px-3 py-1 text-sm rounded-full ${getDisciplineColor(matchScore.kaliber)}`}>
-                                {matchScore.kaliber.toUpperCase()}
+                            <span className={`px-3 py-1 text-sm rounded-full ${getDisciplineColor(matchScore.kaliber || '')}`}>
+                                {(matchScore.kaliber || '').toUpperCase()}
                             </span>
                         </div>
-                        <p className="text-gray-600 mt-2">
-                            Score ingevoerd op: {formatDateTime(matchScore.created_at)}
-                        </p>
+                        {matchScore.created_at && (
+                            <p className="text-gray-600 mt-2">
+                                Score ingevoerd op: {formatDateTime(matchScore.created_at)}
+                            </p>
+                        )}
                     </div>
                 </div>
 
@@ -145,36 +173,36 @@ export default function MatchDetail() {
                                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                     <span className="font-medium">6-ring:</span>
                                     <div className="text-right">
-                                        <span className="mr-2">{matchScore.linker_kaart_6} x 6 =</span>
-                                        <span className="font-semibold">{matchScore.linker_kaart_6 * 6}pt</span>
+                                        <span className="mr-2">{matchScore.linker_kaart_6 || 0} x 6 =</span>
+                                        <span className="font-semibold">{(matchScore.linker_kaart_6 || 0) * 6}pt</span>
                                     </div>
                                 </div>
                                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                     <span className="font-medium">7-ring:</span>
                                     <div className="text-right">
-                                        <span className="mr-2">{matchScore.linker_kaart_7} x 7 =</span>
-                                        <span className="font-semibold">{matchScore.linker_kaart_7 * 7}pt</span>
+                                        <span className="mr-2">{matchScore.linker_kaart_7 || 0} x 7 =</span>
+                                        <span className="font-semibold">{(matchScore.linker_kaart_7 || 0) * 7}pt</span>
                                     </div>
                                 </div>
                                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                     <span className="font-medium">8-ring:</span>
                                     <div className="text-right">
-                                        <span className="mr-2">{matchScore.linker_kaart_8} x 8 =</span>
-                                        <span className="font-semibold">{matchScore.linker_kaart_8 * 8}pt</span>
+                                        <span className="mr-2">{matchScore.linker_kaart_8 || 0} x 8 =</span>
+                                        <span className="font-semibold">{(matchScore.linker_kaart_8 || 0) * 8}pt</span>
                                     </div>
                                 </div>
                                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                     <span className="font-medium">9-ring:</span>
                                     <div className="text-right">
-                                        <span className="mr-2">{matchScore.linker_kaart_9} x 9 =</span>
-                                        <span className="font-semibold">{matchScore.linker_kaart_9 * 9}pt</span>
+                                        <span className="mr-2">{matchScore.linker_kaart_9 || 0} x 9 =</span>
+                                        <span className="font-semibold">{(matchScore.linker_kaart_9 || 0) * 9}pt</span>
                                     </div>
                                 </div>
                                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                     <span className="font-medium">10-ring:</span>
                                     <div className="text-right">
-                                        <span className="mr-2">{matchScore.linker_kaart_10} x 10 =</span>
-                                        <span className="font-semibold">{matchScore.linker_kaart_10 * 10}pt</span>
+                                        <span className="mr-2">{matchScore.linker_kaart_10 || 0} x 10 =</span>
+                                        <span className="font-semibold">{(matchScore.linker_kaart_10 || 0) * 10}pt</span>
                                     </div>
                                 </div>
                                 <div className="flex justify-between items-center py-3 border-t-2 border-gray-300 bg-blue-50 rounded px-2">
@@ -191,36 +219,36 @@ export default function MatchDetail() {
                                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                     <span className="font-medium">6-ring:</span>
                                     <div className="text-right">
-                                        <span className="mr-2">{matchScore.rechter_kaart_6} x 6 =</span>
-                                        <span className="font-semibold">{matchScore.rechter_kaart_6 * 6}pt</span>
+                                        <span className="mr-2">{matchScore.rechter_kaart_6 || 0} x 6 =</span>
+                                        <span className="font-semibold">{(matchScore.rechter_kaart_6 || 0) * 6}pt</span>
                                     </div>
                                 </div>
                                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                     <span className="font-medium">7-ring:</span>
                                     <div className="text-right">
-                                        <span className="mr-2">{matchScore.rechter_kaart_7} x 7 =</span>
-                                        <span className="font-semibold">{matchScore.rechter_kaart_7 * 7}pt</span>
+                                        <span className="mr-2">{matchScore.rechter_kaart_7 || 0} x 7 =</span>
+                                        <span className="font-semibold">{(matchScore.rechter_kaart_7 || 0) * 7}pt</span>
                                     </div>
                                 </div>
                                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                     <span className="font-medium">8-ring:</span>
                                     <div className="text-right">
-                                        <span className="mr-2">{matchScore.rechter_kaart_8} x 8 =</span>
-                                        <span className="font-semibold">{matchScore.rechter_kaart_8 * 8}pt</span>
+                                        <span className="mr-2">{matchScore.rechter_kaart_8 || 0} x 8 =</span>
+                                        <span className="font-semibold">{(matchScore.rechter_kaart_8 || 0) * 8}pt</span>
                                     </div>
                                 </div>
                                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                     <span className="font-medium">9-ring:</span>
                                     <div className="text-right">
-                                        <span className="mr-2">{matchScore.rechter_kaart_9} x 9 =</span>
-                                        <span className="font-semibold">{matchScore.rechter_kaart_9 * 9}pt</span>
+                                        <span className="mr-2">{matchScore.rechter_kaart_9 || 0} x 9 =</span>
+                                        <span className="font-semibold">{(matchScore.rechter_kaart_9 || 0) * 9}pt</span>
                                     </div>
                                 </div>
                                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
                                     <span className="font-medium">10-ring:</span>
                                     <div className="text-right">
-                                        <span className="mr-2">{matchScore.rechter_kaart_10} x 10 =</span>
-                                        <span className="font-semibold">{matchScore.rechter_kaart_10 * 10}pt</span>
+                                        <span className="mr-2">{matchScore.rechter_kaart_10 || 0} x 10 =</span>
+                                        <span className="font-semibold">{(matchScore.rechter_kaart_10 || 0) * 10}pt</span>
                                     </div>
                                 </div>
                                 <div className="flex justify-between items-center py-3 border-t-2 border-gray-300 bg-blue-50 rounded px-2">
@@ -252,30 +280,30 @@ export default function MatchDetail() {
                         
                         {/* Penalties */}
                         {totalePenalties > 0 && (
-                            <Layout>
-                                {matchScore.aantal_schoten_buiten_tijd > 0 && (
+                            <>
+                                {(matchScore.aantal_schoten_buiten_tijd || 0) > 0 && (
                                     <div className="flex justify-between items-center py-2 text-red-600">
-                                        <span>Schoten buiten tijd ({matchScore.aantal_schoten_buiten_tijd} x -2):</span>
-                                        <span className="font-semibold">-{matchScore.aantal_schoten_buiten_tijd * 2}pt</span>
+                                        <span>Schoten buiten tijd ({matchScore.aantal_schoten_buiten_tijd || 0} x -2):</span>
+                                        <span className="font-semibold">-{(matchScore.aantal_schoten_buiten_tijd || 0) * 2}pt</span>
                                     </div>
                                 )}
-                                {matchScore.afwaarderingen > 0 && (
+                                {(matchScore.afwaarderingen || 0) > 0 && (
                                     <div className="flex justify-between items-center py-2 text-red-600">
                                         <span>Afwaarderingen:</span>
-                                        <span className="font-semibold">-{matchScore.afwaarderingen}pt</span>
+                                        <span className="font-semibold">-{matchScore.afwaarderingen || 0}pt</span>
                                     </div>
                                 )}
                                 <div className="flex justify-between items-center py-2 border-b border-gray-200 text-red-600">
                                     <span className="font-medium">Totale aftrek:</span>
                                     <span className="font-semibold">-{totalePenalties}pt</span>
                                 </div>
-                            </Layout>
+                            </>
                         )}
                         
                         <div className="flex justify-between items-center py-4 border-t-2 border-gray-300 bg-gray-50 rounded px-4">
                             <span className="text-xl font-bold">Eindtotaal:</span>
-                            <span className={`text-2xl font-bold ${getScoreColor(matchScore.totale_punten)}`}>
-                                {matchScore.totale_punten}pt
+                            <span className={`text-2xl font-bold ${getScoreColor(matchScore.totale_punten || 0)}`}>
+                                {matchScore.totale_punten || 0}pt
                             </span>
                         </div>
                     </div>
