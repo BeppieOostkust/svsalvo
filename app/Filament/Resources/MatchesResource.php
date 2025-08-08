@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Actions\ExportScoresAction;
 use App\Filament\Resources\MatchesResource\Pages;
 use App\Filament\Resources\MatchesResource\RelationManagers;
 use App\Models\Matches;
@@ -68,6 +69,32 @@ class MatchesResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\DeleteAction::make(),
                 Tables\Actions\EditAction::make()->modalHeading('Verander wedstrijd')->modalButton('Wijzigingen opslaan')->modalWidth('xl'),
+                Tables\Actions\Action::make('exportScores')
+                    ->label('Export Scores')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->action(function (Matches $record) {
+                        try {
+                            $exportService = new \App\Services\ScoreExportService();
+                            $filePath = $exportService->exportMatchScores($record);
+                            $fileName = 'wedstrijd_scores_' . $record->naam . '_' . date('Y-m-d') . '.xlsx';
+                            
+                            \Filament\Notifications\Notification::make()
+                                ->title('Export Succesvol')
+                                ->body('Scores zijn geëxporteerd naar Excel.')
+                                ->success()
+                                ->send();
+                            
+                            return response()->download($filePath, $fileName)->deleteFileAfterSend();
+                            
+                        } catch (\Exception $e) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Export Mislukt')
+                                ->body('Er is een fout opgetreden: ' . $e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

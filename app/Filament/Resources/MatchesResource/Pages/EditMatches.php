@@ -98,6 +98,18 @@ class EditMatches extends EditRecord
             Section::make('Speler Scores')
                 ->description('Beheer de scores van alle spelers voor deze wedstrijd.')
                 ->schema([
+                    // Search bar for players
+                    TextInput::make('player_search')
+                        ->label('🔍 Zoek Speler')
+                        ->placeholder('Zoek op naam, email of kaliber... (bijv. "Jan", "kkp", "gkp")')
+                        ->live(debounce: 500)
+                        ->helperText('Typ om te zoeken door alle spelergegevens en kalibers')
+                        ->extraAttributes([
+                            'style' => 'margin-bottom: 1.5rem; font-size: 1.1em;',
+                            'class' => 'search-input-enhanced'
+                        ])
+                        ->suffixIcon('heroicon-o-magnifying-glass'),
+                        
                     Repeater::make('gebruikersScores')
                         ->relationship('gebruikersScores')
                         ->schema([
@@ -105,9 +117,31 @@ class EditMatches extends EditRecord
                                 ->schema([
                                     Select::make('gebruiker_id')
                                         ->label('Speler')
-                                        ->options(User::all()->pluck('name', 'id'))
+                                        ->options(function () {
+                                            return User::all()->mapWithKeys(function ($user) {
+                                                $displayName = $user->first_name && $user->last_name 
+                                                    ? $user->first_name . ' ' . $user->last_name . ' (' . $user->email . ')'
+                                                    : $user->name . ' (' . $user->email . ')';
+                                                return [$user->id => $displayName];
+                                            });
+                                        })
                                         ->searchable()
                                         ->required()
+                                        ->getSearchResultsUsing(function (string $search) {
+                                            return User::where('name', 'like', "%{$search}%")
+                                                ->orWhere('first_name', 'like', "%{$search}%")
+                                                ->orWhere('last_name', 'like', "%{$search}%")
+                                                ->orWhere('email', 'like', "%{$search}%")
+                                                ->limit(50)
+                                                ->get()
+                                                ->mapWithKeys(function ($user) {
+                                                    $displayName = $user->first_name && $user->last_name 
+                                                        ? $user->first_name . ' ' . $user->last_name . ' (' . $user->email . ')'
+                                                        : $user->name . ' (' . $user->email . ')';
+                                                    return [$user->id => $displayName];
+                                                });
+                                        })
+                                        ->placeholder('Zoek een speler...')
                                         ->columnSpan(1),
                                     Select::make('kaliber')
                                         ->options([
@@ -183,6 +217,8 @@ class EditMatches extends EditRecord
                                                 ->columnSpan(1),
                                         ])
                                 ])
+                                ->collapsible()
+                                ->collapsed(true) // Altijd ingeklapt
                                 ->extraAttributes(function (callable $get) {
                                     $leftTotal = $this->countTotalShots([
                                         $get('linker_kaart_6') ?? 0,
@@ -238,6 +274,8 @@ class EditMatches extends EditRecord
                                                 ->columnSpan(1),
                                         ])
                                 ])
+                                ->collapsible()
+                                ->collapsed(true) // Altijd ingeklapt
                                 ->extraAttributes(function (callable $get) {
                                     $rightTotal = $this->countTotalShots([
                                         $get('rechter_kaart_6') ?? 0,
@@ -306,7 +344,9 @@ class EditMatches extends EditRecord
                                                     return [];
                                                 }),
                                         ])
-                                ]),
+                                ])
+                                ->collapsible()
+                                ->collapsed(true), // Altijd ingeklapt
                             
                             Textarea::make('notes')
                                 ->label('Notities')
@@ -342,6 +382,7 @@ class EditMatches extends EditRecord
                             fn (Forms\Components\Actions\Action $action) => $action->requiresConfirmation()
                         )
                         ->collapsible()
+                        ->collapsed(true) // Alle items standaard ingeklapt
                         ->cloneable()
                         ->reorderable()
                         ->defaultItems(0)

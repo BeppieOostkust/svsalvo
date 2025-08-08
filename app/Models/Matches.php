@@ -20,6 +20,10 @@ class Matches extends Model
         'updated_at',
     ];
 
+    protected $casts = [
+        'start_datum' => 'datetime',
+    ];
+
     public function gebruikersScores()
     {
         return $this->hasMany(MatchGebruikerScore::class, 'wedstrijd_id')

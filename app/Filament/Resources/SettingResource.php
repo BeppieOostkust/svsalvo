@@ -138,41 +138,6 @@ class SettingResource extends Resource
                         auth()->user()?->hasRole('Webmaster') || 
                         auth()->user()?->hasRole('Secretaris')
                     )),
-                Action::make('toggleMembership')
-                    ->label(function ($record) {
-                        if ($record->key === 'membership_applications_open') {
-                            return $record->getCastedValue() ? 'Lidmaatschap Sluiten' : 'Lidmaatschap Openen';
-                        }
-                        return null;
-                    })
-                    ->icon(function ($record) {
-                        if ($record->key === 'membership_applications_open') {
-                            return $record->getCastedValue() ? 'heroicon-o-lock-closed' : 'heroicon-o-lock-open';
-                        }
-                        return null;
-                    })
-                    ->color(function ($record) {
-                        if ($record->key === 'membership_applications_open') {
-                            return $record->getCastedValue() ? 'danger' : 'success';
-                        }
-                        return null;
-                    })
-                    ->visible(fn ($record) => $record->key === 'membership_applications_open' && (
-                        auth()->user()?->canAccessAll() || 
-                        auth()->user()?->hasRole('Webmaster') || 
-                        auth()->user()?->hasRole('Secretaris')
-                    ))
-                    ->action(function ($record) {
-                        $currentValue = $record->getCastedValue();
-                        $newValue = !$currentValue;
-                        
-                        $record->update(['value' => $newValue ? '1' : '0']);
-                        
-                        Notification::make()
-                            ->title($newValue ? 'Lidmaatschap aanvragen geopend' : 'Lidmaatschap aanvragen gesloten')
-                            ->success()
-                            ->send();
-                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

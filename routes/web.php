@@ -10,7 +10,6 @@ use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PublicController;
 use App\Http\Controllers\OrganizationController;
-use App\Http\Controllers\MembershipApplicationController;
 use App\Http\Controllers\PublicScoresController;
 use App\Http\Controllers\MemberContactController;
 use App\Http\Controllers\PasswordChangeController;
@@ -18,13 +17,6 @@ use App\Http\Controllers\VereenigingController;
 
 // Public homepage - accessible to everyone, invites visitors to join
 Route::get('/', [PublicController::class, 'index'])->name('home');
-
-// Membership application routes
-Route::post('/lidmaatschap-aanvragen', [MembershipApplicationController::class, 'store'])->name('membership.apply');
-Route::get('/lidmaatschap-succes', [MembershipApplicationController::class, 'success'])->name('membership.success');
-Route::get('/lidmaatschap-gesloten', function () {
-    return Inertia::render('membership/closed');
-})->name('membership.closed');
 
 // Test route for urgent banner functionality
 Route::get('/test-urgent', function () {
@@ -64,7 +56,7 @@ Route::get('/debug-urgent', function () {
 })->middleware('auth');
 
 // Protected routes - only for authenticated users
-Route::middleware(['auth', 'verified', 'legal.check'])->group(function () {
+Route::middleware(['auth', 'verified', 'legal.check', 'password.change'])->group(function () {
     // Authenticated member homepage
     Route::get('/home', [HomeController::class, 'index'])->name('dashboard.home');
     
@@ -120,7 +112,7 @@ Route::middleware(['auth', 'verified', 'legal.check'])->group(function () {
 });
 
 // User Dashboard routes (protected by auth middleware)
-Route::middleware(['auth', 'verified', 'legal.check'])->group(function () {
+Route::middleware(['auth', 'verified', 'legal.check', 'password.change'])->group(function () {
     Route::get('dashboard', [\App\Http\Controllers\UserDashboardController::class, 'index'])->name('dashboard');
     Route::get('profile', [\App\Http\Controllers\UserDashboardController::class, 'profile'])->name('profile');
     Route::patch('profile', [\App\Http\Controllers\UserDashboardController::class, 'updateProfile'])->name('profile.update');
@@ -144,6 +136,11 @@ Route::middleware(['auth', 'verified', 'legal.check'])->group(function () {
 // Public scores overview page
 Route::get('/scores/openbaar', [PublicScoresController::class, 'index'])
     ->name('scores.public')
+    ->middleware(['auth']);
+
+// Public scores leaderboard page
+Route::get('/scores/leaderboard', [PublicScoresController::class, 'leaderboard'])
+    ->name('scores.leaderboard')
     ->middleware(['auth']);
 
 // Public scores detail page

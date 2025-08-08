@@ -19,9 +19,6 @@ class PublicController extends Controller
             return redirect()->route('dashboard.home');
         }
 
-        // Check if membership applications are open
-        $membershipApplicationsOpen = Setting::get('membership_applications_open', true);
-
         // Get some public preview content to showcase the organization
         $featuredNews = Article::with(['author'])
             ->where('status', 'published')
@@ -56,7 +53,6 @@ class PublicController extends Controller
             'featuredNews' => $featuredNews,
             'upcomingActivities' => $upcomingActivities,
             'stats' => $stats,
-            'membershipApplicationsOpen' => $membershipApplicationsOpen,
         ]);
     }
 }

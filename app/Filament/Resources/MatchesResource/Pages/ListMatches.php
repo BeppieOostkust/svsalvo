@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\MatchesResource\Pages;
 
+use App\Filament\Actions\ExportScoresAction;
 use App\Filament\Resources\MatchesResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;

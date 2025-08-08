@@ -348,6 +348,40 @@ class UserResource extends Resource
                     })
                     ->visible(fn ($record) => !$record->is_blocked),
                 
+                Tables\Actions\Action::make('resetPassword')
+                    ->label('Wachtwoord resetten')
+                    ->icon('heroicon-o-key')
+                    ->color('info')
+                    ->requiresConfirmation()
+                    ->modalHeading('Wachtwoord resetten')
+                    ->modalDescription(fn ($record) => 
+                        "Weet je zeker dat je het wachtwoord van **{$record->name}** wilt resetten? " .
+                        "Er wordt een tijdelijk wachtwoord gegenereerd en de gebruiker moet bij de volgende inlog een nieuw wachtwoord instellen."
+                    )
+                    ->action(function ($record): void {
+                        // Generate temporary password
+                        $tempPassword = 'temp_' . str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                        
+                        $record->update([
+                            'password' => bcrypt($tempPassword),
+                            'password_change_required' => true,
+                            'remember_token' => null, // Force logout
+                        ]);
+                        
+                        Notification::make()
+                            ->title('Wachtwoord gereset')
+                            ->body(
+                                "**Tijdelijk wachtwoord voor {$record->name}:** `{$tempPassword}`\n\n" .
+                                "⚠️ **Belangrijk:** Deel dit wachtwoord veilig met de gebruiker. " .
+                                "Bij de volgende inlog moet de gebruiker een nieuw wachtwoord instellen."
+                            )
+                            ->success()
+                            ->duration(0) // Keep visible until manually dismissed
+                            ->persistent()
+                            ->send();
+                    })
+                    ->visible(fn ($record) => !$record->is_blocked),
+                
                 Tables\Actions\Action::make('viewBlockReason')
                     ->label('Bekijk reden')
                     ->icon('heroicon-o-eye')
@@ -452,6 +486,47 @@ class UserResource extends Resource
                                 ->body("{$count} gebruiker(s) zijn uitgelogd van alle apparaten.")
                                 ->success()
                                 ->send();
+                        }),
+                    
+                    Tables\Actions\BulkAction::make('resetPasswords')
+                        ->label('Wachtwoorden resetten')
+                        ->icon('heroicon-o-key')
+                        ->color('info')
+                        ->requiresConfirmation()
+                        ->modalHeading('Wachtwoorden resetten')
+                        ->modalDescription('Weet je zeker dat je de wachtwoorden van de geselecteerde gebruikers wilt resetten? Er worden tijdelijke wachtwoorden gegenereerd.')
+                        ->action(function ($records): void {
+                            $resetInfo = [];
+                            $count = 0;
+                            
+                            foreach ($records as $record) {
+                                if (!$record->is_blocked) {
+                                    $tempPassword = 'temp_' . str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                                    
+                                    $record->update([
+                                        'password' => bcrypt($tempPassword),
+                                        'password_change_required' => true,
+                                        'remember_token' => null,
+                                    ]);
+                                    
+                                    $resetInfo[] = "**{$record->name}:** `{$tempPassword}`";
+                                    $count++;
+                                }
+                            }
+                            
+                            if ($count > 0) {
+                                Notification::make()
+                                    ->title('Wachtwoorden gereset')
+                                    ->body(
+                                        "**Tijdelijke wachtwoorden:**\n\n" .
+                                        implode("\n", $resetInfo) . "\n\n" .
+                                        "⚠️ **Belangrijk:** Deel deze wachtwoorden veilig met de gebruikers."
+                                    )
+                                    ->success()
+                                    ->duration(0)
+                                    ->persistent()
+                                    ->send();
+                            }
                         }),
                     
                     Tables\Actions\DeleteBulkAction::make(),
