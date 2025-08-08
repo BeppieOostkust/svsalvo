@@ -69,7 +69,7 @@ class HomeController extends Controller
             [
                 'name' => 'Schietsport Centrum Tichelrijt',
                 'logo' => '/images/partners/blh.jpg',
-                'website' => 'https://www.schietsportcentrumtichelrij.nl',
+                'website' => 'https://www.schietsportcentrumtichelrijt.nl',
                 'description' => 'Schietsport training en faciliteiten'
             ],
             [
