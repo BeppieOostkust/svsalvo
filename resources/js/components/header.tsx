@@ -221,8 +221,8 @@ export default function Header() {
                             href={route('dashboard')}
                         >
                             <Button className="text-xs lg:text-sm px-1 lg:px-4 py-1 lg:py-2 h-8 lg:h-auto">
-                                <span className="hidden sm:inline">Dashboard</span>
-                                <span className="sm:hidden">Dashboard</span>
+                                <span className="hidden sm:inline">Profiel</span>
+                                <span className="sm:hidden">Profiel</span>
                             </Button>
                         </Link>
                         {(auth.user.is_admin || (auth.user.roles && auth.user.roles.length > 0)) && (
@@ -259,8 +259,8 @@ export default function Header() {
                             href={route('register')}
                         >
                             <Button className="text-xs lg:text-sm px-1 lg:px-4 py-1 lg:py-2 h-8 lg:h-auto">
-                                <span className="hidden sm:inline">Lid worden</span>
-                                <span className="sm:hidden">Lid</span>
+                                <span className="hidden sm:inline">Registreren</span>
+                                <span className="sm:hidden">Reg</span>
                             </Button>
                         </Link>
                     </>
@@ -392,7 +392,7 @@ export default function Header() {
                                             onClick={() => setMobileMenuOpen(false)}
                                         >
                                             <Button className="w-full justify-start">
-                                                Dashboard
+                                                Profiel
                                             </Button>
                                         </Link>
                                         {(auth.user.is_admin || (auth.user.roles && auth.user.roles.length > 0)) && (
@@ -431,7 +431,7 @@ export default function Header() {
                                             onClick={() => setMobileMenuOpen(false)}
                                         >
                                             <Button className="w-full justify-start">
-                                                Lid worden
+                                                Registreren
                                             </Button>
                                         </Link>
                                     </>

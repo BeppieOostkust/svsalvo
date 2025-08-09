@@ -76,7 +76,7 @@ export default function Instellingen() {
                             </div>
                             
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-3">Lid Worden</h3>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-3">Nieuwe Leden</h3>
                                 <p className="text-gray-700 mb-3">
                                     Nieuwe leden doorlopen een introductieprogramma van 4 sessies onder begeleiding van een gecertificeerde instructeur.
                                 </p>

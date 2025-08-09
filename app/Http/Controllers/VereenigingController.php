@@ -63,14 +63,17 @@ class VereenigingController extends Controller
                 return $memberData;
             });
 
-        // Separate board members (with positions) from regular members
-        // Both groups will maintain the same sorting (contact sharers first)
+        // Separate board members based on "Toon in organisatie overzicht" checkbox
         $boardMembers = $members->filter(function ($member) {
-            return !empty($member['position']);
+            // Find the user to check show_in_organization setting
+            $user = User::find($member['id']);
+            return $user && $user->show_in_organization;
         });
 
         $regularMembers = $members->filter(function ($member) {
-            return empty($member['position']);
+            // Find the user to check show_in_organization setting  
+            $user = User::find($member['id']);
+            return !$user || !$user->show_in_organization;
         });
 
         return Inertia::render('Vereniging/Index', [

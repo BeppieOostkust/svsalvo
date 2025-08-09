@@ -28,8 +28,8 @@ export default function Home() {
                 <section className="bg-gradient-to-r from-green-700 to-green-600 text-white py-20">
                     <div className="container mx-auto px-4">
                         <div className="max-w-4xl mx-auto text-center">
-                            <h1 className="text-5xl font-bold mb-6">
-                                Welkom bij Schietvereniging De Moes
+                            <h1 className="text-3xl md:text-5xl font-bold mb-6">
+                                Welkom bij<br />Schietvereniging De Moes
                             </h1>
                             <p className="text-xl mb-8 text-green-100">
                                 Een gezellige en professionele schietsportvereniging waar veiligheid, 

@@ -46,7 +46,7 @@ export default function Footer() {
                             </li>
                             <li>
                                 <Link href={route('register')} className="hover:text-white hover:underline">
-                                    Lid worden
+                                    Registreren
                                 </Link>
                             </li>
                             <li>
