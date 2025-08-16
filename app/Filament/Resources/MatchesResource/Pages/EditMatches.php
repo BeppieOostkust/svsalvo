@@ -157,6 +157,12 @@ class EditMatches extends EditRecord
                                             2 => '2e Serie',
                                             3 => '3e Serie',
                                             4 => '4e Serie',
+                                            5 => '5e Serie',
+                                            6 => '6e Serie',
+                                            7 => '7e Serie',
+                                            8 => '8e Serie',
+                                            9 => '9e Serie',
+                                            10 => '10e Serie',
                                         ])
                                         ->default(1)
                                         ->required()
@@ -369,6 +375,12 @@ class EditMatches extends EditRecord
                                 2 => '2e Serie',
                                 3 => '3e Serie',
                                 4 => '4e Serie',
+                                5 => '5e Serie',
+                                6 => '6e Serie',
+                                7 => '7e Serie',
+                                8 => '8e Serie',
+                                9 => '9e Serie',
+                                10 => '10e Serie',
                                 default => "Serie {$round}"
                             };
                             
@@ -412,6 +424,12 @@ class EditMatches extends EditRecord
                         2 => '2e Serie',
                         3 => '3e Serie',
                         4 => '4e Serie',
+                        5 => '5e Serie',
+                        6 => '6e Serie',
+                        7 => '7e Serie',
+                        8 => '8e Serie',
+                        9 => '9e Serie',
+                        10 => '10e Serie',
                         default => "Serie {$scoreData['round_number']}"
                     };
                     $warningMessages[] = "{$playerName} ({$roundName}): Totaal punten hoger dan 240!";
@@ -442,6 +460,12 @@ class EditMatches extends EditRecord
                         2 => '2e Serie',
                         3 => '3e Serie',
                         4 => '4e Serie',
+                        5 => '5e Serie',
+                        6 => '6e Serie',
+                        7 => '7e Serie',
+                        8 => '8e Serie',
+                        9 => '9e Serie',
+                        10 => '10e Serie',
                         default => "Serie {$scoreData['round_number']}"
                     };
                     $warningMessages[] = "{$playerName} ({$roundName}): Meer dan 12 schoten op één kaart!";
