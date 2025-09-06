@@ -14,6 +14,7 @@ use App\Http\Controllers\PublicScoresController;
 use App\Http\Controllers\MemberContactController;
 use App\Http\Controllers\PasswordChangeController;
 use App\Http\Controllers\VereenigingController;
+use App\Http\Controllers\FeedbackController;
 
 // Public homepage - accessible to everyone, invites visitors to join
 Route::get('/', [PublicController::class, 'index'])->name('home');
@@ -211,6 +212,17 @@ if (config('app.env') === 'local') {
 
 // Verenigingspagina route
 Route::get('/vereniging', [VereenigingController::class, 'index'])->name('vereniging')->middleware(['auth']);
+
+// Feedback & Suggesties routes
+Route::middleware(['auth'])->prefix('feedback')->name('feedback.')->group(function () {
+    Route::get('/', [FeedbackController::class, 'index'])->name('index');
+    Route::get('/create', [FeedbackController::class, 'create'])->name('create');
+    Route::post('/', [FeedbackController::class, 'store'])->name('store');
+    Route::get('/{feedback}', [FeedbackController::class, 'show'])->name('show');
+    Route::post('/{feedback}/vote', [FeedbackController::class, 'vote'])->name('vote');
+    Route::post('/{feedback}/comment', [FeedbackController::class, 'addComment'])->name('comment');
+    Route::delete('/comment/{comment}', [FeedbackController::class, 'deleteComment'])->name('comment.delete');
+});
 
 // Legal routes
 require __DIR__.'/legal.php';

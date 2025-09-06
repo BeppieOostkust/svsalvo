@@ -186,6 +186,13 @@ export default function Header() {
                                         </NavigationMenuLink>
                                     </Link>
                                 </NavigationMenuItem>
+                                <NavigationMenuItem>
+                                    <Link href={route("feedback.index")}>
+                                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                        Feedback
+                                        </NavigationMenuLink>
+                                    </Link>
+                                </NavigationMenuItem>
                             </NavigationMenuList>
                         </NavigationMenu>
                     </nav>
@@ -335,6 +342,13 @@ export default function Header() {
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
                                     Wedstrijden
+                                </Link>
+                                <Link 
+                                    href={route("feedback.index")} 
+                                    className="block px-3 py-2 rounded-md hover:bg-gray-100 font-medium"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    Feedback
                                 </Link>
                             </nav>
 

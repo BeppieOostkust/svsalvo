@@ -277,7 +277,28 @@ class User extends Authenticatable implements FilamentUser
      */
     public function unreadNotifications()
     {
-        return $this->hasMany(\App\Models\Notification::class)->whereNull('read_at')->orderBy('created_at', 'desc');
+        return $this->notifications()->whereNull('read_at');
+    }
+
+    // Feedback relationships
+    public function feedback()
+    {
+        return $this->hasMany(Feedback::class);
+    }
+
+    public function moderatedFeedback()
+    {
+        return $this->hasMany(Feedback::class, 'moderator_id');
+    }
+
+    public function feedbackComments()
+    {
+        return $this->hasMany(FeedbackComment::class);
+    }
+
+    public function feedbackVotes()
+    {
+        return $this->hasMany(FeedbackVote::class);
     }
 
     /**
