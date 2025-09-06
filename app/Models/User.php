@@ -400,6 +400,6 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         // For production: Only allow users with admin privileges or specific roles
-        return ($this->is_admin || count($this->roles ?? []) > 0) && $this->hasVerifiedEmail();
+        return ($this->is_admin || count($this->roles ?? []) > 0);
     }
 }
