@@ -26,7 +26,15 @@ class FeedbackResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Feedback & Suggesties';
 
+    protected static ?string $navigationGroup = 'Content Beheer';
+
     protected static ?int $navigationSort = 5;
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        return $user && ($user->canAccessAll() || $user->is_admin);
+    }
 
     public static function form(Form $form): Form
     {
