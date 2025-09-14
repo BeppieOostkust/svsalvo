@@ -92,14 +92,32 @@ class WedstrijdenController extends Controller
             return back()->withErrors(['message' => 'Aanmelden voor deze wedstrijd is niet meer mogelijk.']);
         }
 
-        // Check if user has an active registration
+        // Check if user has an active registration (for any caliber)
         $existingRegistration = MatchRegistration::where('match_id', $matchId)
             ->where('user_id', $userId)
             ->where('status', 'aangemeld')
             ->first();
 
+        // We'll allow multiple registrations for different calibers, but show info if they already have some
         if ($existingRegistration) {
-            return back()->withErrors(['message' => 'Je bent al aangemeld voor deze wedstrijd.']);
+            $existingCalibers = MatchRegistration::where('match_id', $matchId)
+                ->where('user_id', $userId)
+                ->where('status', 'aangemeld')
+                ->pluck('caliber')
+                ->toArray();
+                
+            $caliberNames = array_map(function($c) {
+                return $c === 'gkp' ? 'GKP' : 'KKP';
+            }, $existingCalibers);
+            
+            $message = count($existingCalibers) === 1 
+                ? "Je bent al aangemeld voor deze wedstrijd met " . $caliberNames[0] . "."
+                : "Je bent al aangemeld voor deze wedstrijd met " . implode(' en ', $caliberNames) . ".";
+            
+            // Only block if they're registered for both calibers
+            if (count($existingCalibers) >= 2) {
+                return back()->withErrors(['message' => $message]);
+            }
         }
 
         // Also check if already a participant
@@ -112,17 +130,51 @@ class WedstrijdenController extends Controller
         }
 
         try {
-            // Create registration entry using new system
-            MatchRegistration::create([
-                'match_id' => $matchId,
-                'user_id' => $userId,
-                'caliber' => $request->input('caliber', 'gkp'), // Default to GKP if not specified
-                'status' => 'aangemeld',
-                'registered_at' => now(),
-                'notes' => $request->input('notes'),
-            ]);
+            $calibers = $request->input('calibers', ['gkp']); // Default to GKP if not specified
+            
+            // Ensure calibers is an array
+            if (!is_array($calibers)) {
+                $calibers = [$calibers];
+            }
+            
+            // Validate calibers
+            $validCalibers = ['gkp', 'kkp'];
+            $calibers = array_intersect($calibers, $validCalibers);
+            
+            if (empty($calibers)) {
+                return back()->withErrors(['message' => 'Selecteer tenminste één geldig kaliber (GKP of KKP).']);
+            }
+            
+            // Create registration entries for each caliber
+            foreach ($calibers as $caliber) {
+                // Check if user already has a registration for this caliber
+                $existingCaliberRegistration = MatchRegistration::where('match_id', $matchId)
+                    ->where('user_id', $userId)
+                    ->where('caliber', $caliber)
+                    ->where('status', 'aangemeld')
+                    ->first();
+                    
+                if (!$existingCaliberRegistration) {
+                    MatchRegistration::create([
+                        'match_id' => $matchId,
+                        'user_id' => $userId,
+                        'caliber' => $caliber,
+                        'status' => 'aangemeld',
+                        'registered_at' => now(),
+                        'notes' => $request->input('notes'),
+                    ]);
+                }
+            }
 
-            return back()->with('success', 'Je bent succesvol aangemeld voor de wedstrijd! De organisatie zal je aanmelding beoordelen.');
+            $caliberNames = array_map(function($c) {
+                return $c === 'gkp' ? 'GKP' : 'KKP';
+            }, $calibers);
+            
+            $message = count($calibers) === 1 
+                ? "Je bent succesvol aangemeld voor de wedstrijd met " . $caliberNames[0] . "!"
+                : "Je bent succesvol aangemeld voor de wedstrijd met " . implode(' en ', $caliberNames) . "!";
+                
+            return back()->with('success', $message . ' De organisatie zal je aanmelding(en) beoordelen.');
 
         } catch (\Exception $e) {
             return back()->withErrors(['message' => 'Er is een fout opgetreden bij het aanmelden.']);
@@ -147,20 +199,38 @@ class WedstrijdenController extends Controller
         }
 
         try {
-            // First try to find and cancel registration
-            $registration = MatchRegistration::where('match_id', $matchId)
+            // Find all registrations for this user and match
+            $registrations = MatchRegistration::where('match_id', $matchId)
                 ->where('user_id', $userId)
                 ->where('status', 'aangemeld')
-                ->first();
+                ->get();
 
-            if ($registration) {
-                // If registration not yet converted, we can delete it
-                if (!$registration->converted_to_participant) {
-                    $registration->delete(); // Delete instead of updating status
-                    return back()->with('success', 'Je aanmelding is geannuleerd.');
+            if ($registrations->count() > 0) {
+                $deletedCalibers = [];
+                $cannotDeleteCalibers = [];
+                
+                foreach ($registrations as $registration) {
+                    // If registration not yet converted, we can delete it
+                    if (!$registration->converted_to_participant) {
+                        $deletedCalibers[] = $registration->caliber === 'gkp' ? 'GKP' : 'KKP';
+                        $registration->delete();
+                    } else {
+                        $cannotDeleteCalibers[] = $registration->caliber === 'gkp' ? 'GKP' : 'KKP';
+                    }
+                }
+                
+                if (count($deletedCalibers) > 0) {
+                    $message = count($deletedCalibers) === 1 
+                        ? "Je aanmelding voor " . $deletedCalibers[0] . " is geannuleerd."
+                        : "Je aanmeldingen voor " . implode(' en ', $deletedCalibers) . " zijn geannuleerd.";
+                    
+                    if (count($cannotDeleteCalibers) > 0) {
+                        $message .= " De aanmelding(en) voor " . implode(' en ', $cannotDeleteCalibers) . " konden niet geannuleerd worden omdat je al toegevoegd bent als deelnemer.";
+                    }
+                    
+                    return back()->with('success', $message);
                 } else {
-                    // If already converted, cannot cancel registration anymore
-                    return back()->withErrors(['message' => 'Je kunt deze aanmelding niet meer annuleren omdat je al toegevoegd bent als deelnemer.']);
+                    return back()->withErrors(['message' => 'Je kunt deze aanmeldingen niet meer annuleren omdat je al toegevoegd bent als deelnemer voor alle kalibers.']);
                 }
             }
 

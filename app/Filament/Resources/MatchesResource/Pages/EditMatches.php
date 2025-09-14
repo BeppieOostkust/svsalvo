@@ -108,7 +108,13 @@ class EditMatches extends EditRecord
                             'style' => 'margin-bottom: 1.5rem; font-size: 1.1em;',
                             'class' => 'search-input-enhanced'
                         ])
-                        ->suffixIcon('heroicon-o-magnifying-glass'),
+                        ->suffixIcon('heroicon-o-magnifying-glass')
+                        ->dehydrated(false) // This prevents the field from being included in the form data
+                        ->default('') // Set a proper default value
+                        ->afterStateUpdated(function ($state, $set) {
+                            // This ensures the search field works properly without affecting the model
+                            // The filtering logic can be implemented here if needed
+                        }),
                         
                     Repeater::make('gebruikersScores')
                         ->relationship('gebruikersScores')

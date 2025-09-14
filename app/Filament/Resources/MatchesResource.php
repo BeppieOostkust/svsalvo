@@ -54,13 +54,38 @@ class MatchesResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('naam')->label('Name'),
-                Tables\Columns\TextColumn::make('start_datum')->label('Startdatum')->dateTime('d-m-Y H:i:s'),
-                Tables\Columns\TextColumn::make('beschrijving')->label('Description'),
-                Tables\Columns\TextColumn::make('status')->label('Status'),
-                Tables\Columns\TextColumn::make('created_at')->label('Gecreëerd op'),
-                Tables\Columns\TextColumn::make('updated_at')->label('Laatst bijgewerkt op'),
-
+                Tables\Columns\TextColumn::make('naam')
+                    ->label('Name')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('start_datum')
+                    ->label('Startdatum')
+                    ->dateTime('d-m-Y H:i:s')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('beschrijving')
+                    ->label('Description')
+                    ->searchable()
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('status')
+                    ->label('Status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'binnenkort' => 'warning',
+                        'bezig' => 'success',
+                        'geannuleerd' => 'danger',
+                        'afgelopen' => 'gray',
+                        default => 'secondary',
+                    }),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Gecreëerd op')
+                    ->dateTime('d-m-Y H:i:s')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Laatst bijgewerkt op')
+                    ->dateTime('d-m-Y H:i:s')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

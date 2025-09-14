@@ -8,18 +8,30 @@ import { nl } from 'date-fns/locale';
 interface RegistrationModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (caliber: string, notes?: string) => void;
+    onSubmit: (calibers: string[], notes?: string) => void;
     matchName: string;
     loading: boolean;
 }
 
 function RegistrationModal({ isOpen, onClose, onSubmit, matchName, loading }: RegistrationModalProps) {
-    const [caliber, setCaliber] = useState<string>('gkp');
+    const [selectedCalibers, setSelectedCalibers] = useState<string[]>(['gkp']);
     const [notes, setNotes] = useState<string>('');
+
+    const handleCaliberChange = (caliber: string, checked: boolean) => {
+        if (checked) {
+            setSelectedCalibers(prev => [...prev, caliber]);
+        } else {
+            setSelectedCalibers(prev => prev.filter(c => c !== caliber));
+        }
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit(caliber, notes);
+        if (selectedCalibers.length === 0) {
+            alert('Selecteer tenminste één kaliber.');
+            return;
+        }
+        onSubmit(selectedCalibers, notes);
     };
 
     if (!isOpen) return null;
@@ -32,27 +44,25 @@ function RegistrationModal({ isOpen, onClose, onSubmit, matchName, loading }: Re
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Kaliber *
+                            Kaliber * (selecteer één of beide)
                         </label>
                         <div className="space-y-2">
                             <label className="flex items-center">
                                 <input
-                                    type="radio"
-                                    name="caliber"
+                                    type="checkbox"
                                     value="gkp"
-                                    checked={caliber === 'gkp'}
-                                    onChange={(e) => setCaliber(e.target.value)}
+                                    checked={selectedCalibers.includes('gkp')}
+                                    onChange={(e) => handleCaliberChange('gkp', e.target.checked)}
                                     className="mr-2"
                                 />
                                 Groot Kaliber Pistool (GKP)
                             </label>
                             <label className="flex items-center">
                                 <input
-                                    type="radio"
-                                    name="caliber"
+                                    type="checkbox"
                                     value="kkp"
-                                    checked={caliber === 'kkp'}
-                                    onChange={(e) => setCaliber(e.target.value)}
+                                    checked={selectedCalibers.includes('kkp')}
+                                    onChange={(e) => handleCaliberChange('kkp', e.target.checked)}
                                     className="mr-2"
                                 />
                                 Klein Kaliber Pistool (KKP)
@@ -264,13 +274,13 @@ export default function Wedstrijden() {
         setRegistrationModal({ isOpen: false, match: null });
     };
 
-    const handleRegistrationSubmit = (caliber: string, notes?: string) => {
+    const handleRegistrationSubmit = (calibers: string[], notes?: string) => {
         if (!registrationModal.match) return;
 
         setLoading(registrationModal.match.id);
         
         router.post(`/wedstrijd/${registrationModal.match.id}/aanmelden`, {
-            caliber,
+            calibers,
             notes
         }, {
             preserveState: true,
@@ -282,6 +292,13 @@ export default function Wedstrijden() {
             },
             onError: (errors) => {
                 console.error('Registration failed:', errors);
+                console.error('Full error object:', JSON.stringify(errors, null, 2));
+                // Show a user-friendly error message
+                if (errors.message) {
+                    alert('Aanmelding mislukt: ' + errors.message);
+                } else {
+                    alert('Aanmelding mislukt. Probeer het opnieuw.');
+                }
             },
             onFinish: () => {
                 setLoading(null);

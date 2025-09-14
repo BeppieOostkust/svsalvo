@@ -46,7 +46,8 @@ class RegistrationsRelationManager extends RelationManager
                     ->relationship('user', 'name')
                     ->required()
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->dehydrated(false),
                 Forms\Components\Select::make('caliber')
                     ->label('Kaliber')
                     ->options([
@@ -70,11 +71,12 @@ class RegistrationsRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('id')
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['user', 'match']))
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Naam')
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(['users.name'])
+                    ->sortable(['users.name']),
                 Tables\Columns\TextColumn::make('caliber')
                     ->label('Kaliber')
                     ->formatStateUsing(fn (string $state): string => match ($state) {
@@ -146,7 +148,8 @@ class RegistrationsRelationManager extends RelationManager
                         
                         foreach ($pendingRegistrations as $registration) {
                             // Voeg de gebruiker toe als deelnemer met een lege score
-                            $registration->match->gebruikersScores()->create([
+                            \App\Models\MatchGebruikerScore::create([
+                                'wedstrijd_id' => $registration->match_id,
                                 'gebruiker_id' => $registration->user_id,
                                 'kaliber' => $registration->caliber,
                                 'totale_punten' => 0,
@@ -205,7 +208,8 @@ class RegistrationsRelationManager extends RelationManager
                     ->requiresConfirmation()
                     ->action(function ($record) {
                         // Voeg de gebruiker toe als deelnemer met een lege score
-                        $record->match->gebruikersScores()->create([
+                        \App\Models\MatchGebruikerScore::create([
+                            'wedstrijd_id' => $record->match_id,
                             'gebruiker_id' => $record->user_id,
                             'kaliber' => $record->caliber,
                             'totale_punten' => 0,
@@ -255,7 +259,8 @@ class RegistrationsRelationManager extends RelationManager
                             foreach ($records as $record) {
                                 if (!$record->converted_to_participant) {
                                     // Voeg de gebruiker toe als deelnemer met een lege score
-                                    $record->match->gebruikersScores()->create([
+                                    \App\Models\MatchGebruikerScore::create([
+                                        'wedstrijd_id' => $record->match_id,
                                         'gebruiker_id' => $record->user_id,
                                         'kaliber' => $record->caliber,
                                         'totale_punten' => 0,
