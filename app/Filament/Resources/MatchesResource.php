@@ -11,6 +11,10 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Grid;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -32,21 +36,220 @@ class MatchesResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('naam'),
-                Forms\Components\TextInput::make(name: 'beschrijving'),
-                Forms\Components\Select::make('status')->options([
-                    'binnenkort' => 'Binnenkort',
-                    'bezig' => 'Bezig',
-                    'geannuleerd' => 'Geannuleerd',
-                    'afgelopen' => 'Afgelopen',
-                ]),
-                Forms\Components\DateTimePicker::make('start_datum')
-                    ->label('Start Datum')
-                    ->required()
-                    ->default(now())
-                    ->displayFormat('d-m-Y H:i:s')
-                    ->seconds(false)
-                    ->timezone('Europe/Amsterdam'),
+                Forms\Components\Section::make('Wedstrijd Informatie')
+                    ->schema([
+                        Forms\Components\TextInput::make('naam')
+                            ->label('Wedstrijd Naam')
+                            ->required(),
+                        Forms\Components\TextInput::make('beschrijving')
+                            ->label('Beschrijving'),
+                        Forms\Components\Select::make('status')
+                            ->label('Status')
+                            ->options([
+                                'binnenkort' => 'Binnenkort',
+                                'bezig' => 'Bezig',
+                                'geannuleerd' => 'Geannuleerd',
+                                'afgelopen' => 'Afgelopen',
+                            ])
+                            ->required(),
+                        Forms\Components\DateTimePicker::make('start_datum')
+                            ->label('Start Datum')
+                            ->required()
+                            ->default(now())
+                            ->displayFormat('d-m-Y H:i:s')
+                            ->seconds(false)
+                            ->timezone('Europe/Amsterdam'),
+                    ])
+                    ->columns(2),
+                    
+                Forms\Components\Section::make('Speler Scores (Georganiseerd per Serie)')
+                    ->schema([
+                        Forms\Components\Repeater::make('gebruikersScores')
+                            ->relationship()
+                            ->schema([
+                                Forms\Components\Grid::make(6)
+                                    ->schema([
+                                        Forms\Components\Select::make('gebruiker_id')
+                                            ->relationship('user', 'name')
+                                            ->label('Speler')
+                                            ->required()
+                                            ->searchable()
+                                            ->preload()
+                                            ->columnSpan(2),
+                                            
+                                        Forms\Components\Select::make('kaliber')
+                                            ->label('Kaliber')
+                                            ->options([
+                                                'gkp' => 'GKP',
+                                                'kkp' => 'KKP',
+                                            ])
+                                            ->required()
+                                            ->columnSpan(1),
+                                            
+                                        Forms\Components\TextInput::make('round_number')
+                                            ->label('Serie #')
+                                            ->numeric()
+                                            ->default(1)
+                                            ->minValue(1)
+                                            ->maxValue(10)
+                                            ->required()
+                                            ->columnSpan(1),
+                                            
+                                        Forms\Components\TextInput::make('baan_nummer')
+                                            ->label('Baan')
+                                            ->numeric()
+                                            ->minValue(1)
+                                            ->maxValue(20)
+                                            ->columnSpan(1),
+                                            
+                                        Forms\Components\Toggle::make('is_official')
+                                            ->label('Officieel')
+                                            ->default(true)
+                                            ->columnSpan(1),
+                                    ]),
+                                    
+                                Forms\Components\Grid::make(12)
+                                    ->schema([
+                                        Forms\Components\TextInput::make('linker_kaart_5')
+                                            ->label('L-5')
+                                            ->numeric()
+                                            ->default(0)
+                                            ->minValue(0)
+                                            ->maxValue(10)
+                                            ->columnSpan(1)
+                                            ->helperText('0 pt'),
+                                            
+                                        Forms\Components\TextInput::make('linker_kaart_6')
+                                            ->label('L-6')
+                                            ->numeric()
+                                            ->default(0)
+                                            ->minValue(0)
+                                            ->maxValue(10)
+                                            ->columnSpan(1),
+                                            
+                                        Forms\Components\TextInput::make('linker_kaart_7')
+                                            ->label('L-7')
+                                            ->numeric()
+                                            ->default(0)
+                                            ->minValue(0)
+                                            ->maxValue(10)
+                                            ->columnSpan(1),
+                                            
+                                        Forms\Components\TextInput::make('linker_kaart_8')
+                                            ->label('L-8')
+                                            ->numeric()
+                                            ->default(0)
+                                            ->minValue(0)
+                                            ->maxValue(10)
+                                            ->columnSpan(1),
+                                            
+                                        Forms\Components\TextInput::make('linker_kaart_9')
+                                            ->label('L-9')
+                                            ->numeric()
+                                            ->default(0)
+                                            ->minValue(0)
+                                            ->maxValue(10)
+                                            ->columnSpan(1),
+                                            
+                                        Forms\Components\TextInput::make('linker_kaart_10')
+                                            ->label('L-10')
+                                            ->numeric()
+                                            ->default(0)
+                                            ->minValue(0)
+                                            ->maxValue(10)
+                                            ->columnSpan(1),
+                                            
+                                        Forms\Components\TextInput::make('rechter_kaart_5')
+                                            ->label('R-5')
+                                            ->numeric()
+                                            ->default(0)
+                                            ->minValue(0)
+                                            ->maxValue(10)
+                                            ->columnSpan(1)
+                                            ->helperText('0 pt'),
+                                            
+                                        Forms\Components\TextInput::make('rechter_kaart_6')
+                                            ->label('R-6')
+                                            ->numeric()
+                                            ->default(0)
+                                            ->minValue(0)
+                                            ->maxValue(10)
+                                            ->columnSpan(1),
+                                            
+                                        Forms\Components\TextInput::make('rechter_kaart_7')
+                                            ->label('R-7')
+                                            ->numeric()
+                                            ->default(0)
+                                            ->minValue(0)
+                                            ->maxValue(10)
+                                            ->columnSpan(1),
+                                            
+                                        Forms\Components\TextInput::make('rechter_kaart_8')
+                                            ->label('R-8')
+                                            ->numeric()
+                                            ->default(0)
+                                            ->minValue(0)
+                                            ->maxValue(10)
+                                            ->columnSpan(1),
+                                            
+                                        Forms\Components\TextInput::make('rechter_kaart_9')
+                                            ->label('R-9')
+                                            ->numeric()
+                                            ->default(0)
+                                            ->minValue(0)
+                                            ->maxValue(10)
+                                            ->columnSpan(1),
+                                            
+                                        Forms\Components\TextInput::make('rechter_kaart_10')
+                                            ->label('R-10')
+                                            ->numeric()
+                                            ->default(0)
+                                            ->minValue(0)
+                                            ->maxValue(10)
+                                            ->columnSpan(1),
+                                    ]),
+                                    
+                                Forms\Components\Grid::make(4)
+                                    ->schema([
+                                        Forms\Components\TextInput::make('aantal_schoten_buiten_tijd')
+                                            ->label('Buiten Tijd')
+                                            ->numeric()
+                                            ->default(0)
+                                            ->minValue(0)
+                                            ->columnSpan(1),
+                                            
+                                        Forms\Components\TextInput::make('afwaarderingen')
+                                            ->label('Afwaarderingen')
+                                            ->numeric()
+                                            ->default(0)
+                                            ->minValue(0)
+                                            ->columnSpan(1),
+                                            
+                                        Forms\Components\TextInput::make('totale_punten')
+                                            ->label('Totaal')
+                                            ->numeric()
+                                            ->disabled()
+                                            ->columnSpan(1),
+                                            
+                                        Forms\Components\TextInput::make('notes')
+                                            ->label('Opmerkingen')
+                                            ->columnSpan(1),
+                                    ]),
+                            ])
+                            ->itemLabel(function (array $state): ?string {
+                                $user = \App\Models\User::find($state['gebruiker_id'] ?? null);
+                                $userName = $user ? $user->name : 'Onbekend';
+                                $serie = $state['round_number'] ?? '?';
+                                $kaliber = strtoupper($state['kaliber'] ?? 'onbekend');
+                                return "{$userName} - {$serie}e Serie - {$kaliber}";
+                            })
+                            ->collapsible()
+                            ->cloneable()
+                            ->addActionLabel('Score Toevoegen')
+                            ->reorderableWithButtons()
+                            ->orderColumn('round_number')
+                    ])
+                    ->collapsible(),
             ]);
     }
 
@@ -55,71 +258,60 @@ class MatchesResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('naam')
-                    ->label('Name')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('start_datum')
-                    ->label('Startdatum')
-                    ->dateTime('d-m-Y H:i:s')
-                    ->sortable(),
+                    ->label('Naam')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('beschrijving')
-                    ->label('Description')
-                    ->searchable()
+                    ->label('Beschrijving')
                     ->limit(50),
-                Tables\Columns\TextColumn::make('status')
+                Tables\Columns\SelectColumn::make('status')
                     ->label('Status')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'binnenkort' => 'warning',
-                        'bezig' => 'success',
-                        'geannuleerd' => 'danger',
-                        'afgelopen' => 'gray',
-                        default => 'secondary',
+                    ->options([
+                        'binnenkort' => 'Binnenkort',
+                        'bezig' => 'Bezig',
+                        'geannuleerd' => 'Geannuleerd',
+                        'afgelopen' => 'Afgelopen',
+                    ]),
+                Tables\Columns\TextColumn::make('start_datum')
+                    ->label('Start Datum')
+                    ->dateTime('d-m-Y H:i'),
+                Tables\Columns\TextColumn::make('gebruikersScores_count')
+                    ->label('Aantal Scores')
+                    ->counts('gebruikersScores'),
+                Tables\Columns\TextColumn::make('aantal_spelers')
+                    ->label('Spelers')
+                    ->getStateUsing(function ($record) {
+                        return $record->gebruikersScores()
+                            ->distinct('gebruiker_id')
+                            ->count('gebruiker_id');
+                    }),
+                Tables\Columns\TextColumn::make('aantal_series')
+                    ->label('Series')
+                    ->getStateUsing(function ($record) {
+                        return $record->gebruikersScores()
+                            ->distinct('round_number')
+                            ->count('round_number');
                     }),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Gecreëerd op')
-                    ->dateTime('d-m-Y H:i:s')
+                    ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Laatst bijgewerkt op')
-                    ->dateTime('d-m-Y H:i:s')
+                    ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        'binnenkort' => 'Binnenkort',
+                        'bezig' => 'Bezig',
+                        'geannuleerd' => 'Geannuleerd',
+                        'afgelopen' => 'Afgelopen',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\EditAction::make()->modalHeading('Verander wedstrijd')->modalButton('Wijzigingen opslaan')->modalWidth('xl'),
-                Tables\Actions\Action::make('exportScores')
-                    ->label('Export Scores')
-                    ->icon('heroicon-o-arrow-down-tray')
-                    ->color('success')
-                    ->action(function (Matches $record) {
-                        try {
-                            $exportService = new \App\Services\ScoreExportService();
-                            $filePath = $exportService->exportMatchScores($record);
-                            $fileName = 'wedstrijd_scores_' . $record->naam . '_' . date('Y-m-d') . '.xlsx';
-                            
-                            \Filament\Notifications\Notification::make()
-                                ->title('Export Succesvol')
-                                ->body('Scores zijn geëxporteerd naar Excel.')
-                                ->success()
-                                ->send();
-                            
-                            return response()->download($filePath, $fileName)->deleteFileAfterSend();
-                            
-                        } catch (\Exception $e) {
-                            \Filament\Notifications\Notification::make()
-                                ->title('Export Mislukt')
-                                ->body('Er is een fout opgetreden: ' . $e->getMessage())
-                                ->danger()
-                                ->send();
-                        }
-                    }),
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
