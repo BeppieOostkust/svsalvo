@@ -117,7 +117,7 @@ class EditMatches extends EditRecord
                         }),
                         
                     Repeater::make('gebruikersScores')
-                        ->relationship('gebruikersScores')
+                        ->relationship('gebruikersScores', modifyQueryUsing: fn ($query) => $query->orderBy('round_number')->orderBy('kaliber')->orderBy('baan_nummer'))
                         ->schema([
                             Grid::make(4)
                                 ->schema([
@@ -402,6 +402,7 @@ class EditMatches extends EditRecord
                             $round = $state['round_number'] ?? 1;
                             $points = $state['totale_punten'] ?? '';
                             $isOfficial = $state['is_official'] ?? true;
+                            $baan = $state['baan_nummer'] ?? '';
                             
                             $kaliberDisplay = $kaliber === 'gkp' ? 'GKP' : ($kaliber === 'kkp' ? 'KKP' : '');
                             $roundDisplay = match($round) {
@@ -420,8 +421,9 @@ class EditMatches extends EditRecord
                             
                             $officialBadge = $isOfficial ? '✅' : '🎯';
                             $pointsDisplay = $points !== '' ? " - {$points} punten" : '';
+                            $baanDisplay = $baan !== '' ? " - Baan {$baan}" : '';
                             
-                            return "{$officialBadge} {$name} - {$kaliberDisplay} - {$roundDisplay}{$pointsDisplay}";
+                            return "Serie {$round}: {$officialBadge} {$name} - {$kaliberDisplay}{$baanDisplay}{$pointsDisplay}";
                         })
                         ->addActionLabel('Speler toevoegen')
                         ->deleteAction(
@@ -430,9 +432,10 @@ class EditMatches extends EditRecord
                         ->collapsible()
                         ->collapsed(true) // Alle items standaard ingeklapt
                         ->cloneable()
-                        ->reorderable()
+                        ->reorderable(false) // Automatisch gesorteerd op serie
                         ->defaultItems(0)
-                        ->live(),
+                        ->live()
+                        ->orderColumn('round_number'),
                 ]),
         ]);
     }
