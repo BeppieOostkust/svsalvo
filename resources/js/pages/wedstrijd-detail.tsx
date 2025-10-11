@@ -10,11 +10,13 @@ interface MatchGebruikerScore {
     wedstrijd_id: number;
     kaliber: string;
     totale_punten: number;
+    linker_kaart_5: number;
     linker_kaart_6: number;
     linker_kaart_7: number;
     linker_kaart_8: number;
     linker_kaart_9: number;
     linker_kaart_10: number;
+    rechter_kaart_5: number;
     rechter_kaart_6: number;
     rechter_kaart_7: number;
     rechter_kaart_8: number;
@@ -184,6 +186,8 @@ export default function WedstrijdDetail() {
                                             {scoresByKaliber[kaliber].map((score, index) => {
                                                 const linkerTotal = score.linker_kaart_6 + score.linker_kaart_7 + score.linker_kaart_8 + score.linker_kaart_9 + score.linker_kaart_10;
                                                 const rechterTotal = score.rechter_kaart_6 + score.rechter_kaart_7 + score.rechter_kaart_8 + score.rechter_kaart_9 + score.rechter_kaart_10;
+                                                const linkerTotal5 = score.linker_kaart_5 || 0;
+                                                const rechterTotal5 = score.rechter_kaart_5 || 0;
                                                 
                                                 return (
                                                     <tr key={score.id} className={index < 3 ? 'bg-yellow-50' : ''}>
@@ -223,29 +227,37 @@ export default function WedstrijdDetail() {
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-center">
                                                             <div className="text-sm text-gray-900">
-                                                                <div className="flex justify-center space-x-1">
+                                                                <div className="flex justify-center space-x-1 mb-1">
+                                                                    <span className="bg-red-50 text-red-600 px-1 rounded text-xs" title="Ring 5 - telt niet mee voor punten">{score.linker_kaart_5 || 0}</span>
                                                                     <span className="bg-gray-100 px-1 rounded">{score.linker_kaart_6}</span>
                                                                     <span className="bg-gray-100 px-1 rounded">{score.linker_kaart_7}</span>
                                                                     <span className="bg-gray-100 px-1 rounded">{score.linker_kaart_8}</span>
                                                                     <span className="bg-gray-100 px-1 rounded">{score.linker_kaart_9}</span>
                                                                     <span className="bg-gray-100 px-1 rounded">{score.linker_kaart_10}</span>
                                                                 </div>
-                                                                <div className="text-xs text-gray-500 mt-1">
-                                                                    Totaal: {linkerTotal}
+                                                                <div className="text-xs text-gray-500">
+                                                                    <div>Punten: {linkerTotal}</div>
+                                                                    {linkerTotal5 > 0 && (
+                                                                        <div className="text-red-500">5-ring: {linkerTotal5} (0 pt)</div>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-center">
                                                             <div className="text-sm text-gray-900">
-                                                                <div className="flex justify-center space-x-1">
+                                                                <div className="flex justify-center space-x-1 mb-1">
+                                                                    <span className="bg-red-50 text-red-600 px-1 rounded text-xs" title="Ring 5 - telt niet mee voor punten">{score.rechter_kaart_5 || 0}</span>
                                                                     <span className="bg-gray-100 px-1 rounded">{score.rechter_kaart_6}</span>
                                                                     <span className="bg-gray-100 px-1 rounded">{score.rechter_kaart_7}</span>
                                                                     <span className="bg-gray-100 px-1 rounded">{score.rechter_kaart_8}</span>
                                                                     <span className="bg-gray-100 px-1 rounded">{score.rechter_kaart_9}</span>
                                                                     <span className="bg-gray-100 px-1 rounded">{score.rechter_kaart_10}</span>
                                                                 </div>
-                                                                <div className="text-xs text-gray-500 mt-1">
-                                                                    Totaal: {rechterTotal}
+                                                                <div className="text-xs text-gray-500">
+                                                                    <div>Punten: {rechterTotal}</div>
+                                                                    {rechterTotal5 > 0 && (
+                                                                        <div className="text-red-500">5-ring: {rechterTotal5} (0 pt)</div>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         </td>

@@ -14,15 +14,18 @@ class MatchGebruikerScore extends Model
 
     protected $fillable = [
         'kaliber',
+        'baan_nummer',
         'round_number',
         'is_official',
         'wedstrijd_id',
         'gebruiker_id',
+        'linker_kaart_5',
         'linker_kaart_6',
         'linker_kaart_7',
         'linker_kaart_8',
         'linker_kaart_9',
         'linker_kaart_10',
+        'rechter_kaart_5',
         'rechter_kaart_6',
         'rechter_kaart_7',
         'rechter_kaart_8',
@@ -35,13 +38,16 @@ class MatchGebruikerScore extends Model
     ];
 
     protected $casts = [
+        'baan_nummer' => 'integer',
         'round_number' => 'integer',
         'is_official' => 'boolean',
+        'linker_kaart_5' => 'integer',
         'linker_kaart_6' => 'integer',
         'linker_kaart_7' => 'integer',
         'linker_kaart_8' => 'integer',
         'linker_kaart_9' => 'integer',
         'linker_kaart_10' => 'integer',
+        'rechter_kaart_5' => 'integer',
         'rechter_kaart_6' => 'integer',
         'rechter_kaart_7' => 'integer',
         'rechter_kaart_8' => 'integer',
