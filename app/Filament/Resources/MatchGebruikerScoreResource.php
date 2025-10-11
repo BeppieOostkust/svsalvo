@@ -17,7 +17,7 @@ class MatchGebruikerScoreResource extends Resource
 {
     protected static ?string $model = MatchGebruikerScore::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-target';
+    protected static ?string $navigationIcon = 'heroicon-o-trophy';
 
     protected static ?string $navigationLabel = 'Wedstrijd Scores';
 
