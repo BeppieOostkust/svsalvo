@@ -119,7 +119,7 @@ class EditMatches extends EditRecord
                     Repeater::make('gebruikersScores')
                         ->relationship('gebruikersScores')
                         ->schema([
-                            Grid::make(3)
+                            Grid::make(4)
                                 ->schema([
                                     Select::make('gebruiker_id')
                                         ->label('Speler')
@@ -173,6 +173,14 @@ class EditMatches extends EditRecord
                                         ->default(1)
                                         ->required()
                                         ->columnSpan(1),
+                                    TextInput::make('baan_nummer')
+                                        ->label('🎯 Baan')
+                                        ->numeric()
+                                        ->minValue(1)
+                                        ->maxValue(20)
+                                        ->placeholder('1-20')
+                                        ->helperText('Baan nummer (1-20)')
+                                        ->columnSpan(1),
                                 ]),
                             
                             Grid::make(2)
@@ -195,8 +203,16 @@ class EditMatches extends EditRecord
                             
                             Section::make('Linker Kaart Scores')
                                 ->schema([
-                                    Grid::make(5)
+                                    Grid::make(6)
                                         ->schema([
+                                            TextInput::make('linker_kaart_5')
+                                                ->label('5-ring')
+                                                ->numeric()
+                                                ->default(0)
+                                                ->required()
+                                                ->helperText('0 punten')
+                                                ->extraAttributes(['style' => 'background-color: #fee2e2; border-color: #fca5a5;'])
+                                                ->columnSpan(1),
                                             TextInput::make('linker_kaart_6')
                                                 ->label('6-ring')
                                                 ->numeric()
@@ -233,6 +249,7 @@ class EditMatches extends EditRecord
                                 ->collapsed(true) // Altijd ingeklapt
                                 ->extraAttributes(function (callable $get) {
                                     $leftTotal = $this->countTotalShots([
+                                        $get('linker_kaart_5') ?? 0,
                                         $get('linker_kaart_6') ?? 0,
                                         $get('linker_kaart_7') ?? 0,
                                         $get('linker_kaart_8') ?? 0,
@@ -252,8 +269,16 @@ class EditMatches extends EditRecord
                             
                             Section::make('Rechter Kaart Scores')
                                 ->schema([
-                                    Grid::make(5)
+                                    Grid::make(6)
                                         ->schema([
+                                            TextInput::make('rechter_kaart_5')
+                                                ->label('5-ring')
+                                                ->numeric()
+                                                ->default(0)
+                                                ->required()
+                                                ->helperText('0 punten')
+                                                ->extraAttributes(['style' => 'background-color: #fee2e2; border-color: #fca5a5;'])
+                                                ->columnSpan(1),
                                             TextInput::make('rechter_kaart_6')
                                                 ->label('6-ring')
                                                 ->numeric()
@@ -290,6 +315,7 @@ class EditMatches extends EditRecord
                                 ->collapsed(true) // Altijd ingeklapt
                                 ->extraAttributes(function (callable $get) {
                                     $rightTotal = $this->countTotalShots([
+                                        $get('rechter_kaart_5') ?? 0,
                                         $get('rechter_kaart_6') ?? 0,
                                         $get('rechter_kaart_7') ?? 0,
                                         $get('rechter_kaart_8') ?? 0,
@@ -332,6 +358,7 @@ class EditMatches extends EditRecord
                                                 ->extraAttributes(function (callable $get) {
                                                     $totalPoints = (int)$get('totale_punten');
                                                     $leftTotal = $this->countTotalShots([
+                                                        $get('linker_kaart_5') ?? 0,
                                                         $get('linker_kaart_6') ?? 0,
                                                         $get('linker_kaart_7') ?? 0,
                                                         $get('linker_kaart_8') ?? 0,
@@ -339,6 +366,7 @@ class EditMatches extends EditRecord
                                                         $get('linker_kaart_10') ?? 0
                                                     ]);
                                                     $rightTotal = $this->countTotalShots([
+                                                        $get('rechter_kaart_5') ?? 0,
                                                         $get('rechter_kaart_6') ?? 0,
                                                         $get('rechter_kaart_7') ?? 0,
                                                         $get('rechter_kaart_8') ?? 0,
@@ -441,8 +469,9 @@ class EditMatches extends EditRecord
                     $warningMessages[] = "{$playerName} ({$roundName}): Totaal punten hoger dan 240!";
                 }
                 
-                // Check for more than 12 shots on one side
+                // Check for more than 12 shots on one side (inclusief 5-ring)
                 $leftTotal = $this->countTotalShots([
+                    $scoreData['linker_kaart_5'] ?? 0,
                     $scoreData['linker_kaart_6'] ?? 0,
                     $scoreData['linker_kaart_7'] ?? 0,
                     $scoreData['linker_kaart_8'] ?? 0,
@@ -451,14 +480,13 @@ class EditMatches extends EditRecord
                 ]);
                 
                 $rightTotal = $this->countTotalShots([
+                    $scoreData['rechter_kaart_5'] ?? 0,
                     $scoreData['rechter_kaart_6'] ?? 0,
                     $scoreData['rechter_kaart_7'] ?? 0,
                     $scoreData['rechter_kaart_8'] ?? 0,
                     $scoreData['rechter_kaart_9'] ?? 0,
                     $scoreData['rechter_kaart_10'] ?? 0
-                ]);
-                
-                if ($leftTotal > 12 || $rightTotal > 12) {
+                ]);                if ($leftTotal > 12 || $rightTotal > 12) {
                     $hasWarning = true;
                     $playerName = User::find($scoreData['gebruiker_id'] ?? null)?->name ?? 'Onbekende speler';
                     $roundName = match($scoreData['round_number'] ?? 1) {
@@ -525,6 +553,7 @@ class EditMatches extends EditRecord
     private function calculateTotalPoints(array $data): int
     {
         // Safe conversion to integers with fallback to 0 if empty
+        // 5-ring telt NIET mee voor punten (0 punten per schot)
         $leftCard6 = !empty($data['linker_kaart_6']) ? (int)$data['linker_kaart_6'] : 0;
         $leftCard7 = !empty($data['linker_kaart_7']) ? (int)$data['linker_kaart_7'] : 0;
         $leftCard8 = !empty($data['linker_kaart_8']) ? (int)$data['linker_kaart_8'] : 0;
@@ -540,7 +569,7 @@ class EditMatches extends EditRecord
         $outOfTime = !empty($data['aantal_schoten_buiten_tijd']) ? (int)$data['aantal_schoten_buiten_tijd'] : 0;
         $penalties = !empty($data['afwaarderingen']) ? (int)$data['afwaarderingen'] : 0;
         
-        // Calculate the total points
+        // Calculate the total points (5-ring = 0 punten, maar telt wel als schot)
         return ($leftCard6 * 6) +
                ($leftCard7 * 7) +
                ($leftCard8 * 8) +
