@@ -170,7 +170,6 @@ class MatchesResource extends Resource
     {
         return [
             RelationManagers\RegistrationsRelationManager::class,
-            RelationManagers\GebruikersScoresRelationManager::class,
         ];
     }
 

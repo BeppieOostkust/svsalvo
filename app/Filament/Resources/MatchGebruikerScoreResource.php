@@ -1,153 +1,206 @@
 <?php
 
-namespace App\Filament\Resources\MatchesResource\RelationManagers;
+namespace App\Filament\Resources;
 
+use App\Filament\Resources\MatchGebruikerScoreResource\Pages;
+use App\Filament\Resources\MatchGebruikerScoreResource\RelationManagers;
+use App\Models\MatchGebruikerScore;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class GebruikersScoresRelationManager extends RelationManager
+class MatchGebruikerScoreResource extends Resource
 {
-    protected static string $relationship = 'gebruikersScores';
+    protected static ?string $model = MatchGebruikerScore::class;
 
-    protected static ?string $title = 'Deelnemers & Scores';
+    protected static ?string $navigationIcon = 'heroicon-o-target';
 
-    public function form(Form $form): Form
+    protected static ?string $navigationLabel = 'Wedstrijd Scores';
+
+    protected static ?string $navigationGroup = 'Wedstrijd Beheer';
+
+    protected static ?string $modelLabel = 'Score';
+
+    protected static ?string $pluralModelLabel = 'Scores';
+
+    public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('gebruiker_id')
-                    ->relationship('user', 'name')
-                    ->label('Speler')
-                    ->required()
-                    ->searchable()
-                    ->preload(),
-                    
-                Forms\Components\Select::make('kaliber')
-                    ->label('Kaliber')
-                    ->options([
-                        'gkp' => 'GKP (Groot Kaliber Pistool)',
-                        'kkp' => 'KKP (Klein Kaliber Pistool)',
+                Forms\Components\Section::make('Wedstrijd Informatie')
+                    ->schema([
+                        Forms\Components\Select::make('wedstrijd_id')
+                            ->relationship('matches', 'naam')
+                            ->label('Wedstrijd')
+                            ->required()
+                            ->searchable()
+                            ->preload(),
+                            
+                        Forms\Components\Select::make('gebruiker_id')
+                            ->relationship('user', 'name')
+                            ->label('Speler')
+                            ->required()
+                            ->searchable()
+                            ->preload(),
+                            
+                        Forms\Components\Select::make('kaliber')
+                            ->label('Kaliber')
+                            ->options([
+                                'gkp' => 'GKP (Groot Kaliber Pistool)',
+                                'kkp' => 'KKP (Klein Kaliber Pistool)',
+                            ])
+                            ->required(),
+                            
+                        Forms\Components\TextInput::make('round_number')
+                            ->label('Serie Nummer')
+                            ->numeric()
+                            ->default(1)
+                            ->minValue(1)
+                            ->maxValue(10)
+                            ->required(),
+                            
+                        Forms\Components\TextInput::make('baan_nummer')
+                            ->label('Baan Nummer')
+                            ->numeric()
+                            ->minValue(1)
+                            ->maxValue(20),
+                            
+                        Forms\Components\Toggle::make('is_official')
+                            ->label('Officiële Serie')
+                            ->default(true),
                     ])
-                    ->required(),
+                    ->columns(3),
                     
-                Forms\Components\TextInput::make('round_number')
-                    ->label('Serie Nummer')
-                    ->numeric()
-                    ->default(1)
-                    ->minValue(1)
-                    ->maxValue(10)
-                    ->required(),
-                    
-                Forms\Components\TextInput::make('baan_nummer')
-                    ->label('Baan Nummer')
-                    ->numeric()
-                    ->minValue(1)
-                    ->maxValue(20)
-                    ->placeholder('Bijv. 1, 2, 3...'),
-                    
-                Forms\Components\Toggle::make('is_official')
-                    ->label('Officiële Serie')
-                    ->default(true),
-                    
-                Forms\Components\Section::make('Linker Kaart')
+                Forms\Components\Section::make('Linker Kaart Scores')
                     ->schema([
                         Forms\Components\TextInput::make('linker_kaart_5')
                             ->label('Ring 5 (0 punten)')
                             ->numeric()
+                            ->default(0)
                             ->minValue(0)
                             ->maxValue(10)
                             ->helperText('Telt niet mee voor punten'),
+                            
                         Forms\Components\TextInput::make('linker_kaart_6')
                             ->label('Ring 6')
                             ->numeric()
+                            ->default(0)
                             ->minValue(0)
                             ->maxValue(10),
+                            
                         Forms\Components\TextInput::make('linker_kaart_7')
                             ->label('Ring 7')
                             ->numeric()
+                            ->default(0)
                             ->minValue(0)
                             ->maxValue(10),
+                            
                         Forms\Components\TextInput::make('linker_kaart_8')
                             ->label('Ring 8')
                             ->numeric()
+                            ->default(0)
                             ->minValue(0)
                             ->maxValue(10),
+                            
                         Forms\Components\TextInput::make('linker_kaart_9')
                             ->label('Ring 9')
                             ->numeric()
+                            ->default(0)
                             ->minValue(0)
                             ->maxValue(10),
+                            
                         Forms\Components\TextInput::make('linker_kaart_10')
                             ->label('Ring 10')
                             ->numeric()
+                            ->default(0)
                             ->minValue(0)
                             ->maxValue(10),
                     ])
                     ->columns(6),
                     
-                Forms\Components\Section::make('Rechter Kaart')
+                Forms\Components\Section::make('Rechter Kaart Scores')
                     ->schema([
                         Forms\Components\TextInput::make('rechter_kaart_5')
                             ->label('Ring 5 (0 punten)')
                             ->numeric()
+                            ->default(0)
                             ->minValue(0)
                             ->maxValue(10)
                             ->helperText('Telt niet mee voor punten'),
+                            
                         Forms\Components\TextInput::make('rechter_kaart_6')
                             ->label('Ring 6')
                             ->numeric()
+                            ->default(0)
                             ->minValue(0)
                             ->maxValue(10),
+                            
                         Forms\Components\TextInput::make('rechter_kaart_7')
                             ->label('Ring 7')
                             ->numeric()
+                            ->default(0)
                             ->minValue(0)
                             ->maxValue(10),
+                            
                         Forms\Components\TextInput::make('rechter_kaart_8')
                             ->label('Ring 8')
                             ->numeric()
+                            ->default(0)
                             ->minValue(0)
                             ->maxValue(10),
+                            
                         Forms\Components\TextInput::make('rechter_kaart_9')
                             ->label('Ring 9')
                             ->numeric()
+                            ->default(0)
                             ->minValue(0)
                             ->maxValue(10),
+                            
                         Forms\Components\TextInput::make('rechter_kaart_10')
                             ->label('Ring 10')
                             ->numeric()
+                            ->default(0)
                             ->minValue(0)
                             ->maxValue(10),
                     ])
                     ->columns(6),
                     
-                Forms\Components\TextInput::make('aantal_schoten_buiten_tijd')
-                    ->label('Schoten Buiten Tijd')
-                    ->numeric()
-                    ->default(0)
-                    ->minValue(0),
-                    
-                Forms\Components\TextInput::make('afwaarderingen')
-                    ->label('Afwaarderingen')
-                    ->numeric()
-                    ->default(0)
-                    ->minValue(0),
-                    
-                Forms\Components\Textarea::make('notes')
-                    ->label('Opmerkingen')
-                    ->rows(3),
+                Forms\Components\Section::make('Extra Informatie')
+                    ->schema([
+                        Forms\Components\TextInput::make('aantal_schoten_buiten_tijd')
+                            ->label('Schoten Buiten Tijd')
+                            ->numeric()
+                            ->default(0)
+                            ->minValue(0),
+                            
+                        Forms\Components\TextInput::make('afwaarderingen')
+                            ->label('Afwaarderingen')
+                            ->numeric()
+                            ->default(0)
+                            ->minValue(0),
+                            
+                        Forms\Components\TextInput::make('totale_punten')
+                            ->label('Totale Punten')
+                            ->numeric()
+                            ->disabled()
+                            ->helperText('Wordt automatisch berekend'),
+                            
+                        Forms\Components\Textarea::make('notes')
+                            ->label('Opmerkingen')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(3),
             ]);
     }
 
-    public function table(Table $table): Table
+    public static function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('user.name')
             ->defaultSort('round_number')
             ->defaultGroup('round_number')
             ->columns([
@@ -155,7 +208,20 @@ class GebruikersScoresRelationManager extends RelationManager
                     ->label('Serie')
                     ->badge()
                     ->sortable()
-                    ->color('primary'),
+                    ->color(fn (string $state): string => match ($state) {
+                        '1' => 'success',
+                        '2' => 'info', 
+                        '3' => 'warning',
+                        '4' => 'danger',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn (string $state): string => "{$state}e Serie"),
+                    
+                Tables\Columns\TextColumn::make('matches.naam')
+                    ->label('Wedstrijd')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
                     
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Speler')
@@ -181,36 +247,37 @@ class GebruikersScoresRelationManager extends RelationManager
                     ->label('Totaal')
                     ->badge()
                     ->color('success')
-                    ->sortable()
-                    ->placeholder('0'),
+                    ->sortable(),
                     
                 Tables\Columns\TextColumn::make('linker_kaart_10')
                     ->label('L-10')
-                    ->placeholder('0'),
+                    ->alignCenter(),
                     
                 Tables\Columns\TextColumn::make('linker_kaart_9')
                     ->label('L-9')
-                    ->placeholder('0'),
+                    ->alignCenter(),
                     
                 Tables\Columns\TextColumn::make('rechter_kaart_10')
                     ->label('R-10')
-                    ->placeholder('0'),
+                    ->alignCenter(),
                     
                 Tables\Columns\TextColumn::make('rechter_kaart_9')
                     ->label('R-9')
-                    ->placeholder('0'),
+                    ->alignCenter(),
                     
                 Tables\Columns\TextColumn::make('linker_kaart_5')
                     ->label('L-5')
-                    ->placeholder('0')
+                    ->alignCenter()
                     ->color('gray')
-                    ->tooltip('Ring 5 - telt niet mee voor punten'),
+                    ->tooltip('Ring 5 - telt niet mee voor punten')
+                    ->toggleable(),
                     
                 Tables\Columns\TextColumn::make('rechter_kaart_5')
                     ->label('R-5')
-                    ->placeholder('0')
+                    ->alignCenter()
                     ->color('gray')
-                    ->tooltip('Ring 5 - telt niet mee voor punten'),
+                    ->tooltip('Ring 5 - telt niet mee voor punten')
+                    ->toggleable(),
                     
                 Tables\Columns\IconColumn::make('is_official')
                     ->label('Officieel')
@@ -242,14 +309,15 @@ class GebruikersScoresRelationManager extends RelationManager
                     ])
                     ->multiple(),
                     
+                Tables\Filters\SelectFilter::make('wedstrijd_id')
+                    ->label('Wedstrijd')
+                    ->relationship('matches', 'naam')
+                    ->searchable()
+                    ->preload(),
+                    
                 Tables\Filters\Filter::make('is_official')
                     ->label('Alleen Officiële Series')
                     ->query(fn (Builder $query): Builder => $query->where('is_official', true))
-                    ->toggle(),
-                    
-                Tables\Filters\Filter::make('baan_toegewezen')
-                    ->label('Baan Toegewezen')
-                    ->query(fn (Builder $query): Builder => $query->whereNotNull('baan_nummer'))
                     ->toggle(),
             ])
             ->groups([
@@ -262,15 +330,6 @@ class GebruikersScoresRelationManager extends RelationManager
                     ->label('Kaliber')
                     ->getTitleFromRecordUsing(fn ($record): string => strtoupper($record->kaliber))
                     ->collapsible(),
-                    
-                Tables\Grouping\Group::make('baan_nummer')
-                    ->label('Baan')
-                    ->getTitleFromRecordUsing(fn ($record): string => $record->baan_nummer ? "Baan {$record->baan_nummer}" : 'Geen baan toegewezen')
-                    ->collapsible(),
-            ])
-            ->headerActions([
-                Tables\Actions\CreateAction::make()
-                    ->label('Deelnemer Toevoegen'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -301,8 +360,19 @@ class GebruikersScoresRelationManager extends RelationManager
             ]);
     }
 
-    protected function modifyQuery(Builder $query): Builder
+    public static function getRelations(): array
     {
-        return $query->with(['user']);
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListMatchGebruikerScores::route('/'),
+            'create' => Pages\CreateMatchGebruikerScore::route('/create'),
+            'edit' => Pages\EditMatchGebruikerScore::route('/{record}/edit'),
+        ];
     }
 }
