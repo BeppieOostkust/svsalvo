@@ -67,46 +67,59 @@ class MatchesResource extends Resource
                         Forms\Components\Repeater::make('gebruikersScores')
                             ->relationship()
                             ->schema([
-                                Forms\Components\Grid::make(6)
+                                Forms\Components\Section::make('Speler & Serie Info')
                                     ->schema([
-                                        Forms\Components\Select::make('gebruiker_id')
-                                            ->relationship('user', 'name')
-                                            ->label('Speler')
-                                            ->required()
-                                            ->searchable()
-                                            ->preload()
-                                            ->columnSpan(2),
-                                            
-                                        Forms\Components\Select::make('kaliber')
-                                            ->label('Kaliber')
-                                            ->options([
-                                                'gkp' => 'GKP',
-                                                'kkp' => 'KKP',
-                                            ])
-                                            ->required()
-                                            ->columnSpan(1),
-                                            
-                                        Forms\Components\TextInput::make('round_number')
-                                            ->label('Serie #')
-                                            ->numeric()
-                                            ->default(1)
-                                            ->minValue(1)
-                                            ->maxValue(10)
-                                            ->required()
-                                            ->columnSpan(1),
-                                            
-                                        Forms\Components\TextInput::make('baan_nummer')
-                                            ->label('Baan')
-                                            ->numeric()
-                                            ->minValue(1)
-                                            ->maxValue(20)
-                                            ->columnSpan(1),
-                                            
-                                        Forms\Components\Toggle::make('is_official')
-                                            ->label('Officieel')
-                                            ->default(true)
-                                            ->columnSpan(1),
-                                    ]),
+                                        Forms\Components\Grid::make(3)
+                                            ->schema([
+                                                Forms\Components\Select::make('gebruiker_id')
+                                                    ->relationship('user', 'name')
+                                                    ->label('Speler')
+                                                    ->required()
+                                                    ->searchable()
+                                                    ->preload()
+                                                    ->columnSpan(1),
+                                                    
+                                                Forms\Components\Select::make('kaliber')
+                                                    ->label('Kaliber')
+                                                    ->options([
+                                                        'gkp' => 'GKP',
+                                                        'kkp' => 'KKP',
+                                                    ])
+                                                    ->required()
+                                                    ->columnSpan(1),
+                                                    
+                                                Forms\Components\TextInput::make('round_number')
+                                                    ->label('Serie #')
+                                                    ->numeric()
+                                                    ->default(1)
+                                                    ->minValue(1)
+                                                    ->maxValue(10)
+                                                    ->required()
+                                                    ->columnSpan(1),
+                                            ]),
+                                        Forms\Components\Grid::make(3)
+                                            ->schema([
+                                                Forms\Components\TextInput::make('baan_nummer')
+                                                    ->label('🎯 Baan Nummer')
+                                                    ->numeric()
+                                                    ->minValue(1)
+                                                    ->maxValue(20)
+                                                    ->placeholder('1-20')
+                                                    ->helperText('Wijs een baan toe (1-20)')
+                                                    ->required()
+                                                    ->columnSpan(1),
+                                                    
+                                                Forms\Components\Toggle::make('is_official')
+                                                    ->label('Officieel')
+                                                    ->default(true)
+                                                    ->columnSpan(1),
+                                                    
+                                                Forms\Components\Placeholder::make('space')
+                                                    ->columnSpan(1),
+                                            ]),
+                                    ])
+                                    ->collapsible()
+                                    ->collapsed(false),
                                     
                                 Forms\Components\Grid::make(12)
                                     ->schema([
