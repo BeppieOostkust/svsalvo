@@ -117,7 +117,7 @@ class EditMatches extends EditRecord
                         }),
                         
                     Repeater::make('gebruikersScores')
-                        ->relationship('gebruikersScores', modifyQueryUsing: fn ($query) => $query->orderBy('round_number')->orderBy('kaliber')->orderBy('baan_nummer'))
+                        ->relationship('gebruikersScores', modifyQueryUsing: fn ($query) => $query->orderBy('round_number', 'asc')->orderBy('kaliber', 'asc')->orderByRaw("CASE WHEN baan_nummer IS NULL THEN 1 ELSE 0 END")->orderBy('baan_nummer', 'asc'))
                         ->schema([
                             Grid::make(4)
                                 ->schema([
@@ -405,37 +405,64 @@ class EditMatches extends EditRecord
                             $baan = $state['baan_nummer'] ?? '';
                             
                             $kaliberDisplay = $kaliber === 'gkp' ? 'GKP' : ($kaliber === 'kkp' ? 'KKP' : '');
-                            $roundDisplay = match($round) {
-                                1 => '1e Serie',
-                                2 => '2e Serie',
-                                3 => '3e Serie',
-                                4 => '4e Serie',
-                                5 => '5e Serie',
-                                6 => '6e Serie',
-                                7 => '7e Serie',
-                                8 => '8e Serie',
-                                9 => '9e Serie',
-                                10 => '10e Serie',
-                                default => "Serie {$round}"
-                            };
                             
                             $officialBadge = $isOfficial ? '✅' : '🎯';
-                            $pointsDisplay = $points !== '' ? " - {$points} punten" : '';
-                            $baanDisplay = $baan !== '' ? " - Baan {$baan}" : '';
+                            $pointsDisplay = $points !== '' ? " ({$points}pt)" : '';
+                            $baanDisplay = $baan !== '' ? " [Baan {$baan}]" : '';
                             
-                            return "Serie {$round}: {$officialBadge} {$name} - {$kaliberDisplay}{$baanDisplay}{$pointsDisplay}";
+                            // Format: "📊 SERIE 1 | ✅ John Doe - GKP [Baan 5] (224pt)"
+                            return "📊 SERIE {$round} | {$officialBadge} {$name} - {$kaliberDisplay}{$baanDisplay}{$pointsDisplay}";
                         })
                         ->addActionLabel('Speler toevoegen')
                         ->deleteAction(
                             fn (Forms\Components\Actions\Action $action) => $action->requiresConfirmation()
                         )
                         ->collapsible()
-                        ->collapsed(true) // Alle items standaard ingeklapt
+                        ->collapsed(function (array $state): bool {
+                            // Collapse items that are not from series 1-3 to keep interface clean
+                            $round = $state['round_number'] ?? 1;
+                            return $round > 3;
+                        })
                         ->cloneable()
-                        ->reorderable(false) // Automatisch gesorteerd op serie
+                        ->reorderable()
+                        ->reorderableWithButtons()
                         ->defaultItems(0)
                         ->live()
-                        ->orderColumn('round_number'),
+                        ->addActionLabel('➕ Nieuwe Score Toevoegen')
+                        ->deleteActionLabel('🗑️ Verwijderen')
+                        ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
+                            // Set default values when creating new score
+                            $data['round_number'] = $data['round_number'] ?? 1;
+                            $data['is_official'] = $data['is_official'] ?? true;
+                            return $data;
+                        })
+                        ->afterStateHydrated(function (Repeater $component, $state) {
+                            // Sort items by serie, then by kaliber, then by baan
+                            if (is_array($state)) {
+                                usort($state, function ($a, $b) {
+                                    $aRound = $a['round_number'] ?? 1;
+                                    $bRound = $b['round_number'] ?? 1;
+                                    
+                                    if ($aRound != $bRound) {
+                                        return $aRound <=> $bRound;
+                                    }
+                                    
+                                    $aKaliber = $a['kaliber'] ?? '';
+                                    $bKaliber = $b['kaliber'] ?? '';
+                                    
+                                    if ($aKaliber != $bKaliber) {
+                                        return strcmp($aKaliber, $bKaliber);
+                                    }
+                                    
+                                    $aBaan = $a['baan_nummer'] ?? 0;
+                                    $bBaan = $b['baan_nummer'] ?? 0;
+                                    
+                                    return $aBaan <=> $bBaan;
+                                });
+                                
+                                $component->state($state);
+                            }
+                        }),
                 ]),
         ]);
     }
