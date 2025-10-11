@@ -211,7 +211,7 @@ class EditMatches extends EditRecord
                                                 ->default(0)
                                                 ->required()
                                                 ->helperText('0 punten')
-                                                ->extraAttributes(['style' => 'background-color: #fee2e2; border-color: #fca5a5;'])
+                                            
                                                 ->columnSpan(1),
                                             TextInput::make('linker_kaart_6')
                                                 ->label('6-ring')
@@ -277,7 +277,6 @@ class EditMatches extends EditRecord
                                                 ->default(0)
                                                 ->required()
                                                 ->helperText('0 punten')
-                                                ->extraAttributes(['style' => 'background-color: #fee2e2; border-color: #fca5a5;'])
                                                 ->columnSpan(1),
                                             TextInput::make('rechter_kaart_6')
                                                 ->label('6-ring')
