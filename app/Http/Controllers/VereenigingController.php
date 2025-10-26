@@ -21,9 +21,24 @@ class VereenigingController extends Controller
             ->orderBy('first_name', 'asc')
             ->get()
             ->map(function ($user) {
+                // Determine which name to show based on show_full_name setting
+                $displayName = 'Anonieme Lid'; // Default fallback
+                
+                if ($user->show_full_name && $user->first_name && $user->last_name) {
+                    // Show full name
+                    $displayName = "{$user->first_name} {$user->last_name}";
+                } elseif ($user->avg_name) {
+                    // Show AVG name (default)
+                    $displayName = $user->avg_name;
+                } elseif ($user->name) {
+                    // Fallback to regular name
+                    $displayName = $user->name;
+                }
+                
                 // Base user data that's always shown
                 $memberData = [
                     'id' => $user->id,
+                    'name' => $displayName,
                     'profile_image_url' => $user->profile_image_url,
                     'member_since' => $user->member_since,
                     'position' => $user->position,
@@ -33,23 +48,8 @@ class VereenigingController extends Controller
 
                 // Check privacy setting for contact info
                 if ($user->show_contact_info) {
-                    // Determine which name to show based on show_full_name setting
-                    $displayName = 'Anonieme Lid'; // Default fallback
-                    
-                    if ($user->show_full_name && $user->first_name && $user->last_name) {
-                        // Show full name
-                        $displayName = "{$user->first_name} {$user->last_name}";
-                    } elseif ($user->avg_name) {
-                        // Show AVG name (default)
-                        $displayName = $user->avg_name;
-                    } elseif ($user->name) {
-                        // Fallback to regular name
-                        $displayName = $user->name;
-                    }
-                    
-                    // Show contact information
+                    // Add contact information only if user wants to share it
                     $memberData = array_merge($memberData, [
-                        'name' => $displayName,
                         'first_name' => $user->show_full_name ? $user->first_name : null,
                         'last_name' => $user->show_full_name ? $user->last_name : null,
                         'email' => $user->email,
@@ -59,9 +59,8 @@ class VereenigingController extends Controller
                         'is_anonymous' => false,
                     ]);
                 } else {
-                    // Show as anonymous member
+                    // Don't show contact information
                     $memberData = array_merge($memberData, [
-                        'name' => 'Anonieme Lid',
                         'first_name' => null,
                         'last_name' => null,
                         'email' => null,
