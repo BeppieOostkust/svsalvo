@@ -145,9 +145,15 @@ class UserResource extends Resource
                 Forms\Components\Section::make('Privacy Instellingen')
                     ->schema([
                         Forms\Components\Toggle::make('show_contact_info')
-                            ->label('Contactgegevens openbaar'),
+                            ->label('Contactgegevens openbaar')
+                            ->default(false),
                         Forms\Components\Toggle::make('show_scores_public')
-                            ->label('Scores openbaar')
+                            ->label('Wedstrijdscores openbaar zichtbaar')
+                            ->helperText('Toon mijn scores in wedstrijdleaderboards')
+                            ->default(false),
+                        Forms\Components\Toggle::make('show_full_name')
+                            ->label('Volledige naam tonen')
+                            ->helperText('Uit: Toon AVG naam (bijv. "J. de Vries") | Aan: Toon volledige naam (bijv. "Jan de Vries")')
                             ->default(false),
                     ])->columns(2),
 

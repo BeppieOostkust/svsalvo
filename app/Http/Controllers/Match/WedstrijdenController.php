@@ -58,7 +58,7 @@ class WedstrijdenController extends Controller
     {
         $match = Matches::with(['gebruikersScores' => function($query) {
                 $query->where('is_official', true)->with(['gebruiker' => function($userQuery) {
-                    $userQuery->select('id', 'name', 'avg_name', 'show_scores_public');
+                    $userQuery->select('id', 'name', 'avg_name', 'first_name', 'last_name', 'show_scores_public', 'show_full_name');
                 }]);
             }])
             ->findOrFail($id);

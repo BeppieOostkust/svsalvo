@@ -26,6 +26,9 @@ interface MatchGebruikerScore {
         id: number;
         name: string;
         avg_name?: string;
+        first_name?: string;
+        last_name?: string;
+        show_full_name?: boolean;
     };
 }
 
@@ -218,7 +221,12 @@ export default function WedstrijdDetail() {
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap">
                                                             <div className="text-sm font-medium text-gray-900">
-                                                                {score.gebruiker?.avg_name || score.gebruiker?.name || 'Onbekende deelnemer'}
+                                                                {score.gebruiker?.show_full_name 
+                                                                    ? (score.gebruiker?.first_name && score.gebruiker?.last_name 
+                                                                        ? `${score.gebruiker.first_name} ${score.gebruiker.last_name}`
+                                                                        : score.gebruiker?.name || 'Onbekende deelnemer')
+                                                                    : (score.gebruiker?.avg_name || score.gebruiker?.name || 'Onbekende deelnemer')
+                                                                }
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-center">
