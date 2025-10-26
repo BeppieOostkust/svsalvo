@@ -15,41 +15,37 @@ class VereenigingController extends Controller
     {
         // Get all active members, sorted so that those who share contact info come first
         $members = User::where('is_active_member', true)
-            ->orderByRaw('show_contact_info DESC') // Those who share contact info first (1 before 0)
+            ->orderByRaw('show_contact_on_members_page DESC') // Those who share contact info first (1 before 0)
             ->orderBy('position', 'asc')
             ->orderBy('last_name', 'asc')
             ->orderBy('first_name', 'asc')
             ->get()
             ->map(function ($user) {
-                // Determine which name to show based on show_full_name setting
-                $displayName = 'Anonieme Lid'; // Default fallback
-                
-                if ($user->show_full_name && $user->first_name && $user->last_name) {
-                    // Show full name
-                    $displayName = "{$user->first_name} {$user->last_name}";
-                } elseif ($user->avg_name) {
-                    // Show AVG name (default)
-                    $displayName = $user->avg_name;
-                } elseif ($user->name) {
-                    // Fallback to regular name
-                    $displayName = $user->name;
-                }
-                
-                // Base user data that's always shown
-                $memberData = [
-                    'id' => $user->id,
-                    'name' => $displayName,
-                    'profile_image_url' => $user->profile_image_url,
-                    'member_since' => $user->member_since,
-                    'position' => $user->position,
-                    'preferred_discipline' => $user->preferred_discipline,
-                    'show_contact_info' => $user->show_contact_info,
-                ];
-
-                // Check privacy setting for contact info
-                if ($user->show_contact_info) {
-                    // Add contact information only if user wants to share it
-                    $memberData = array_merge($memberData, [
+                // Check if user wants to show contact info on members page
+                if ($user->show_contact_on_members_page) {
+                    // Determine which name to show based on show_full_name setting
+                    $displayName = 'Anonieme Lid'; // Default fallback
+                    
+                    if ($user->show_full_name && $user->first_name && $user->last_name) {
+                        // Show full name
+                        $displayName = "{$user->first_name} {$user->last_name}";
+                    } elseif ($user->avg_name) {
+                        // Show AVG name (default)
+                        $displayName = $user->avg_name;
+                    } elseif ($user->name) {
+                        // Fallback to regular name
+                        $displayName = $user->name;
+                    }
+                    
+                    // Show contact information
+                    return [
+                        'id' => $user->id,
+                        'name' => $displayName,
+                        'profile_image_url' => $user->profile_image_url,
+                        'member_since' => $user->member_since,
+                        'position' => $user->position,
+                        'preferred_discipline' => $user->preferred_discipline,
+                        'show_contact_info' => true,
                         'first_name' => $user->show_full_name ? $user->first_name : null,
                         'last_name' => $user->show_full_name ? $user->last_name : null,
                         'email' => $user->email,
@@ -57,10 +53,17 @@ class VereenigingController extends Controller
                         'city' => $user->city,
                         'bio' => $user->bio,
                         'is_anonymous' => false,
-                    ]);
+                    ];
                 } else {
-                    // Don't show contact information
-                    $memberData = array_merge($memberData, [
+                    // Show as anonymous member
+                    return [
+                        'id' => $user->id,
+                        'name' => 'Anonieme Lid',
+                        'profile_image_url' => $user->profile_image_url,
+                        'member_since' => $user->member_since,
+                        'position' => $user->position,
+                        'preferred_discipline' => $user->preferred_discipline,
+                        'show_contact_info' => false,
                         'first_name' => null,
                         'last_name' => null,
                         'email' => null,
@@ -68,10 +71,8 @@ class VereenigingController extends Controller
                         'city' => null,
                         'bio' => null,
                         'is_anonymous' => true,
-                    ]);
+                    ];
                 }
-
-                return $memberData;
             });
 
         // Separate board members based on "Toon in organisatie overzicht" checkbox

@@ -144,18 +144,19 @@ class UserResource extends Resource
 
                 Forms\Components\Section::make('Privacy Instellingen')
                     ->schema([
-                        Forms\Components\Toggle::make('show_contact_info')
-                            ->label('Contactgegevens openbaar')
-                            ->default(false),
-                        Forms\Components\Toggle::make('show_scores_public')
-                            ->label('Wedstrijdscores openbaar zichtbaar')
-                            ->helperText('Toon mijn scores in wedstrijdleaderboards')
+                        Forms\Components\Toggle::make('show_contact_on_members_page')
+                            ->label('Toon mijn contactgegevens op de verenigingspagina')
+                            ->helperText('Uit: Toon als "Anonieme Lid" | Aan: Toon mijn naam en contactgegevens')
                             ->default(false),
                         Forms\Components\Toggle::make('show_full_name')
                             ->label('Volledige naam tonen')
                             ->helperText('Uit: Toon AVG naam (bijv. "J. de Vries") | Aan: Toon volledige naam (bijv. "Jan de Vries")')
                             ->default(false),
-                    ])->columns(2),
+                        Forms\Components\Toggle::make('show_scores_public')
+                            ->label('Wedstrijdscores openbaar zichtbaar')
+                            ->helperText('Toon mijn scores in wedstrijdleaderboards')
+                            ->default(false),
+                    ])->columns(1),
 
                 Forms\Components\Section::make('Account Beveiliging')
                     ->schema([
