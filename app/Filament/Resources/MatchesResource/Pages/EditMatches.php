@@ -419,10 +419,8 @@ class EditMatches extends EditRecord
                         ->collapsible()
                         ->collapsed(true)
                         ->cloneable()
-                        ->reorderable()
                         ->reorderableWithButtons()
                         ->defaultItems(0)
-                        ->live()
                         ->addActionLabel('➕ Nieuwe Score Toevoegen')
                         ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
                             // Set default values when creating new score
