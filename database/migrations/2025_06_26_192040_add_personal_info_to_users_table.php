@@ -77,7 +77,7 @@ return new class extends Migration
                 $table->boolean('show_contact_info')->default(false)->after('license_expiry');
             }
             if (!Schema::hasColumn('users', 'show_scores_public')) {
-                $table->boolean('show_scores_public')->default(true)->after('show_contact_info');
+                $table->boolean('show_scores_public')->default(false)->after('show_contact_info');
             }
             
             // Status

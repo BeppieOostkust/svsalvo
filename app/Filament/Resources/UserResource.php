@@ -148,7 +148,7 @@ class UserResource extends Resource
                             ->label('Contactgegevens openbaar'),
                         Forms\Components\Toggle::make('show_scores_public')
                             ->label('Scores openbaar')
-                            ->default(true),
+                            ->default(false),
                     ])->columns(2),
 
                 Forms\Components\Section::make('Account Beveiliging')

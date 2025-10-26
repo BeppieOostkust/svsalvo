@@ -58,7 +58,7 @@ class WedstrijdenController extends Controller
     {
         $match = Matches::with(['gebruikersScores' => function($query) {
                 $query->where('is_official', true)->with(['gebruiker' => function($userQuery) {
-                    $userQuery->select('id', 'name', 'avg_name', 'show_in_participants');
+                    $userQuery->select('id', 'name', 'avg_name', 'show_scores_public');
                 }]);
             }])
             ->findOrFail($id);
@@ -66,7 +66,7 @@ class WedstrijdenController extends Controller
         // Filter out scores from users who don't want to be shown in participants
         if ($match->gebruikersScores) {
             $match->gebruikersScores = $match->gebruikersScores->filter(function($score) {
-                return $score->gebruiker && $score->gebruiker->show_in_participants;
+                return $score->gebruiker && $score->gebruiker->show_scores_public;
             })->values();
         }
 
