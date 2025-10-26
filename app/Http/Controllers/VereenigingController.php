@@ -33,13 +33,25 @@ class VereenigingController extends Controller
 
                 // Check privacy setting for contact info
                 if ($user->show_contact_info) {
-                    // Show full contact information
+                    // Determine which name to show based on show_full_name setting
+                    $displayName = 'Anonieme Lid'; // Default fallback
+                    
+                    if ($user->show_full_name && $user->first_name && $user->last_name) {
+                        // Show full name
+                        $displayName = "{$user->first_name} {$user->last_name}";
+                    } elseif ($user->avg_name) {
+                        // Show AVG name (default)
+                        $displayName = $user->avg_name;
+                    } elseif ($user->name) {
+                        // Fallback to regular name
+                        $displayName = $user->name;
+                    }
+                    
+                    // Show contact information
                     $memberData = array_merge($memberData, [
-                        'name' => $user->first_name && $user->last_name 
-                            ? "{$user->first_name} {$user->last_name}" 
-                            : $user->name,
-                        'first_name' => $user->first_name,
-                        'last_name' => $user->last_name,
+                        'name' => $displayName,
+                        'first_name' => $user->show_full_name ? $user->first_name : null,
+                        'last_name' => $user->show_full_name ? $user->last_name : null,
                         'email' => $user->email,
                         'phone' => $user->phone,
                         'city' => $user->city,
