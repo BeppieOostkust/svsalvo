@@ -396,18 +396,6 @@ export default function UserProfile() {
                                         <div className="flex items-center">
                                             <input
                                                 type="checkbox"
-                                                id="show_contact_info"
-                                                checked={data.show_contact_info}
-                                                onChange={(e) => setData('show_contact_info', e.target.checked)}
-                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                            />
-                                            <label htmlFor="show_contact_info" className="ml-2 block text-sm text-gray-900">
-                                                Toon mijn contactgegevens op de verenigingspagina
-                                            </label>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <input
-                                                type="checkbox"
                                                 id="show_scores_public"
                                                 checked={data.show_scores_public}
                                                 onChange={(e) => setData('show_scores_public', e.target.checked)}
@@ -438,7 +426,7 @@ export default function UserProfile() {
                                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                                             />
                                             <label htmlFor="show_full_name" className="ml-2 block text-sm text-gray-900">
-                                                Toon mijn volledige naam (anders AVG naam: J. de Vries)
+                                                Toon mijn volledige naam (anders AVG naam: DGN....)
                                             </label>
                                         </div>
                                         <div className="flex items-center">
@@ -450,7 +438,7 @@ export default function UserProfile() {
                                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                                             />
                                             <label htmlFor="show_contact_on_members_page" className="ml-2 block text-sm text-gray-900">
-                                                Toon mijn gegevens op de ledenpagina
+                                                Toon mijn gegevens op de ledenpagina (email, telefoonnummer)
                                             </label>
                                         </div>
                                     </div>
