@@ -77,6 +77,8 @@ class UserDashboardController extends Controller
             'show_contact_info' => 'boolean',
             'show_scores_public' => 'boolean',
             'show_in_participants' => 'boolean',
+            'show_full_name' => 'boolean',
+            'show_contact_on_members_page' => 'boolean',
         ]);
 
         // Validate profile image separately to handle both file uploads and remove action

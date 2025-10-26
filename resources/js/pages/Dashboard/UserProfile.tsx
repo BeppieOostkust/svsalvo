@@ -29,6 +29,8 @@ interface User {
     is_active_member: boolean;
     show_contact_info: boolean;
     show_scores_public: boolean;
+    show_full_name: boolean;
+    show_contact_on_members_page: boolean;
     show_in_participants: boolean;
 }
 
@@ -52,6 +54,8 @@ export default function UserProfile() {
         preferred_discipline: user.preferred_discipline || '',
         show_contact_info: user.show_contact_info,
         show_scores_public: user.show_scores_public,
+        show_full_name: user.show_full_name,
+        show_contact_on_members_page: user.show_contact_on_members_page,
         show_in_participants: user.show_in_participants,
         profile_image: null as File | null,
     });
@@ -423,6 +427,30 @@ export default function UserProfile() {
                                             />
                                             <label htmlFor="show_in_participants" className="ml-2 block text-sm text-gray-900">
                                                 Toon mijn naam in deelnemerslijsten van wedstrijden
+                                            </label>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <input
+                                                type="checkbox"
+                                                id="show_full_name"
+                                                checked={data.show_full_name}
+                                                onChange={(e) => setData('show_full_name', e.target.checked)}
+                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                            />
+                                            <label htmlFor="show_full_name" className="ml-2 block text-sm text-gray-900">
+                                                Toon mijn volledige naam (anders AVG naam: J. de Vries)
+                                            </label>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <input
+                                                type="checkbox"
+                                                id="show_contact_on_members_page"
+                                                checked={data.show_contact_on_members_page}
+                                                onChange={(e) => setData('show_contact_on_members_page', e.target.checked)}
+                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                            />
+                                            <label htmlFor="show_contact_on_members_page" className="ml-2 block text-sm text-gray-900">
+                                                Toon mijn gegevens op de ledenpagina
                                             </label>
                                         </div>
                                     </div>
