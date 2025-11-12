@@ -69,6 +69,12 @@ class LegalDocumentResource extends Resource
                     ->label('Inhoud')
                     ->required()
                     ->columnSpanFull(),
+                
+                Forms\Components\Textarea::make('changes_summary')
+                    ->label('Samenvatting van Wijzigingen')
+                    ->rows(4)
+                    ->helperText('Beschrijf kort wat er is veranderd (gebruikt in email notificaties)')
+                    ->columnSpanFull(),
                     
                 DateTimePicker::make('effective_date')
                     ->label('Ingangsdatum')

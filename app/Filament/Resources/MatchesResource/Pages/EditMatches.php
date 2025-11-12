@@ -56,6 +56,20 @@ class EditMatches extends EditRecord
                             ->send();
                     }
                 }),
+            Actions\Action::make('eindewedstrijd')
+                ->label('EINDE WEDSTRIJD')
+                ->color('warning')
+                ->icon('heroicon-o-trophy')
+                ->modalHeading('🏆 Wedstrijd Uitslagen')
+                ->modalDescription('Overzicht van alle winnaars per serie en kaliber')
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('Sluiten')
+                ->modalContent(function () {
+                    return view('filament.pages.match-results', [
+                        'results' => $this->getMatchResults()
+                    ]);
+                })
+                ->modalWidth('7xl'),
             Actions\DeleteAction::make(),
         ];
     }
@@ -66,6 +80,38 @@ class EditMatches extends EditRecord
         
         // Initialize audio player
         $this->dispatch('init-audio-player');
+    }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        // Sort gebruikersScores by round_number, then kaliber (KKP first), then totale_punten descending
+        if (isset($data['gebruikersScores']) && is_array($data['gebruikersScores'])) {
+            usort($data['gebruikersScores'], function ($a, $b) {
+                // First sort by round_number (ascending)
+                $roundCompare = ($a['round_number'] ?? 1) <=> ($b['round_number'] ?? 1);
+                if ($roundCompare !== 0) {
+                    return $roundCompare;
+                }
+                
+                // Then sort by kaliber (KKP before GKP)
+                $kaliberA = strtolower($a['kaliber'] ?? '');
+                $kaliberB = strtolower($b['kaliber'] ?? '');
+                $kaliberCompare = 0;
+                if ($kaliberA === 'kkp' && $kaliberB === 'gkp') {
+                    $kaliberCompare = -1;
+                } elseif ($kaliberA === 'gkp' && $kaliberB === 'kkp') {
+                    $kaliberCompare = 1;
+                }
+                if ($kaliberCompare !== 0) {
+                    return $kaliberCompare;
+                }
+                
+                // Finally sort by totale_punten (descending)
+                return ($b['totale_punten'] ?? 0) <=> ($a['totale_punten'] ?? 0);
+            });
+        }
+        
+        return $data;
     }
 
     public function form(Form $form): Form
@@ -608,5 +654,58 @@ class EditMatches extends EditRecord
     public function getRelationManagers(): array
     {
         return $this->getResource()::getRelations();
+    }
+
+    protected function getMatchResults(): array
+    {
+        $scores = $this->record->gebruikersScores()
+            ->where('is_official', true)
+            ->with('gebruiker')
+            ->get();
+
+        $results = [];
+        
+        // Group by round_number and kaliber
+        $grouped = $scores->groupBy(function ($score) {
+            return $score->round_number . '_' . strtoupper($score->kaliber);
+        });
+
+        foreach ($grouped as $key => $groupScores) {
+            [$roundNumber, $kaliber] = explode('_', $key);
+            
+            // Sort by totale_punten descending
+            $sorted = $groupScores->sortByDesc('totale_punten')->values();
+            
+            $results[] = [
+                'round_number' => $roundNumber,
+                'kaliber' => $kaliber,
+                'scores' => $sorted->map(function ($score, $index) {
+                    return [
+                        'position' => $index + 1,
+                        'name' => $score->gebruiker->name ?? 'Onbekend',
+                        'points' => $score->totale_punten,
+                        'baan' => $score->baan_nummer,
+                    ];
+                })->toArray()
+            ];
+        }
+
+                // Sort results: by round_number, then KKP before GKP
+        usort($results, function ($a, $b) {
+            $roundCompare = $a['round_number'] <=> $b['round_number'];
+            if ($roundCompare !== 0) {
+                return $roundCompare;
+            }
+            
+            // KKP before GKP
+            if ($a['kaliber'] === 'KKP' && $b['kaliber'] === 'GKP') {
+                return -1;
+            } elseif ($a['kaliber'] === 'GKP' && $b['kaliber'] === 'KKP') {
+                return 1;
+            }
+            return 0;
+        });
+
+        return $results;
     }
 }

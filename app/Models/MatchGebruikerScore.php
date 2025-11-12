@@ -67,6 +67,14 @@ class MatchGebruikerScore extends Model
     }
 
     /**
+     * Alias for matches() - Nederlandse naam
+     */
+    public function wedstrijd(): BelongsTo
+    {
+        return $this->matches();
+    }
+
+    /**
      * Get the user that owns this score
      */
     public function user(): BelongsTo

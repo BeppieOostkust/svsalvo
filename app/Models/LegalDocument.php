@@ -11,6 +11,7 @@ class LegalDocument extends Model
         'type',
         'title',
         'content',
+        'changes_summary',
         'version',
         'is_active',
         'effective_date',

@@ -28,8 +28,7 @@ class Matches extends Model
     {
         return $this->hasMany(MatchGebruikerScore::class, 'wedstrijd_id')
             ->orderBy('round_number')
-            ->orderByRaw("CASE WHEN kaliber = 'gkp' THEN 0 WHEN kaliber = 'kkp' THEN 1 ELSE 2 END")
-            ->orderBy('baan_nummer')
+            ->orderByRaw("CASE WHEN kaliber = 'kkp' THEN 1 WHEN kaliber = 'gkp' THEN 2 ELSE 3 END")
             ->orderByDesc('totale_punten');
     }
     

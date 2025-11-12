@@ -4,6 +4,7 @@ namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
 use App\Models\User;
+use App\Services\EmailService;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
@@ -89,10 +90,18 @@ class ManageUsers extends ManageRecords
                         'email_verified_at' => now(),
                     ]);
 
+                    // Send email with temporary password
+                    $emailService = new EmailService();
+                    $emailSent = $emailService->sendTemporaryPasswordEmail($user, $tempPassword);
+
                     // Show success notification with temporary password
                     Notification::make()
                         ->title('Gebruiker succesvol aangemaakt!')
-                        ->body("Tijdelijk wachtwoord: **{$tempPassword}**\n\nGeef dit wachtwoord veilig door aan {$user->name}.\nDe gebruiker moet dit wachtwoord wijzigen bij eerste inlog.")
+                        ->body("Tijdelijk wachtwoord: **{$tempPassword}**\n\n" . 
+                               ($emailSent 
+                                   ? "✅ Email verzonden naar {$user->email}" 
+                                   : "⚠️ Email kon niet worden verzonden. Geef het wachtwoord handmatig door.") . 
+                               "\n\nDe gebruiker moet dit wachtwoord wijzigen bij eerste inlog.")
                         ->success()
                         ->persistent()
                         ->send();
