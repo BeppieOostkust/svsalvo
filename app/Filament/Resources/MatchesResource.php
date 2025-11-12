@@ -357,7 +357,9 @@ class MatchesResource extends Resource
     {
         return parent::getEloquentQuery()
             ->with(['gebruikersScores' => function ($query) {
-                $query->orderByDesc('totale_punten')
+                $query->orderBy('round_number', 'asc')
+                    ->orderByRaw("CASE WHEN kaliber = 'kkp' THEN 1 WHEN kaliber = 'gkp' THEN 2 ELSE 3 END")
+                    ->orderByDesc('totale_punten')
                     ->orderByRaw('linker_kaart_6 + linker_kaart_7 + linker_kaart_8 + linker_kaart_9 + linker_kaart_10 DESC');
             }]);
     }
