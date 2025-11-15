@@ -28,6 +28,38 @@ class EditMatches extends EditRecord
 {
     protected static string $resource = MatchesResource::class;
 
+    /**
+     * Set up real-time refresh when other users update matches
+     */
+    protected function getListeners(): array
+    {
+        return [
+            "echo:matches,match.updated" => 'handleMatchUpdate',
+        ];
+    }
+
+    /**
+     * Handle incoming match update events
+     */
+    public function handleMatchUpdate($event): void
+    {
+        // Only refresh if it's the same match and from another user
+        if (isset($event['match_id']) && $event['match_id'] === $this->record->id) {
+            // Reload the record from database
+            $this->record = $this->record->fresh();
+            
+            // Show notification
+            Notification::make()
+                ->title('Wedstrijd bijgewerkt')
+                ->body('Een andere gebruiker heeft deze wedstrijd aangepast. De pagina is ververst.')
+                ->warning()
+                ->send();
+            
+            // Dispatch browser refresh event
+            $this->dispatch('$refresh');
+        }
+    }
+
     protected function getHeaderActions(): array
     {
         return [
@@ -566,6 +598,9 @@ class EditMatches extends EditRecord
     // Notification after successful save
     protected function afterSave(): void
     {
+        // Broadcast real-time update
+        broadcast(new \App\Events\MatchUpdated('updated', $this->record->id))->toOthers();
+        
         $warningMessages = session('score_warnings', []);
         
         if (!empty($warningMessages)) {

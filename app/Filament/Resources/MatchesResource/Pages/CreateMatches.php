@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\MatchesResource\Pages;
 
+use App\Events\MatchUpdated;
 use App\Filament\Resources\MatchesResource;
 use App\Models\User;
 use App\Services\EmailService;
@@ -16,6 +17,9 @@ class CreateMatches extends CreateRecord
     protected function afterCreate(): void
     {
         $match = $this->record;
+        
+        // Broadcast real-time update
+        broadcast(new MatchUpdated('created', $match->id))->toOthers();
         
         // Get all active members who want to receive match notifications
         $users = User::where('is_active_member', true)
