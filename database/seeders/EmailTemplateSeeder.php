@@ -24,7 +24,7 @@ class EmailTemplateSeeder extends Seeder
 <p><strong>Email:</strong> {{email}}<br>
 <strong>Tijdelijk wachtwoord:</strong> {{temporary_password}}</p>
 <p><a href="{{login_url}}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Inloggen</a></p>
-<p><strong>Belangrijk:</strong> Wijzig je wachtwoord na je eerste login voor de veiligheid.</p>
+<p><strong>Belangrijk:</strong> Wijzig je wachtwoord na je eerste login voor de veiligheid. Kerstmiddag wordt dit gehele website nog uitgelegd!</p>
 <p>Met vriendelijke groet,<br>Het {{site_name}} Team</p>',
             'text_content' => 'Welkom {{name}}!
 
