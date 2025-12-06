@@ -18,7 +18,7 @@ class EmailTemplateSeeder extends Seeder
             'name' => 'Nieuwe Gebruiker - Tijdelijk Wachtwoord',
             'slug' => 'new-user-temp-password',
             'subject' => 'Welkom bij {{site_name}} - Jouw Account Gegevens',
-            'html_content' => '<h1>Welkom {{name}}!</h1>
+            'html_content' => '<h1>Goeiedag {{name}}!</h1>
 <p>Je account is succesvol aangemaakt bij {{site_name}}.</p>
 <h2>Jouw inloggegevens:</h2>
 <p><strong>Email:</strong> {{email}}<br>
@@ -39,7 +39,7 @@ Login op: {{login_url}}
 Belangrijk: Wijzig je wachtwoord na je eerste login voor de veiligheid.
 
 Met vriendelijke groet,
-Het {{site_name}} Team',
+Besttuur SSV de Moes',
             'available_variables' => ['name', 'email', 'temporary_password', 'login_url', 'site_name'],
             'is_active' => true,
             'category' => 'user',

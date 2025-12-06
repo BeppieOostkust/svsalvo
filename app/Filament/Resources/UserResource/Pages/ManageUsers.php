@@ -70,7 +70,7 @@ class ManageUsers extends ManageRecords
                 ])
                 ->action(function (array $data): void {
                     // Generate temporary password
-                    $tempPassword = 'Temp' . Str::random(8) . '!';
+                    $tempPassword = 'Temp' . Str::random(8);
                     
                     // Create user with temporary password
                     $user = User::create([
