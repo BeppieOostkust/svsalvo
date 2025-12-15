@@ -186,21 +186,11 @@ export default function PublicHome() {
                     <div className="container mx-auto px-4">
                         <div className="max-w-4xl mx-auto text-center">
                             <h2 className="text-4xl font-bold mb-6">
-                                Geïnteresseerd in schietsport?
+                                Lidmaatschap tijdelijk gesloten
                             </h2>
                             <p className="text-xl mb-8 text-green-100">
-                                Ontdek de passie voor schietsport bij onze vereniging.
-                                We staan klaar om je te begeleiden in deze fascinerende sport!
+                                Er geldt momenteel een ledenstop; we nemen op dit moment geen nieuwe leden aan.
                             </p>
-
-                            <div className="flex flex-wrap justify-center gap-4">
-                                <a 
-                                    href="mailto:info@ssvdemoes.nl" 
-                                    className="border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-green-700 transition-colors"
-                                >
-                                    Stel een vraag
-                                </a>
-                            </div>
                         </div>
                     </div>
                 </section>

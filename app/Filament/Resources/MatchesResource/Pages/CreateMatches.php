@@ -18,8 +18,12 @@ class CreateMatches extends CreateRecord
     {
         $match = $this->record;
         
-        // Broadcast real-time update
-        broadcast(new MatchUpdated('created', $match->id))->toOthers();
+        // Broadcast real-time update (only if Reverb is running)
+        try {
+            broadcast(new MatchUpdated('created', $match->id));
+        } catch (\Exception $e) {
+            // Silently fail if broadcasting is not available
+        }
         
         // Get all active members who want to receive match notifications
         $users = User::where('is_active_member', true)
