@@ -12,7 +12,6 @@ import {
   import { cn } from "@/lib/utils"
   import { Button } from "@/components/ui/button"
   import { Link, usePage, Head } from '@inertiajs/react';
-  import DebugPanel from '@/components/debug-panel';
   import UrgentArticles from '@/components/urgent-articles';
   import { Menu, X, Bell, BellDot } from 'lucide-react';
 
@@ -531,8 +530,6 @@ export default function Header() {
                     </div>
                 </div>
             )}
-            
-            <DebugPanel />
         </div>
     );
 }

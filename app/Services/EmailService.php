@@ -182,7 +182,7 @@ class EmailService
                 'document_title' => $legalDocument->title ?? 'Privacy Verklaring',
                 'document_version' => $legalDocument->version ?? '1.0',
                 'document_date' => $legalDocument->effective_date ? \Carbon\Carbon::parse($legalDocument->effective_date)->format('d-m-Y') : now()->format('d-m-Y'),
-                'document_url' => url('/privacy'),
+                'document_url' => route('privacy-policy'),
                 'changes_summary' => $legalDocument->changes_summary ?? 'Bekijk de volledige wijzigingen op onze website.',
                 'site_name' => config('app.name', 'KNSA Vereniging'),
             ],
