@@ -25,6 +25,16 @@ class CreateMatches extends CreateRecord
             // Silently fail if broadcasting is not available
         }
         
+        // Check if emails should be sent
+        if (!$this->data['send_emails'] ?? true) {
+            Notification::make()
+                ->title('Wedstrijd aangemaakt zonder emails')
+                ->body('De wedstrijd is aangemaakt, maar er zijn geen emails verzonden.')
+                ->info()
+                ->send();
+            return;
+        }
+        
         // Get all active members who want to receive match notifications
         $users = User::where('is_active_member', true)
             ->whereNotNull('email_verified_at')
@@ -53,6 +63,12 @@ class CreateMatches extends CreateRecord
                     ->success()
                     ->send();
             }
+        } else {
+            Notification::make()
+                ->title('Wedstrijd aangemaakt')
+                ->body('Geen actieve leden gevonden om emails naar te verzenden.')
+                ->info()
+                ->send();
         }
     }
 }
