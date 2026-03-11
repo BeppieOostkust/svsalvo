@@ -64,7 +64,7 @@ class EditMatches extends EditRecord
                 ->color('warning')
                 ->icon('heroicon-o-trophy')
                 ->modalHeading('🏆 Wedstrijd Uitslagen')
-                ->modalDescription('Overzicht van alle winnaars per serie en kaliber')
+                ->modalDescription('Overzicht van alle winnaars per kaliber, gegroepeerd per serie')
                 ->modalSubmitAction(false)
                 ->modalCancelActionLabel('Sluiten')
                 ->modalContent(function () {
@@ -674,46 +674,57 @@ class EditMatches extends EditRecord
             ->get();
 
         $results = [];
-        
-        // Group by round_number and kaliber
-        $grouped = $scores->groupBy(function ($score) {
-            return $score->round_number . '_' . strtoupper($score->kaliber);
+
+        // Group by kaliber, then combine all series per player into one ranking
+        $groupedByKaliber = $scores->groupBy(function ($score) {
+            return strtoupper($score->kaliber);
         });
 
-        foreach ($grouped as $key => $groupScores) {
-            [$roundNumber, $kaliber] = explode('_', $key);
-            
-            // Sort by totale_punten descending
-            $sorted = $groupScores->sortByDesc('totale_punten')->values();
-            
-            $results[] = [
-                'round_number' => $roundNumber,
-                'kaliber' => $kaliber,
-                'scores' => $sorted->map(function ($score, $index) {
-                    return [
-                        'position' => $index + 1,
+        foreach ($groupedByKaliber as $kaliber => $kaliberScores) {
+            // Combine all series: sum points per player
+            $playerTotals = [];
+
+            foreach ($kaliberScores as $score) {
+                $userId = $score->gebruiker_id;
+
+                if (!isset($playerTotals[$userId])) {
+                    $playerTotals[$userId] = [
                         'name' => $score->gebruiker->name ?? 'Onbekend',
-                        'points' => $score->totale_punten,
+                        'points' => 0,
+                        'series_count' => 0,
                         'baan' => $score->baan_nummer,
                     ];
-                })->toArray()
+                }
+
+                $playerTotals[$userId]['points'] += $score->totale_punten;
+                $playerTotals[$userId]['series_count']++;
+            }
+
+            // Sort by total points descending
+            usort($playerTotals, fn ($a, $b) => $b['points'] <=> $a['points']);
+
+            $ranked = array_values($playerTotals);
+            foreach ($ranked as $i => &$entry) {
+                $entry['position'] = $i + 1;
+            }
+            unset($entry);
+
+            $results[] = [
+                'kaliber' => $kaliber,
+                'scores' => $ranked,
             ];
         }
 
-                // Sort results: by round_number, then KKP before GKP
         usort($results, function ($a, $b) {
-            $roundCompare = $a['round_number'] <=> $b['round_number'];
-            if ($roundCompare !== 0) {
-                return $roundCompare;
-            }
-            
-            // KKP before GKP
             if ($a['kaliber'] === 'KKP' && $b['kaliber'] === 'GKP') {
                 return -1;
-            } elseif ($a['kaliber'] === 'GKP' && $b['kaliber'] === 'KKP') {
+            }
+
+            if ($a['kaliber'] === 'GKP' && $b['kaliber'] === 'KKP') {
                 return 1;
             }
-            return 0;
+
+            return strcmp($a['kaliber'], $b['kaliber']);
         });
 
         return $results;
