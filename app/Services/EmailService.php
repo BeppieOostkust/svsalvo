@@ -117,7 +117,7 @@ class EmailService
                 'match_date' => $match->start_datum ? \Carbon\Carbon::parse($match->start_datum)->format('d-m-Y') : 'Nog niet bekend',
                 'match_time' => $match->start_datum ? \Carbon\Carbon::parse($match->start_datum)->format('H:i') : 'Nog niet bekend',
                 'match_location' => 'Nog niet bekend', // Matches model heeft geen location veld
-                'match_url' => url('/admin/matches/' . $match->id . '/edit'),
+                'match_url' => route('wedstrijd.show', ['id' => $match->id]),
                 'site_name' => config('app.name', 'KNSA Vereniging'),
             ],
             $user,
