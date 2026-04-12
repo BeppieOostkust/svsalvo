@@ -13,6 +13,7 @@ use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class RegistrationsRelationManager extends RelationManager
 {
@@ -38,22 +39,39 @@ class RegistrationsRelationManager extends RelationManager
         return "Aanmeldingen ({$totalCount} totaal, {$pendingCount} wachtend, {$participantCount} deelnemers)";
     }
 
+    /**
+     * Get cached active members for quick lookup
+     */
+    private static function getActiveMembers()
+    {
+        return Cache::remember('active_members_for_registration', 3600, function () {
+            return User::query()
+                ->where('is_active_member', true)
+                ->where('is_blocked', false)
+                ->select('id', 'name')
+                ->orderBy('name', 'asc')
+                ->pluck('name', 'id')
+                ->toArray();
+        });
+    }
+
+    /**
+     * Clear the cache when a user is created/updated
+     */
+    public static function clearMemberCache()
+    {
+        Cache::forget('active_members_for_registration');
+    }
+
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('user_id')
-                    ->relationship(
-                        name: 'user',
-                        titleAttribute: 'name',
-                        modifyQueryUsing: fn (Builder $query) => $query
-                            ->where('is_active_member', true)
-                            ->where('is_blocked', false)
-                            ->orderBy('name', 'asc')
-                    )
+                    ->options(fn () => self::getActiveMembers())
                     ->required()
-                    ->searchable(['name', 'email'])
-                    ->live()
+                    ->searchable()
+                    ->optionsLimit(50)
                     ->dehydrated(false),
                 Forms\Components\Select::make('caliber')
                     ->label('Kaliber')

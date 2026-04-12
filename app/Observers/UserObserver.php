@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Notifications\UserBlockedNotification;
 use App\Services\NotificationService;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Cache;
 
 class UserObserver
 {
@@ -39,6 +40,11 @@ class UserObserver
      */
     public function updated(User $user): void
     {
+        // Clear the active members cache when user status changes
+        if ($user->wasChanged(['is_active_member', 'is_blocked', 'name'])) {
+            Cache::forget('active_members_for_registration');
+        }
+
         // Send notifications when block status changes
         if ($user->wasChanged('is_blocked')) {
             if ($user->is_blocked) {
@@ -112,6 +118,17 @@ class UserObserver
             if (!empty($changedFields)) {
                 $this->notificationService->notifyProfileUpdated($user, $changedFields);
             }
+        }
+    }
+
+    /**
+     * Handle the User "created" event.
+     */
+    public function created(User $user): void
+    {
+        // Clear the active members cache when a new user is created
+        if ($user->is_active_member && !$user->is_blocked) {
+            Cache::forget('active_members_for_registration');
         }
     }
 }
