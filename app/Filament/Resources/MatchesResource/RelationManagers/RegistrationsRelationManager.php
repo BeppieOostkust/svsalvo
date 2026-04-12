@@ -43,10 +43,17 @@ class RegistrationsRelationManager extends RelationManager
         return $form
             ->schema([
                 Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name')
+                    ->relationship(
+                        name: 'user',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (Builder $query) => $query
+                            ->where('is_active_member', true)
+                            ->where('is_blocked', false)
+                            ->orderBy('name', 'asc')
+                    )
                     ->required()
-                    ->searchable()
-                    ->preload()
+                    ->searchable(['name', 'email'])
+                    ->live()
                     ->dehydrated(false),
                 Forms\Components\Select::make('caliber')
                     ->label('Kaliber')
