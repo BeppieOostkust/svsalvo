@@ -23,6 +23,12 @@ class RegistrationsRelationManager extends RelationManager
 
     protected static ?string $recordTitleAttribute = 'id';
 
+    /**
+     * Static in-memory cache for active members
+     */
+    private static ?array $activeMembersCache = null;
+    private static ?\DateTime $cacheLoadTime = null;
+
     public function getTableHeading(): string
     {
         $totalCount = $this->getOwnerRecord()->registrations()->count();
@@ -40,26 +46,49 @@ class RegistrationsRelationManager extends RelationManager
     }
 
     /**
-     * Get cached active members for quick lookup
+     * Get cached active members for quick lookup - uses multi-layer caching
      */
     private static function getActiveMembers()
     {
-        return Cache::remember('active_members_for_registration', 3600, function () {
-            return User::query()
-                ->where('is_active_member', true)
-                ->where('is_blocked', false)
-                ->select('id', 'name')
-                ->orderBy('name', 'asc')
-                ->pluck('name', 'id')
-                ->toArray();
-        });
+        // Check in-memory cache first (fastest)
+        if (self::$activeMembersCache !== null && self::$cacheLoadTime !== null) {
+            // Invalidate cache after 3600 seconds
+            if (now()->diffInSeconds(self::$cacheLoadTime) < 3600) {
+                return self::$activeMembersCache;
+            }
+        }
+
+        // Try Laravel cache next (fast)
+        $cached = Cache::get('active_members_for_registration');
+        if ($cached !== null) {
+            self::$activeMembersCache = $cached;
+            self::$cacheLoadTime = now();
+            return $cached;
+        }
+
+        // Last resort: query database with optimized query
+        $members = User::query()
+            ->whereActive()
+            ->select('id', 'name')
+            ->orderBy('name', 'asc')
+            ->pluck('name', 'id')
+            ->toArray();
+
+        // Store in all caches
+        self::$activeMembersCache = $members;
+        self::$cacheLoadTime = now();
+        Cache::put('active_members_for_registration', $members, 3600);
+
+        return $members;
     }
 
     /**
-     * Clear the cache when a user is created/updated
+     * Clear all caches when a user is created/updated
      */
     public static function clearMemberCache()
     {
+        self::$activeMembersCache = null;
+        self::$cacheLoadTime = null;
         Cache::forget('active_members_for_registration');
     }
 

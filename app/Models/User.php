@@ -134,6 +134,17 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * Scope to get only active, non-blocked members
+     * Used for quick lookup in registration forms
+     */
+    public function scopeWhereActive($query)
+    {
+        return $query
+            ->where('is_active_member', true)
+            ->where('is_blocked', false);
+    }
+
+    /**
      * Get full name
      */
     public function getFullNameAttribute(): string

@@ -43,6 +43,10 @@ class UserObserver
         // Clear the active members cache when user status changes
         if ($user->wasChanged(['is_active_member', 'is_blocked', 'name'])) {
             Cache::forget('active_members_for_registration');
+            // Also try to clear from the RelationManager if it's loaded
+            if (class_exists('App\\Filament\\Resources\\MatchesResource\\RelationManagers\\RegistrationsRelationManager')) {
+                \App\Filament\Resources\MatchesResource\RelationManagers\RegistrationsRelationManager::clearMemberCache();
+            }
         }
 
         // Send notifications when block status changes
@@ -129,6 +133,10 @@ class UserObserver
         // Clear the active members cache when a new user is created
         if ($user->is_active_member && !$user->is_blocked) {
             Cache::forget('active_members_for_registration');
+            // Also try to clear from the RelationManager if it's loaded
+            if (class_exists('App\\Filament\\Resources\\MatchesResource\\RelationManagers\\RegistrationsRelationManager')) {
+                \App\Filament\Resources\MatchesResource\RelationManagers\RegistrationsRelationManager::clearMemberCache();
+            }
         }
     }
 }
