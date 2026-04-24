@@ -172,13 +172,6 @@ export default function Header() {
                                     </Link>
                                 </NavigationMenuItem>
                                 <NavigationMenuItem>
-                                    <Link href={route("marktplaats.index")}>
-                                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                                        Marktplaats
-                                        </NavigationMenuLink>
-                                    </Link>
-                                </NavigationMenuItem>
-                                <NavigationMenuItem>
                                     <Link href={route("regels")}>
                                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                                         Regels
@@ -341,13 +334,6 @@ export default function Header() {
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
                                     Clubwapens
-                                </Link>
-                                <Link 
-                                    href={route("marktplaats.index")} 
-                                    className="block px-3 py-2 rounded-md hover:bg-gray-100 font-medium"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                >
-                                    Marktplaats
                                 </Link>
                                 <Link 
                                     href={route("regels")} 

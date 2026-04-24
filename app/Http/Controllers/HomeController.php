@@ -76,7 +76,7 @@ class HomeController extends Controller
                 'name' => 'Wapen Advertenties',
                 'logo' => '/images/partners/wpa.png',
                 'website' => 'https://www.wapenadvertenties.nl',
-                'description' => 'Marktplaats voor wapens en accessoires'
+                'description' => 'Platform voor wapens en accessoires'
             ],
             [
                 'name' => 'MH Schietsport',

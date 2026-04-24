@@ -15,7 +15,6 @@ use App\Http\Controllers\MemberContactController;
 use App\Http\Controllers\PasswordChangeController;
 use App\Http\Controllers\VereenigingController;
 use App\Http\Controllers\FeedbackController;
-use App\Http\Controllers\MarketplaceController;
 
 // Public homepage - accessible to everyone, invites visitors to join
 Route::get('/', [PublicController::class, 'index'])->name('home');
@@ -78,14 +77,6 @@ Route::middleware(['auth', 'verified', 'legal.check', 'password.change'])->group
 
     // Organization and contact pages
     Route::get('/organisatie', [OrganizationController::class, 'index'])->name('organisatie');
-    Route::get('/marktplaats', [MarketplaceController::class, 'index'])->name('marktplaats.index');
-    Route::get('/marktplaats/nieuw', [MarketplaceController::class, 'create'])->name('marktplaats.create');
-    Route::post('/marktplaats', [MarketplaceController::class, 'store'])->name('marktplaats.store');
-    Route::get('/marktplaats/{listing}', [MarketplaceController::class, 'show'])->name('marktplaats.show');
-    Route::get('/marktplaats/{listing}/bewerk', [MarketplaceController::class, 'edit'])->name('marktplaats.edit');
-    Route::put('/marktplaats/{listing}', [MarketplaceController::class, 'update'])->name('marktplaats.update');
-    Route::delete('/marktplaats/{listing}', [MarketplaceController::class, 'destroy'])->name('marktplaats.destroy');
-
 
     Route::get('/contact', function () {
         return Inertia::render('contact');
