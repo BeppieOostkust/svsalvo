@@ -14,21 +14,7 @@ return [
     |
     */
 
-    'broadcasting' => [
-
-        'echo' => [
-            'broadcaster' => 'reverb',
-            'key' => env('FILAMENT_REVERB_APP_KEY', env('REVERB_APP_KEY', env('VITE_REVERB_APP_KEY'))),
-            'wsHost' => env('FILAMENT_REVERB_HOST', env('REVERB_HOST', parse_url(env('APP_URL', ''), PHP_URL_HOST))),
-            'wsPort' => env('FILAMENT_REVERB_PORT', env('REVERB_PORT', env('VITE_REVERB_PORT', 443))),
-            'wssPort' => env('FILAMENT_REVERB_PORT', env('REVERB_PORT', env('VITE_REVERB_PORT', 443))),
-            'authEndpoint' => '/broadcasting/auth',
-            'disableStats' => true,
-            'encrypted' => env('FILAMENT_REVERB_SCHEME', env('REVERB_SCHEME', 'https')) === 'https',
-            'forceTLS' => env('FILAMENT_REVERB_SCHEME', env('REVERB_SCHEME', 'https')) === 'https',
-        ],
-
-    ],
+    'broadcasting' => [],
 
     /*
     |--------------------------------------------------------------------------
