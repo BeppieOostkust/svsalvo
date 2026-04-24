@@ -6,9 +6,22 @@ import { createRoot } from 'react-dom/client';
 import { initializeTheme } from './hooks/use-appearance';
 import { configureEcho } from '@laravel/echo-react';
 
-configureEcho({
-    broadcaster: 'reverb',
-});
+const reverbKey = import.meta.env.VITE_REVERB_APP_KEY;
+
+if (reverbKey) {
+    const forceTLS = window.location.protocol === 'https:';
+    const defaultPort = forceTLS ? 443 : 80;
+
+    configureEcho({
+        broadcaster: 'reverb',
+        key: reverbKey,
+        wsHost: import.meta.env.VITE_REVERB_HOST || window.location.hostname,
+        wsPort: Number(import.meta.env.VITE_REVERB_PORT || defaultPort),
+        wssPort: Number(import.meta.env.VITE_REVERB_PORT || defaultPort),
+        forceTLS,
+        enabledTransports: ['ws', 'wss'],
+    });
+}
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
