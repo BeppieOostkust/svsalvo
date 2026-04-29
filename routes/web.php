@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 use App\Http\Controllers\Match\WedstrijdenController;
@@ -15,9 +16,17 @@ use App\Http\Controllers\MemberContactController;
 use App\Http\Controllers\PasswordChangeController;
 use App\Http\Controllers\VereenigingController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\RangeScheduleController;
+use App\Http\Controllers\ClubWeaponController;
+use App\Http\Controllers\MarketplaceController;
 
 // Public homepage - accessible to everyone, invites visitors to join
 Route::get('/', [PublicController::class, 'index'])->name('home');
+
+// Public range schedule page
+Route::get('/baanplanning', [RangeScheduleController::class, 'index'])
+    ->middleware(['auth'])
+    ->name('baanplanning.index');
 
 // Test route for urgent banner functionality
 Route::get('/test-urgent', function () {
@@ -77,6 +86,14 @@ Route::middleware(['auth', 'verified', 'legal.check', 'password.change'])->group
 
     // Organization and contact pages
     Route::get('/organisatie', [OrganizationController::class, 'index'])->name('organisatie');
+    Route::get('/clubwapens', [ClubWeaponController::class, 'index'])->name('clubwapens.index');
+    Route::get('/marktplaats', [MarketplaceController::class, 'index'])->name('marktplaats.index');
+    Route::get('/marktplaats/nieuw', [MarketplaceController::class, 'create'])->name('marktplaats.create');
+    Route::post('/marktplaats', [MarketplaceController::class, 'store'])->name('marktplaats.store');
+    Route::get('/marktplaats/{listing}', [MarketplaceController::class, 'show'])->name('marktplaats.show');
+    Route::get('/marktplaats/{listing}/bewerk', [MarketplaceController::class, 'edit'])->name('marktplaats.edit');
+    Route::put('/marktplaats/{listing}', [MarketplaceController::class, 'update'])->name('marktplaats.update');
+    Route::delete('/marktplaats/{listing}', [MarketplaceController::class, 'destroy'])->name('marktplaats.destroy');
 
 
     Route::get('/contact', function () {
@@ -149,21 +166,46 @@ Route::get('/scores/openbaar/{user}', [PublicScoresController::class, 'show'])
     ->name('scores.public.user')
     ->middleware(['auth']);
 
-// Storage image route for shared hosting compatibility
-Route::get('/storage-image/{path}', function ($path) {
-    $filePath = storage_path('app/public/' . $path);
-    
-    if (!file_exists($filePath)) {
-        abort(404);
-    }
-    
-    $mimeType = mime_content_type($filePath);
-    
-    return response()->file($filePath, [
-        'Content-Type' => $mimeType,
-        'Cache-Control' => 'public, max-age=31536000',
+// Shared-hosting fallback for public storage files when symbolic links are unavailable.
+$servePublicStorageFile = function (string $path) {
+    $requestedPath = str_replace(['..\\', '../'], '', ltrim($path, '/\\'));
+
+    $candidateRoots = array_filter([
+        realpath(storage_path('app/public')),
+        realpath(public_path()),
     ]);
-})->where('path', '.*')->name('storage.image');
+
+    foreach ($candidateRoots as $root) {
+        $filePath = realpath($root . DIRECTORY_SEPARATOR . $requestedPath);
+
+        if (! $filePath) {
+            continue;
+        }
+
+        if (! str_starts_with($filePath, $root . DIRECTORY_SEPARATOR) || ! is_file($filePath)) {
+            continue;
+        }
+
+        $mimeType = mime_content_type($filePath) ?: 'application/octet-stream';
+
+        return response()->file($filePath, [
+            'Content-Type' => $mimeType,
+            'Cache-Control' => 'public, max-age=31536000',
+        ]);
+    }
+
+    abort(404);
+};
+
+// Keep classic /storage/* URLs working without requiring php artisan storage:link.
+Route::get('/storage/{path}', $servePublicStorageFile)
+    ->where('path', '.*')
+    ->name('storage.public');
+
+// Backward-compatible custom storage route.
+Route::get('/storage-image/{path}', $servePublicStorageFile)
+    ->where('path', '.*')
+    ->name('storage.image');
 
 // Fallback route for 404 errors
 Route::fallback(function () {
