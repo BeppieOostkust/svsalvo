@@ -9,8 +9,8 @@ export default function Footer() {
                     {/* Logo & About */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-2">
-                            <img src="/images/logo_white.png" alt="SSV De Moes" className="h-8 w-auto" />
-                            <span className="text-lg font-semibold">SSV De Moes</span>
+                            <img src="/images/logo_white.png" alt="SV Salvo" className="h-8 w-auto" />
+                            <span className="text-lg font-semibold">SV Salvo</span>
                         </div>
                         <p className="max-w-sm text-sm text-gray-400">
                             Al sinds 1997 de plek voor veilige en professionele schietsport in de regio.
@@ -22,14 +22,14 @@ export default function Footer() {
                         <h3 className="mb-4 font-semibold">Contact</h3>
                         <ul className="space-y-2 text-sm text-gray-300">
                             <li className="flex items-center gap-2">
-                                <Mail className="h-4 w-4" /> info@ssvdemoes.nl
+                                <Mail className="h-4 w-4" /> secretaris@svsalvo.info
                             </li>
                             <li className="flex items-start gap-2">
                                 <MapPin className="mt-0.5 h-4 w-4" />
                                 <span>
-                                    Schietbaan De Moes
-                                    <br />5107 RD Dongen
-                                    <br />De Schacht 5
+                                    Schietbaan SV Salvo
+                                    <br />5461 XM Veghel
+                                    <br />Geerbunders 31
                                 </span>
                             </li>
                         </ul>
@@ -68,8 +68,15 @@ export default function Footer() {
                     </div>
                 </div>
 
-                <div className="mt-8 border-t border-gray-700 pt-4 text-center text-xs text-gray-400">
-                    © {new Date().getFullYear()} Schietvereniging De Moes. Alle rechten voorbehouden.
+                <div className="flex flex-row justify-between items-center border-t border-gray-700 mt-8 pt-4">
+                    <div className="text-center text-xs text-gray-400">
+                        © {new Date().getFullYear()} Schietvereniging Salvo. Alle rechten voorbehouden.
+                    </div>
+                    <div>
+                        <a href="https://briqq.nl" target="_blank" rel="noopener noreferrer">
+                            <img src="/images/watermark.png" alt="watermarkbriqq" className="h-6 w-auto" />
+                        </a>
+                    </div>
                 </div>
             </div>
         </footer>

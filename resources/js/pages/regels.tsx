@@ -62,7 +62,7 @@ export default function Regels() {
                 <div className="mb-8">
                     <h1 className="text-4xl font-bold text-gray-900 mb-4">Regels & Prijzen</h1>
                     <p className="text-xl text-gray-600">
-                        Hier vindt u alle regels en prijsinformatie van SSV de Moes.
+                        Hier vindt u alle regels en prijsinformatie van SV Salvo.
                     </p>
                 </div>
 

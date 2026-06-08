@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Onderhoud - SSV De Moes</title>
+    <title>Onderhoud - SV Salvo</title>
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     
     <!-- Tailwind CSS -->
@@ -59,7 +59,7 @@
             </div>
             
             <!-- Site Title -->
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">SSV De Moes</h1>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">SV Salvo</h1>
         </div>
         
         <!-- Maintenance Message -->
@@ -106,8 +106,8 @@
                     <svg class="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                     </svg>
-                    <a href="mailto:info@ssvdemoes.nl" class="text-blue-600 hover:text-blue-800">
-                        info@ssvdemoes.nl
+                    <a href="mailto:secretaris@svsalvo.info" class="text-blue-600 hover:text-blue-800">
+                        secretaris@svsalvo.info
                     </a>
                 </div>
                 
@@ -123,7 +123,7 @@
             
             <div class="mt-4 pt-4 border-t border-gray-100">
                 <p class="text-xs text-gray-500">
-                    Schietvereniging De Moes • De Schacht 5, 5107 RD Dongen
+                    Schietvereniging Salvo • Geerbunders 31, 5461 XM Veghel
                 </p>
             </div>
         </div>
@@ -131,7 +131,7 @@
         <!-- Footer -->
         <div class="mt-8 text-center">
             <p class="text-sm text-gray-400">
-                © {{ date('Y') }} SSV De Moes. Alle rechten voorbehouden.
+                © {{ date('Y') }} SV Salvo. Alle rechten voorbehouden.
             </p>
         </div>
     </div>

@@ -34,8 +34,8 @@ export default function BaanplanningIndex() {
                 <div className="container mx-auto px-4">
                     <div className="flex items-center justify-between h-16">
                         <Link href={route('dashboard.home')} className="flex items-center hover:opacity-80 transition-opacity">
-                            <img src="/images/logo.png" alt="SSV De Moes" className="h-8 w-auto mr-3" />
-                            <h1 className="text-xl font-bold text-gray-900">SSV De Moes</h1>
+                            <img src="/images/logo.png" alt="SV Salvo" className="h-8 w-auto mr-3" />
+                            <h1 className="text-xl font-bold text-gray-900">SV Salvo</h1>
                         </Link>
                         <div className="flex items-center space-x-4">
                             <Link href={route('dashboard.home')} className="text-gray-600 hover:text-green-600 font-medium">

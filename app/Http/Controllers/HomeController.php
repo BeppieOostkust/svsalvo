@@ -46,52 +46,11 @@ class HomeController extends Controller
             $upcomingMatches = collect([]);
         }
 
-        // Get partners/sponsors data
-        $partners = [
-            [
-                'name' => 'Wapenhandel van der Zanden',
-                'logo' => '/images/partners/zan.jpg',
-                'website' => 'https://www.vanderzanden.nl',
-                'description' => 'Jacht & Schietsport'
-            ],
-            [
-                'name' => 'KNSA',
-                'logo' => '/images/partners/knsa.jpg',
-                'website' => 'https://www.knsa.nl',
-                'description' => 'Koninklijke Nederlandse Schietsport Associatie'
-            ],
-            [
-                'name' => 'Vuurwapens.net',
-                'logo' => '/images/partners/vwnet.jpg',
-                'website' => 'https://www.vuurwapens.net',
-                'description' => 'Vuurwapen informatie en community'
-            ],
-            [
-                'name' => 'Schietsport Centrum Tichelrijt',
-                'logo' => '/images/partners/blh.jpg',
-                'website' => 'https://www.schietsportcentrumtichelrijt.nl',
-                'description' => 'Schietsport training en faciliteiten'
-            ],
-            [
-                'name' => 'Wapen Advertenties',
-                'logo' => '/images/partners/wpa.png',
-                'website' => 'https://www.wapenadvertenties.nl',
-                'description' => 'Marktplaats voor wapens en accessoires'
-            ],
-            [
-                'name' => 'MH Schietsport',
-                'logo' => '/images/partners/mh.png',
-                'website' => 'https://www.mhschietsport.nl',
-                'description' => 'Schietsport artikelen en onderdelen'
-            ]
-        ];
-
         return Inertia::render('Home', [
             'latestNews' => $latestNews,
             'featuredNews' => $featuredNews,
             'upcomingActivities' => $upcomingActivities,
             'upcomingMatches' => $upcomingMatches,
-            'partners' => $partners,
         ]);
     }
 }

@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
-use App\Models\MatchGebruikerScore;
+use App\Models\CompetitionScore;
 use App\Models\ActivityRegistration;
 
 class UserDashboardController extends Controller
@@ -16,12 +17,14 @@ class UserDashboardController extends Controller
      */
     public function index()
     {
-        $user = auth()->user();
+        $user = Auth::user();
+        if (! $user) {
+            abort(403);
+        }
         
-        // Get user's match scores with match information (only official scores)
-        $matchScores = MatchGebruikerScore::with(['matches'])
-            ->where('gebruiker_id', $user->id)
-            ->where('is_official', true)
+        // Get user's competition scores with round and competition information
+        $competitionScores = CompetitionScore::with(['round.competition', 'user'])
+            ->where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -33,15 +36,15 @@ class UserDashboardController extends Controller
 
         // Calculate some statistics
         $stats = [
-            'total_matches' => $matchScores->count(),
-            'best_score' => $matchScores->max('totale_punten'),
-            'average_score' => $matchScores->count() > 0 ? round($matchScores->avg('totale_punten'), 1) : null,
+            'total_scores' => $competitionScores->count(),
+            'best_score' => $competitionScores->max('totale_punten'),
+            'average_score' => $competitionScores->count() > 0 ? round($competitionScores->avg('totale_punten'), 1) : null,
             'recent_activities' => $activityRegistrations->take(5),
         ];
 
         return Inertia::render('Dashboard/UserDashboard', [
             'user' => $user,
-            'matchScores' => $matchScores,
+            'competitionScores' => $competitionScores,
             'activityRegistrations' => $activityRegistrations,
             'stats' => $stats,
         ]);
@@ -52,8 +55,13 @@ class UserDashboardController extends Controller
      */
     public function profile()
     {
+        $user = Auth::user();
+        if (! $user) {
+            abort(403);
+        }
+
         return Inertia::render('Dashboard/UserProfile', [
-            'user' => auth()->user(),
+            'user' => $user,
         ]);
     }
 
@@ -62,7 +70,11 @@ class UserDashboardController extends Controller
      */
     public function updateProfile(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
+        if (! $user) {
+            abort(403);
+        }
+        assert($user instanceof \App\Models\User);
         
         $validated = $request->validate([
             'first_name' => 'nullable|string|max:255',
@@ -136,16 +148,18 @@ class UserDashboardController extends Controller
      */
     public function matchHistory()
     {
-        $user = auth()->user();
+        $user = Auth::user();
+        if (! $user) {
+            abort(403);
+        }
         
-        $matchScores = MatchGebruikerScore::with(['matches'])
-            ->where('gebruiker_id', $user->id)
-            ->where('is_official', true)
+        $competitionScores = CompetitionScore::with(['round.competition', 'user'])
+            ->where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
         return Inertia::render('Dashboard/MatchHistory', [
-            'matchScores' => $matchScores,
+            'competitionScores' => $competitionScores,
         ]);
     }
 
@@ -154,22 +168,26 @@ class UserDashboardController extends Controller
      */
     public function viewMatch($matchId)
     {
-        $user = auth()->user();
+        $user = Auth::user();
+        if (! $user) {
+            abort(403);
+        }
         
-        // Get user's scores for this specific match (both official and fun games)
-        $matchScores = MatchGebruikerScore::with(['matches'])
-            ->where('gebruiker_id', $user->id)
-            ->where('wedstrijd_id', $matchId)
-            ->orderBy('round_number')
+        $competitionScores = CompetitionScore::with(['round.competition', 'user'])
+            ->where('user_id', $user->id)
+            ->whereHas('round', function ($query) use ($matchId) {
+                $query->where('competition_id', $matchId);
+            })
+            ->orderBy('created_at', 'desc')
             ->get();
 
-        if ($matchScores->isEmpty()) {
+        if ($competitionScores->isEmpty()) {
             abort(404, 'No scores found for this match');
         }
 
         return Inertia::render('Dashboard/MatchDetail', [
-            'matchScores' => $matchScores,
-            'match' => $matchScores->first()->matches,
+            'matchScores' => $competitionScores,
+            'match' => $competitionScores->first()->round->competition,
         ]);
     }
 }

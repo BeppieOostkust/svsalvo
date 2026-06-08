@@ -34,8 +34,7 @@ class MatchesResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        $user = auth()->user();
-        return $user && ($user->canAccessMatches() || $user->is_admin);
+        return false;
     }
 
     public static function form(Form $form): Form

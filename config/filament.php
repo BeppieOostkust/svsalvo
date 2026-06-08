@@ -14,21 +14,7 @@ return [
     |
     */
 
-    'broadcasting' => [
-
-        'echo' => [
-            'broadcaster' => 'reverb',
-            'key' => env('VITE_REVERB_APP_KEY'),
-            'wsHost' => env('VITE_REVERB_HOST'),
-            'wsPort' => env('VITE_REVERB_PORT'),
-            'wssPort' => env('VITE_REVERB_PORT'),
-            'authEndpoint' => '/broadcasting/auth',
-            'disableStats' => true,
-            'encrypted' => false,
-            'forceTLS' => false,
-        ],
-
-    ],
+    'broadcasting' => [],
 
     /*
     |--------------------------------------------------------------------------

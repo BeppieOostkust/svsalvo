@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Competition;
 use Inertia\Inertia;
 
 class PublicScoresController extends Controller
@@ -13,8 +14,6 @@ class PublicScoresController extends Controller
             ->where('is_active_member', true)
             ->select(['id', 'name', 'first_name', 'last_name', 'profile_image', 'preferred_discipline'])
             ->get();
-        // Optionally, you can eager load scores if you have a relation
-        // ->with('scores')
 
         return Inertia::render('scores/public', [
             'users' => $users,
@@ -28,8 +27,26 @@ class PublicScoresController extends Controller
             ->where('is_active_member', true)
             ->firstOrFail();
 
-        // Assuming a relation 'scores' exists on User model
-        $scores = $user->scores()->with('matches')->orderByDesc('totale_punten')->get();
+        // Get competition scores for this user and adapt shape expected by frontend
+        $scores = $user->competitionScores()
+            ->with(['round.competition', 'registration'])
+            ->orderByDesc('totale_punten')
+            ->get()
+            ->map(function ($score) {
+                // create a `matches`-shaped object for compatibility with the old frontend
+                $match = null;
+                if ($score->round) {
+                    $match = (object) [
+                        'id' => $score->round->id,
+                        'naam' => $score->round->naam ?? ($score->round->competition?->naam ?? 'Wedstrijd'),
+                        'start_datum' => optional($score->round)->datum?->toDateTimeString() ?? null,
+                    ];
+                }
+
+                return (object) array_merge($score->toArray(), [
+                    'matches' => $match,
+                ]);
+            });
 
         return Inertia::render('scores/user', [
             'user' => $user,
@@ -41,22 +58,22 @@ class PublicScoresController extends Controller
     {
         $users = User::where('show_scores_public', true)
             ->where('is_active_member', true)
-            ->with(['matchScores.matches'])
+            ->with('competitionScores')
             ->get()
             ->map(function ($user) {
-                // Calculate total and average scores for each discipline (kaliber)
-                $scoresByDiscipline = $user->matchScores->groupBy('kaliber');
+                // Get all competition scores for this user
+                $scoresByDiscipline = $user->competitionScores->groupBy('kaliber');
 
                 $stats = [];
                 foreach ($scoresByDiscipline as $discipline => $scores) {
                     $totalScore = $scores->sum('totale_punten');
-                    $matchCount = $scores->count();
-                    $averageScore = $matchCount > 0 ? $totalScore / $matchCount : 0;
+                    $scoreCount = $scores->count();
+                    $averageScore = $scoreCount > 0 ? $totalScore / $scoreCount : 0;
 
                     $stats[$discipline] = [
                         'total_score' => $totalScore,
                         'average_score' => $averageScore,
-                        'match_count' => $matchCount,
+                        'score_count' => $scoreCount,
                     ];
                 }
 
@@ -89,7 +106,7 @@ class PublicScoresController extends Controller
                     'preferred_discipline' => $discipline, // Use the actual discipline from scores
                     'total_score' => $stats['total_score'],
                     'average_score' => $stats['average_score'],
-                    'match_count' => $stats['match_count'],
+                    'score_count' => $stats['score_count'],
                 ]);
             }
         }

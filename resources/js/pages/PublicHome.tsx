@@ -29,8 +29,8 @@ export default function PublicHome() {
                 <div className="container mx-auto px-4">
                     <div className="flex items-center justify-between h-16">
                         <div className="flex items-center">
-                            <img src="images/logo.png" alt="SSV De Moes" className="h-8 w-auto mr-3" />
-                            <h1 className="text-xl font-bold text-gray-900">SSV De Moes</h1>
+                            <img src="images/logo.png" alt="SV Salvo" className="h-8 w-auto mr-3" />
+                            <h1 className="text-xl font-bold text-gray-900">SV Salvo</h1>
                         </div>
                         <div className="flex items-center space-x-4">
                             <Link 
@@ -50,7 +50,7 @@ export default function PublicHome() {
                     <div className="container mx-auto px-4">
                         <div className="max-w-4xl mx-auto text-center">
                             <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6">
-                                Welkom bij<br />Schietvereniging De Moes
+                                Welkom bij<br />Schietvereniging Salvo
                             </h1>
                             <p className="text-xl mb-8 text-green-100 max-w-2xl mx-auto leading-relaxed">
                                 Ontdek de kunst van de schietsport bij een van de gezelligste 
@@ -113,7 +113,7 @@ export default function PublicHome() {
                             <div className="grid md:grid-cols-2 gap-12 items-center">
                                 <div>
                                     <h2 className="text-4xl font-bold mb-6 text-gray-900">
-                                        Waarom kiezen voor De Moes?
+                                        Waarom kiezen voor SV Salvo?
                                     </h2>
                                     <div className="space-y-6">
                                         <div className="flex items-start">

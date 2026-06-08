@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Match;
 
 use App\Http\Controllers\Controller;
+use App\Models\Competition;
+use App\Models\CompetitionRegistration;
+use App\Models\CompetitionRound;
+use App\Models\CompetitionScore;
 use App\Models\Matches;
 use App\Models\MatchGebruikerScore;
 use App\Models\MatchRegistration;
@@ -15,39 +19,76 @@ class WedstrijdenController extends Controller
 {
     public function index()
     {
-        // Fetch matches with related gebruikersScores (only official ones), registrations and their users
-        $matches = Matches::with([
-                'gebruikersScores' => function($query) {
-                    $query->where('is_official', true)->with('gebruiker');
-                },
-                'registrations.user'
-            ])
-            ->orderBy('start_datum', 'desc')
+        // Fetch competitions (new system) with related rounds
+        $competitions = Competition::with('rounds')
+            ->orderBy('jaar', 'desc')
             ->get();
         
         // Add registration status for current user if authenticated
         $currentUserId = Auth::id();
         if ($currentUserId) {
-            $matches = $matches->map(function ($match) use ($currentUserId) {
-                // Check if user is already a participant
-                $isParticipant = $match->gebruikersScores->contains('gebruiker_id', $currentUserId);
-                
-                // Check if user has an active registration
-                $hasActiveRegistration = MatchRegistration::where('match_id', $match->id)
+            $competitions = $competitions->map(function ($competition) use ($currentUserId) {
+                // Check if user is registered for this competition
+                $registration = CompetitionRegistration::where('competition_id', $competition->id)
                     ->where('user_id', $currentUserId)
-                    ->where('status', 'aangemeld')
-                    ->exists();
+                    ->where('status', 'actief')
+                    ->first();
                 
-                $match->is_user_registered = $isParticipant || $hasActiveRegistration;
-                $match->is_participant = $isParticipant;
-                $match->has_registration = $hasActiveRegistration;
+                $competition->is_user_registered = $registration ? true : false;
+                $competition->user_caliber = $registration?->kaliber;
+                $competition->user_registration_id = $registration?->id;
                 
-                return $match;
+                return $competition;
             });
+        }
+
+        // Get the most recent competition with scores for leaderboard
+        $latestCompetition = Competition::with('rounds.scores.user')
+            ->orderBy('jaar', 'desc')
+            ->first();
+
+        $leaderboard = collect();
+        
+        if ($latestCompetition) {
+            // Get all scores for this competition grouped by caliber
+            $scoresByCaliberAndUser = collect();
+            
+            foreach ($latestCompetition->rounds as $round) {
+                foreach ($round->scores as $score) {
+                    if ($score->user && $score->user->show_scores_public) {
+                        $key = $score->user->id . '_' . $score->kaliber;
+                        if (!$scoresByCaliberAndUser->has($key)) {
+                            $scoresByCaliberAndUser->put($key, [
+                                'user_id' => $score->user->id,
+                                'user_name' => $score->user->name,
+                                'user_first_name' => $score->user->first_name,
+                                'user_last_name' => $score->user->last_name,
+                                'user_profile_image' => $score->user->profile_image,
+                                'kaliber' => $score->kaliber,
+                                'total_points' => 0,
+                                'scores_count' => 0,
+                            ]);
+                        }
+                        
+                        $entry = $scoresByCaliberAndUser->get($key);
+                        $entry['total_points'] += $score->totale_punten;
+                        $entry['scores_count'] += 1;
+                        $scoresByCaliberAndUser->put($key, $entry);
+                    }
+                }
+            }
+            
+            // Convert to array and sort by total points descending
+            $leaderboard = $scoresByCaliberAndUser->values()
+                ->sortByDesc('total_points')
+                ->take(10) // Top 10
+                ->values();
         }
             
         return Inertia::render('wedstrijden', [
-            'matches' => $matches
+            'matches' => $competitions,
+            'latestCompetition' => $latestCompetition,
+            'leaderboard' => $leaderboard->values(),
         ]);
     }
 
@@ -56,6 +97,70 @@ class WedstrijdenController extends Controller
      */
     public function show($id)
     {
+        $competition = Competition::with('rounds')->find($id);
+
+        if ($competition) {
+            $currentUser = Auth::user();
+            $currentUserId = $currentUser?->id;
+            $isAdmin = $currentUser instanceof \App\Models\User ? $currentUser->isAdmin() : false;
+
+            $rounds = $competition->rounds()->with([
+                'scores' => function ($query) use ($currentUserId, $isAdmin) {
+                    if (! $isAdmin) {
+                        $query->whereHas('user', function ($userQuery) use ($currentUserId) {
+                            $userQuery->where('show_scores_public', true);
+                            if ($currentUserId) {
+                                $userQuery->orWhere('id', $currentUserId);
+                            }
+                        });
+                    }
+
+                    $query->with('user')
+                        ->orderByDesc('totale_punten');
+                },
+            ])->get();
+
+            $participantsQuery = CompetitionRegistration::where('competition_id', $competition->id)
+                ->where('status', 'actief')
+                ->with('user');
+
+            if (! $isAdmin) {
+                $participantsQuery->whereHas('user', function ($userQuery) use ($currentUserId) {
+                    $userQuery->where('show_in_participants', true);
+                    if ($currentUserId) {
+                        $userQuery->orWhere('id', $currentUserId);
+                    }
+                });
+            }
+
+            $participants = $participantsQuery->orderBy('kaliber')->orderBy('user_id')->get();
+
+            return Inertia::render('Competitions/show', [
+                'competition' => $competition,
+                'rounds' => $rounds,
+                'participants' => $participants,
+                'userRegistration' => $currentUserId
+                    ? CompetitionRegistration::where('competition_id', $competition->id)
+                        ->where('user_id', $currentUserId)
+                        ->first()
+                    : null,
+                'totalParticipants' => CompetitionRegistration::where('competition_id', $competition->id)
+                    ->where('status', 'actief')
+                    ->count(),
+                'visibleParticipants' => $participants->count(),
+                'hiddenParticipants' => max(0, CompetitionRegistration::where('competition_id', $competition->id)
+                    ->where('status', 'actief')
+                    ->count() - $participants->count()),
+                'totalScores' => CompetitionScore::whereHas('round', function ($q) use ($competition) {
+                    $q->where('competition_id', $competition->id);
+                })->count(),
+                'visibleScores' => $rounds->reduce(fn ($carry, $round) => $carry + $round->scores->count(), 0),
+                'hiddenScores' => max(0, CompetitionScore::whereHas('round', function ($q) use ($competition) {
+                    $q->where('competition_id', $competition->id);
+                })->count() - $rounds->reduce(fn ($carry, $round) => $carry + $round->scores->count(), 0)),
+            ]);
+        }
+
         $match = Matches::with(['gebruikersScores' => function($query) {
                 $query->where('is_official', true)->with(['gebruiker' => function($userQuery) {
                     $userQuery->select('id', 'name', 'avg_name', 'first_name', 'last_name', 'show_scores_public', 'show_full_name');
@@ -76,105 +181,37 @@ class WedstrijdenController extends Controller
     }
 
     /**
-     * Register current user for a match
+     * Register current user for a competition
      */
-    public function register(Request $request, $matchId)
+    public function register(Request $request, $competitionId)
     {
         if (!Auth::check()) {
             return redirect()->route('login');
         }
 
-        $match = Matches::findOrFail($matchId);
+        $competition = Competition::findOrFail($competitionId);
         $userId = Auth::id();
+        $caliber = $request->input('calibers')[0] ?? 'gkp'; // Get first caliber
 
-        // Check if match allows registration
-        if (!in_array($match->status, ['binnenkort', 'bezig'])) {
-            return back()->withErrors(['message' => 'Aanmelden voor deze wedstrijd is niet meer mogelijk.']);
-        }
-
-        // Check if user has an active registration (for any caliber)
-        $existingRegistration = MatchRegistration::where('match_id', $matchId)
+        // Check if user is already registered
+        $existingRegistration = CompetitionRegistration::where('competition_id', $competitionId)
             ->where('user_id', $userId)
-            ->where('status', 'aangemeld')
             ->first();
 
-        // We'll allow multiple registrations for different calibers, but show info if they already have some
         if ($existingRegistration) {
-            $existingCalibers = MatchRegistration::where('match_id', $matchId)
-                ->where('user_id', $userId)
-                ->where('status', 'aangemeld')
-                ->pluck('caliber')
-                ->toArray();
-                
-            $caliberNames = array_map(function($c) {
-                return $c === 'gkp' ? 'GKP' : 'KKP';
-            }, $existingCalibers);
-            
-            $message = count($existingCalibers) === 1 
-                ? "Je bent al aangemeld voor deze wedstrijd met " . $caliberNames[0] . "."
-                : "Je bent al aangemeld voor deze wedstrijd met " . implode(' en ', $caliberNames) . ".";
-            
-            // Only block if they're registered for both calibers
-            if (count($existingCalibers) >= 2) {
-                return back()->withErrors(['message' => $message]);
-            }
-        }
-
-        // Also check if already a participant
-        $existingParticipant = MatchGebruikerScore::where('wedstrijd_id', $matchId)
-            ->where('gebruiker_id', $userId)
-            ->first();
-
-        if ($existingParticipant) {
-            return back()->withErrors(['message' => 'Je bent al deelnemer van deze wedstrijd.']);
+            return back()->withErrors(['message' => 'Je bent al aangemeld voor deze competitie.']);
         }
 
         try {
-            $calibers = $request->input('calibers', ['gkp']); // Default to GKP if not specified
-            
-            // Ensure calibers is an array
-            if (!is_array($calibers)) {
-                $calibers = [$calibers];
-            }
-            
-            // Validate calibers
-            $validCalibers = ['gkp', 'kkp'];
-            $calibers = array_intersect($calibers, $validCalibers);
-            
-            if (empty($calibers)) {
-                return back()->withErrors(['message' => 'Selecteer tenminste één geldig kaliber (GKP of KKP).']);
-            }
-            
-            // Create registration entries for each caliber
-            foreach ($calibers as $caliber) {
-                // Check if user already has a registration for this caliber
-                $existingCaliberRegistration = MatchRegistration::where('match_id', $matchId)
-                    ->where('user_id', $userId)
-                    ->where('caliber', $caliber)
-                    ->where('status', 'aangemeld')
-                    ->first();
-                    
-                if (!$existingCaliberRegistration) {
-                    MatchRegistration::create([
-                        'match_id' => $matchId,
-                        'user_id' => $userId,
-                        'caliber' => $caliber,
-                        'status' => 'aangemeld',
-                        'registered_at' => now(),
-                        'notes' => $request->input('notes'),
-                    ]);
-                }
-            }
+            CompetitionRegistration::create([
+                'competition_id' => $competitionId,
+                'user_id' => $userId,
+                'kaliber' => $caliber,
+                'status' => 'actief',
+                'registered_at' => now(),
+            ]);
 
-            $caliberNames = array_map(function($c) {
-                return $c === 'gkp' ? 'GKP' : 'KKP';
-            }, $calibers);
-            
-            $message = count($calibers) === 1 
-                ? "Je bent succesvol aangemeld voor de wedstrijd met " . $caliberNames[0] . "!"
-                : "Je bent succesvol aangemeld voor de wedstrijd met " . implode(' en ', $caliberNames) . "!";
-                
-            return back()->with('success', $message . ' De organisatie zal je aanmelding(en) beoordelen.');
+            return back()->with('success', 'Je bent succesvol aangemeld voor de competitie!');
 
         } catch (\Exception $e) {
             return back()->withErrors(['message' => 'Er is een fout opgetreden bij het aanmelden.']);
@@ -182,68 +219,36 @@ class WedstrijdenController extends Controller
     }
 
     /**
-     * Unregister current user from a match
+     * Unregister current user from a competition
      */
-    public function unregister(Request $request, $matchId)
+    public function unregister(Request $request, $competitionId)
     {
         if (!Auth::check()) {
             return redirect()->route('login');
         }
 
-        $match = Matches::findOrFail($matchId);
+        $competition = Competition::findOrFail($competitionId);
         $userId = Auth::id();
 
-        // Check if match allows unregistration
-        if (!in_array($match->status, ['binnenkort', 'bezig'])) {
-            return back()->withErrors(['message' => 'Afmelden voor deze wedstrijd is niet meer mogelijk.']);
-        }
-
         try {
-            // Find all registrations for this user and match
-            $registrations = MatchRegistration::where('match_id', $matchId)
+            $registration = CompetitionRegistration::where('competition_id', $competitionId)
                 ->where('user_id', $userId)
-                ->where('status', 'aangemeld')
-                ->get();
-
-            if ($registrations->count() > 0) {
-                $deletedCalibers = [];
-                $cannotDeleteCalibers = [];
-                
-                foreach ($registrations as $registration) {
-                    // If registration not yet converted, we can delete it
-                    if (!$registration->converted_to_participant) {
-                        $deletedCalibers[] = $registration->caliber === 'gkp' ? 'GKP' : 'KKP';
-                        $registration->delete();
-                    } else {
-                        $cannotDeleteCalibers[] = $registration->caliber === 'gkp' ? 'GKP' : 'KKP';
-                    }
-                }
-                
-                if (count($deletedCalibers) > 0) {
-                    $message = count($deletedCalibers) === 1 
-                        ? "Je aanmelding voor " . $deletedCalibers[0] . " is geannuleerd."
-                        : "Je aanmeldingen voor " . implode(' en ', $deletedCalibers) . " zijn geannuleerd.";
-                    
-                    if (count($cannotDeleteCalibers) > 0) {
-                        $message .= " De aanmelding(en) voor " . implode(' en ', $cannotDeleteCalibers) . " konden niet geannuleerd worden omdat je al toegevoegd bent als deelnemer.";
-                    }
-                    
-                    return back()->with('success', $message);
-                } else {
-                    return back()->withErrors(['message' => 'Je kunt deze aanmeldingen niet meer annuleren omdat je al toegevoegd bent als deelnemer voor alle kalibers.']);
-                }
-            }
-
-            // If no registration found, maybe they're a direct participant (legacy)
-            $participant = MatchGebruikerScore::where('wedstrijd_id', $matchId)
-                ->where('gebruiker_id', $userId)
                 ->first();
 
-            if ($participant) {
-                return back()->withErrors(['message' => 'Je bent deelnemer van deze wedstrijd en kunt niet meer afmelden. Neem contact op met de organisatie.']);
+            if (!$registration) {
+                return back()->withErrors(['message' => 'Je was niet aangemeld voor deze competitie.']);
             }
 
-            return back()->withErrors(['message' => 'Je was niet aangemeld voor deze wedstrijd.']);
+            // Check if there are already scores - if so, don't allow deletion
+            $hasScores = CompetitionScore::where('registration_id', $registration->id)->exists();
+            
+            if ($hasScores) {
+                return back()->withErrors(['message' => 'Je kunt niet afmelden nu je al deelgenomen hebt. Neem contact op met de organisatie.']);
+            }
+
+            $registration->delete();
+
+            return back()->with('success', 'Je aanmelding is geannuleerd.');
 
         } catch (\Exception $e) {
             return back()->withErrors(['message' => 'Er is een fout opgetreden bij het afmelden.']);
@@ -251,18 +256,22 @@ class WedstrijdenController extends Controller
     }
 
     /**
-     * Show participants of a match
+     * Show participants of a competition
      */
-    public function participants($matchId)
+    public function participants($competitionId)
     {
-        $match = Matches::with(['gebruikersScores' => function($query) {
-                $query->where('is_official', true)->with('gebruiker');
-            }])
-            ->findOrFail($matchId);
+        $competition = Competition::with('rounds')->findOrFail($competitionId);
 
-        return Inertia::render('wedstrijd-deelnemers', [
-            'match' => $match,
-            'participants' => $match->gebruikersScores
+        $participants = CompetitionRegistration::where('competition_id', $competitionId)
+            ->where('status', 'actief')
+            ->with('user')
+            ->orderBy('kaliber')
+            ->orderBy('user_id')
+            ->get();
+
+        return Inertia::render('Competitions/participants', [
+            'competition' => $competition,
+            'participants' => $participants
         ]);
     }
 }

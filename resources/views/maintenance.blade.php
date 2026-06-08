@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Onderhoud - SSV De Moes</title>
+    <title>Onderhoud - SV Salvo</title>
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     
     <!-- Tailwind CSS -->
@@ -50,7 +50,7 @@
             </div>
             
             <!-- Site Title -->
-            <h1 class="text-4xl font-bold text-gray-900 mb-2">SSV De Moes</h1>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">SV Salvo</h1>
             <p class="text-lg text-gray-600">Schietvereniging</p>
         </div>
         
@@ -122,8 +122,8 @@
                     </div>
                     <div>
                         <p class="text-sm text-gray-600">Email</p>
-                        <a href="mailto:info@ssvdemoes.nl" class="text-blue-600 hover:text-blue-800 font-medium">
-                            info@ssvdemoes.nl
+                        <a href="mailto:secretaris@svsalvo.info" class="text-blue-600 hover:text-blue-800 font-medium">
+                            secretaris@svsalvo.info
                         </a>
                     </div>
                 </div>
@@ -135,7 +135,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     </svg>
-                    De Schacht 5, 5107 RD Dongen, Nederland
+                    Geerbunders 31, 5461 XM Veghel
                 </div>
             </div>
         </div>
@@ -143,7 +143,7 @@
         <!-- Footer -->
         <div class="mt-8 text-center">
             <p class="text-sm text-gray-400">
-                © {{ date('Y') }} SSV De Moes. We zijn zo snel mogelijk terug! 🎯
+                © {{ date('Y') }} SV Salvo. We zijn zo snel mogelijk terug! 🎯
             </p>
         </div>
     </div>

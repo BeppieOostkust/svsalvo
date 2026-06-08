@@ -101,7 +101,7 @@ class CreateSampleNotifications extends Command
             $this->notificationService->createForUser(
                 $user,
                 'general',
-                'Welkom bij SSV De Moes!',
+                'Welkom bij SV Salvo!',
                 'Bedankt voor je aanmelding bij onze schietvereniging. We hopen je snel op de schietbaan te zien!',
                 [
                     'url' => '/dashboard',

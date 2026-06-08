@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 use App\Http\Controllers\Match\WedstrijdenController;
+use App\Http\Controllers\Competition\CompetitionController;
+use App\Http\Controllers\Competition\CompetitionScoreController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\ActivityController;
@@ -95,7 +97,6 @@ Route::middleware(['auth', 'verified', 'legal.check', 'password.change'])->group
     Route::put('/marktplaats/{listing}', [MarketplaceController::class, 'update'])->name('marktplaats.update');
     Route::delete('/marktplaats/{listing}', [MarketplaceController::class, 'destroy'])->name('marktplaats.destroy');
 
-
     Route::get('/contact', function () {
         return Inertia::render('contact');
     })->name('contact');
@@ -123,10 +124,27 @@ Route::middleware(['auth', 'verified', 'legal.check', 'password.change'])->group
     Route::delete('/wedstrijd/{id}/afmelden', [WedstrijdenController::class, 'unregister'])->name('wedstrijd.unregister');
     Route::get('/wedstrijd/{id}/deelnemers', [WedstrijdenController::class, 'participants'])->name('wedstrijd.participants');
 
+    // Competition routes (new system: jaarlijkse competities met 5 beurten)
+    Route::get('/competities', [CompetitionController::class, 'index'])->name('competitions.index');
+    Route::get('/competitie/{id}', [CompetitionController::class, 'show'])->name('competitions.show');
+    Route::post('/competitie/{id}/deelnemen', [CompetitionController::class, 'register'])->name('competitions.register');
+    Route::delete('/competitie/{id}/afmelden', [CompetitionController::class, 'unregister'])->name('competitions.unregister');
+    Route::get('/competitie/{id}/scores/user', [CompetitionController::class, 'getUserScores'])->name('competitions.user-scores');
+    Route::get('/competitie/{competitionId}/beurt/{roundId}/leaderboard', [CompetitionController::class, 'getRoundLeaderboard'])->name('competitions.round-leaderboard');
+
     // Member contact routes
     Route::get('/leden', [MemberContactController::class, 'index'])->name('leden.contact');
     Route::post('/leden/privacy-settings', [MemberContactController::class, 'updatePrivacySettings'])->name('leden.privacy');
     Route::post('/leden/update-profile', [MemberContactController::class, 'updateProfile'])->name('leden.profile');
+
+    // API routes for competition scores (for admin score entry)
+    Route::prefix('api/competities')->group(function () {
+        Route::post('/{competitionId}/beurt/{roundId}/scores', [CompetitionScoreController::class, 'store'])->name('api.competition-scores.store');
+        Route::put('/scores/{scoreId}', [CompetitionScoreController::class, 'update'])->name('api.competition-scores.update');
+        Route::delete('/scores/{scoreId}', [CompetitionScoreController::class, 'destroy'])->name('api.competition-scores.destroy');
+        Route::get('/{competitionId}/beurt/{roundId}/scores', [CompetitionScoreController::class, 'byRound'])->name('api.competition-scores.by-round');
+        Route::get('/{competitionId}/gebruiker/{userId}/scores', [CompetitionScoreController::class, 'byUser'])->name('api.competition-scores.by-user');
+    });
 });
 
 // User Dashboard routes (protected by auth middleware)

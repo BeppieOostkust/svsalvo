@@ -39,7 +39,7 @@ Login op: {{login_url}}
 Belangrijk: Wijzig je wachtwoord na je eerste login voor de veiligheid.
 
 Met vriendelijke groet,
-Besttuur SSV de Moes',
+Bestuur SV Salvo',
             'available_variables' => ['name', 'email', 'temporary_password', 'login_url', 'site_name'],
             'is_active' => true,
             'category' => 'user',

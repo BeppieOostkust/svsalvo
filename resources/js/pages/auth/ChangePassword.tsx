@@ -47,7 +47,7 @@ export default function ChangePassword({ user }: Props) {
 
     const messages = [
         `Hoi, ${user.full_name}...`,
-        `Welkom bij de vernieuwde site van SSV de Moes!`,
+        `Welkom bij de vernieuwde site van SV Salvo!`,
         `Wij hebben u een tijdelijk wachtwoord gegeven om in te loggen.`,
         `Hier kunt u dat nu aanpassen voor uw veiligheid.`
     ];

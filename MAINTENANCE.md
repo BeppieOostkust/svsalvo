@@ -1,6 +1,6 @@
-# 🔧 Maintenance Mode - SSV De Moes
+# 🔧 Maintenance Mode - SV De Moes
 
-Deze documentatie legt uit hoe je de maintenance mode voor de SSV De Moes website kunt gebruiken.
+Deze documentatie legt uit hoe je de maintenance mode voor de SV De Moes website kunt gebruiken.
 
 ## 📋 Overzicht
 
@@ -66,7 +66,7 @@ php artisan down --secret="admin123"
 - **Responsive Design** - Werkt op alle apparaten
 - **Auto-refresh** - Controleert automatisch wanneer site weer online is
 - **Contact Info** - Email en telefoon voor vragen
-- **Professional Look** - Past bij SSV De Moes branding
+- **Professional Look** - Past bij SV De Moes branding
 
 ### Extra Features Custom Template:
 - **Loading Animaties** - Visual feedback voor gebruikers
@@ -81,7 +81,7 @@ php artisan down --secret="admin123"
 Edit de template bestanden:
 ```html
 <!-- Email -->
-<a href="mailto:info@ssvdemoes.nl">info@ssvdemoes.nl</a>
+<a href="mailto:info@SVdemoes.nl">info@SVdemoes.nl</a>
 
 <!-- Telefoon -->
 <a href="tel:+31162123456">0162 - 123 456</a>
@@ -136,7 +136,7 @@ Edit de templates en voeg je eigen bericht toe in de HTML.
 php artisan site:maintenance down --secret="update-jan-2024"
 
 # Deel bypass URL met team
-# https://ssvdemoes.nl/?secret=update-jan-2024
+# https://SVdemoes.nl/?secret=update-jan-2024
 
 # Voer updates uit...
 
@@ -202,6 +202,6 @@ php artisan cache:clear
 ## 📞 Support
 
 Bij vragen over maintenance mode:
-- **Email**: info@ssvdemoes.nl
+- **Email**: info@SVdemoes.nl
 - **Telefoon**: 0162 - 123 456
 - **Locatie**: De Schacht 5, 5107 RD Dongen

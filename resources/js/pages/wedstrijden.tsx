@@ -1,37 +1,22 @@
 import React, { useState } from "react";
 import { Head, Link, usePage, router } from '@inertiajs/react';
 import Layout from "@/components/Layout";
-import { format, parseISO } from 'date-fns';
-import { nl } from 'date-fns/locale';
 
 // Registration Modal Component
 interface RegistrationModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (calibers: string[], notes?: string) => void;
-    matchName: string;
+    onSubmit: (caliber: string) => void;
+    competitionName: string;
     loading: boolean;
 }
 
-function RegistrationModal({ isOpen, onClose, onSubmit, matchName, loading }: RegistrationModalProps) {
-    const [selectedCalibers, setSelectedCalibers] = useState<string[]>(['gkp']);
-    const [notes, setNotes] = useState<string>('');
-
-    const handleCaliberChange = (caliber: string, checked: boolean) => {
-        if (checked) {
-            setSelectedCalibers(prev => [...prev, caliber]);
-        } else {
-            setSelectedCalibers(prev => prev.filter(c => c !== caliber));
-        }
-    };
+function RegistrationModal({ isOpen, onClose, onSubmit, competitionName, loading }: RegistrationModalProps) {
+    const [selectedCaliber, setSelectedCaliber] = useState<string>('gkp');
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (selectedCalibers.length === 0) {
-            alert('Selecteer tenminste één kaliber.');
-            return;
-        }
-        onSubmit(selectedCalibers, notes);
+        onSubmit(selectedCaliber);
     };
 
     if (!isOpen) return null;
@@ -39,50 +24,35 @@ function RegistrationModal({ isOpen, onClose, onSubmit, matchName, loading }: Re
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg p-6 w-full max-w-md">
-                <h3 className="text-lg font-semibold mb-4">Aanmelden voor {matchName}</h3>
+                <h3 className="text-lg font-semibold mb-4">Aanmelden voor {competitionName}</h3>
                 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Kaliber * (selecteer één of beide)
+                            Selecteer kaliber *
                         </label>
                         <div className="space-y-2">
                             <label className="flex items-center">
                                 <input
-                                    type="checkbox"
+                                    type="radio"
                                     value="gkp"
-                                    checked={selectedCalibers.includes('gkp')}
-                                    onChange={(e) => handleCaliberChange('gkp', e.target.checked)}
+                                    checked={selectedCaliber === 'gkp'}
+                                    onChange={(e) => setSelectedCaliber(e.target.value)}
                                     className="mr-2"
                                 />
                                 Groot Kaliber Pistool (GKP)
                             </label>
                             <label className="flex items-center">
                                 <input
-                                    type="checkbox"
+                                    type="radio"
                                     value="kkp"
-                                    checked={selectedCalibers.includes('kkp')}
-                                    onChange={(e) => handleCaliberChange('kkp', e.target.checked)}
+                                    checked={selectedCaliber === 'kkp'}
+                                    onChange={(e) => setSelectedCaliber(e.target.value)}
                                     className="mr-2"
                                 />
                                 Klein Kaliber Pistool (KKP)
                             </label>
                         </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Opmerkingen (optioneel)
-                        </label>
-                        <textarea
-                            value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-                            rows={3}
-                            maxLength={500}
-                            placeholder="Bijv. speciale verzoeken of opmerkingen..."
-                        />
-                        <p className="text-xs text-gray-500 mt-1">{notes.length}/500 tekens</p>
                     </div>
 
                     <div className="flex gap-3 pt-4">
@@ -108,61 +78,31 @@ function RegistrationModal({ isOpen, onClose, onSubmit, matchName, loading }: Re
     );
 }
 
-interface MatchGebruikerScore {
+interface Round {
     id: number;
-    gebruiker_id: number;
-    wedstrijd_id: number;
-    kaliber: string;
-    totale_punten: number;
-    linker_kaart_6: number;
-    linker_kaart_7: number;
-    linker_kaart_8: number;
-    linker_kaart_9: number;
-    linker_kaart_10: number;
-    rechter_kaart_6: number;
-    rechter_kaart_7: number;
-    rechter_kaart_8: number;
-    rechter_kaart_9: number;
-    rechter_kaart_10: number;
-    gebruiker?: {
-        id: number;
-        name: string;
-    };
+    competition_id: number;
+    round_number: number;
+    naam: string;
 }
 
-interface MatchRegistration {
-    id: number;
-    match_id: number;
-    user_id: number;
-    caliber: string;
-    status: string;
-    registered_at: string;
-    notes?: string;
-    converted_to_participant: boolean;
-    user?: {
-        id: number;
-        name: string;
-        show_in_participants: boolean;
-    };
-}
-
-interface Match {
+interface Competition {
     id: number;
     naam: string;
     beschrijving: string;
     status: string;
-    start_datum: string;
+    jaar: number;
     created_at: string;
     updated_at: string;
-    gebruikersScores: MatchGebruikerScore[];
-    registrations?: MatchRegistration[];
+    rounds?: Round[];
     is_user_registered?: boolean;
-    is_participant?: boolean;
-    has_registration?: boolean;
+    user_caliber?: string;
+    user_registration_id?: number;
 }
 
 interface PageProps {
-    matches: Match[];
+    matches: Competition[];
+    latestCompetition?: Competition | null;
+    leaderboard?: any[];
     auth?: {
         user?: {
             id: number;
@@ -174,60 +114,50 @@ interface PageProps {
 
 export default function Wedstrijden() {
     const { props } = usePage<PageProps>();
-    const matches = props?.matches || [];
+    const competitions = props?.matches || [];
+    const latestCompetition = props?.latestCompetition;
+    const leaderboard = props?.leaderboard || [];
     const currentUser = props?.auth?.user;
     const [loading, setLoading] = useState<number | null>(null);
     const [registrationModal, setRegistrationModal] = useState<{
         isOpen: boolean;
-        match: Match | null;
-    }>({ isOpen: false, match: null });
+        competition: Competition | null;
+    }>({ isOpen: false, competition: null });
 
     console.log("Page Props:", props);
-    console.log("Matches data:", matches);
+    console.log("Competitions data:", competitions);
 
-    const formatStatus = (status: string) => {
-        switch (status) {
-            case 'binnenkort': return 'Binnenkort';
-            case 'bezig': return 'Bezig';
-            case 'afgelopen': return 'Afgelopen';
-            case 'geannuleerd': return 'Geannuleerd';
-            default: return status;
-        }
-    };
-    
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'binnenkort': return 'bg-blue-100 text-blue-800';
-            case 'bezig': return 'bg-green-100 text-green-800';
-            case 'afgelopen': return 'bg-gray-100 text-gray-800';
-            case 'geannuleerd': return 'bg-red-100 text-red-800';
+            case 'actief': return 'bg-green-100 text-green-800';
+            case 'concept': return 'bg-blue-100 text-blue-800';
+            case 'gesloten': return 'bg-gray-100 text-gray-800';
             default: return 'bg-gray-100 text-gray-800';
         }
     };
 
-    const formatDate = (dateString: string) => {
-        try {
-            const date = parseISO(dateString);
-            return format(date, 'd MMMM yyyy HH:mm', { locale: nl });
-        } catch (e) {
-            return dateString;
+    const formatStatus = (status: string) => {
+        switch (status) {
+            case 'actief': return 'Actief';
+            case 'concept': return 'Concept';
+            case 'gesloten': return 'Gesloten';
+            default: return status;
         }
     };
 
-    const isUserRegistered = (match: Match) => {
-        if (!currentUser) return false;
-        return match.gebruikersScores?.some(score => score.gebruiker_id === currentUser.id) || false;
+    const isUserRegistered = (competition: Competition) => {
+        return competition.is_user_registered || false;
     };
 
-    const canRegister = (match: Match) => {
-        return match.status === 'binnenkort' && currentUser && !isUserRegistered(match);
+    const canRegister = (competition: Competition) => {
+        return currentUser && !isUserRegistered(competition);
     };
 
-    const canUnregister = (match: Match) => {
-        return match.status === 'binnenkort' && currentUser && isUserRegistered(match);
+    const canUnregister = (competition: Competition) => {
+        return currentUser && isUserRegistered(competition);
     };
 
-    const handleRegistration = async (matchId: number, action: 'register' | 'unregister') => {
+    const handleRegistration = async (competitionId: number, action: 'register' | 'unregister') => {
         if (!currentUser) {
             router.visit('/login');
             return;
@@ -235,18 +165,18 @@ export default function Wedstrijden() {
 
         if (action === 'register') {
             // Open registration modal for caliber selection
-            const match = matches.find(m => m.id === matchId);
-            if (match) {
-                setRegistrationModal({ isOpen: true, match });
+            const competition = competitions.find(c => c.id === competitionId);
+            if (competition) {
+                setRegistrationModal({ isOpen: true, competition });
             }
             return;
         }
 
         // Handle unregistration directly
-        setLoading(matchId);
+        setLoading(competitionId);
         
         try {
-            router.delete(`/wedstrijd/${matchId}/afmelden`, {
+            router.delete(`/wedstrijd/${competitionId}/afmelden`, {
                 preserveState: true,
                 preserveScroll: true,
                 onSuccess: () => {
@@ -266,27 +196,22 @@ export default function Wedstrijden() {
         }
     };
 
-    const openRegistrationModal = (match: Match) => {
-        setRegistrationModal({ isOpen: true, match });
-    };
-
     const closeRegistrationModal = () => {
-        setRegistrationModal({ isOpen: false, match: null });
+        setRegistrationModal({ isOpen: false, competition: null });
     };
 
-    const handleRegistrationSubmit = (calibers: string[], notes?: string) => {
-        if (!registrationModal.match) return;
+    const handleRegistrationSubmit = (caliber: string) => {
+        if (!registrationModal.competition) return;
 
-        setLoading(registrationModal.match.id);
+        setLoading(registrationModal.competition.id);
         
-        router.post(`/wedstrijd/${registrationModal.match.id}/aanmelden`, {
-            calibers,
-            notes
+        router.post(`/wedstrijd/${registrationModal.competition.id}/aanmelden`, {
+            calibers: [caliber]
         }, {
             preserveState: true,
             preserveScroll: true,
             onSuccess: () => {
-                setRegistrationModal({ isOpen: false, match: null });
+                setRegistrationModal({ isOpen: false, competition: null });
                 // Manually reload the page data to refresh registration status
                 router.reload({ only: ['matches'] });
             },
@@ -308,10 +233,10 @@ export default function Wedstrijden() {
 
     return (
         <Layout>
-            <Head title="Wedstrijden" />
+            <Head title="Competities" />
             <div className="w-[90%] mx-auto px-4 py-8">
                 <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-3xl font-bold">Wedstrijden</h1>
+                    <h1 className="text-3xl font-bold">Competities</h1>
                     {!currentUser && (
                         <Link 
                             href="/login" 
@@ -321,76 +246,115 @@ export default function Wedstrijden() {
                         </Link>
                     )}
                 </div>
+
+                {/* Leaderboard Section */}
+                {latestCompetition && leaderboard.length > 0 && (
+                    <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg shadow-lg mb-8 p-6 border-l-4 border-yellow-400">
+                        <div className="flex items-center gap-2 mb-4">
+                            <span className="text-2xl">🏆</span>
+                            <h2 className="text-2xl font-bold text-gray-900">Leaderboard - {latestCompetition.naam}</h2>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                                <thead className="border-b-2 border-yellow-300">
+                                    <tr className="text-left">
+                                        <th className="px-4 py-2 font-semibold text-gray-700">Positie</th>
+                                        <th className="px-4 py-2 font-semibold text-gray-700">Schutter</th>
+                                        <th className="px-4 py-2 font-semibold text-gray-700">Kaliber</th>
+                                        <th className="px-4 py-2 font-semibold text-gray-700 text-right">Totaal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {leaderboard.map((entry: any, index: number) => (
+                                        <tr key={`${entry.user_id}_${entry.kaliber}_${index}`} className="border-b hover:bg-yellow-100 transition-colors">
+                                            <td className="px-4 py-3 font-bold text-lg text-yellow-600 w-12">
+                                                {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`}
+                                            </td>
+                                            <td className="px-4 py-3 font-medium text-gray-900">
+                                                {entry.user_name}
+                                            </td>
+                                            <td className="px-4 py-3 text-gray-700">
+                                                <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${entry.kaliber === 'gkp' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>
+                                                    {entry.kaliber === 'gkp' ? 'GKP' : 'KKP'}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3 font-bold text-right text-gray-900">
+                                                {entry.total_points.toLocaleString()}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-4 text-center">
+                            Gebaseerd op scores van {latestCompetition.rounds?.length || 0} rondes
+                        </p>
+                    </div>
+                )}
                 
-                {matches.length === 0 ? (
+                {competitions.length === 0 ? (
                     <div className="bg-white shadow rounded-lg p-8 text-center">
-                        <p className="text-gray-500">Geen wedstrijden gevonden.</p>
+                        <p className="text-gray-500">Geen competities gevonden.</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {matches.map((match: Match) => (
-                            <div key={match.id} className="bg-white shadow rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                        {competitions.map((competition: Competition) => (
+                            <div key={competition.id} className="bg-white shadow rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
                                 <div className="p-6">
                                     <div className="flex justify-between items-start mb-4">
-                                        <h2 className="text-xl font-semibold">{match.naam}</h2>
-                                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(match.status)}`}>
-                                            {formatStatus(match.status)}
+                                        <h2 className="text-xl font-semibold">{competition.naam}</h2>
+                                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(competition.status)}`}>
+                                            {formatStatus(competition.status)}
                                         </span>
                                     </div>
                                     
                                     <p className="text-gray-500 mb-4">
-                                        <span className="font-medium">Datum:</span> {formatDate(match.start_datum)}
+                                        <span className="font-medium">Jaar:</span> {competition.jaar}
                                     </p>
                                     
-                                    {match.beschrijving && (
-                                        <p className="text-gray-700 mb-4">{match.beschrijving}</p>
+                                    {competition.beschrijving && (
+                                        <p className="text-gray-700 mb-4">{competition.beschrijving}</p>
+                                    )}
+
+                                    {competition.rounds && (
+                                        <p className="text-gray-600 mb-4">
+                                            <span className="font-medium">Rondes:</span> {competition.rounds.length}
+                                        </p>
                                     )}
                                 
                                     
                                     {/* Action buttons */}
                                     <div className="flex gap-2 mb-4">
-                                        {canRegister(match) && !match.is_user_registered && (
+                                        {canRegister(competition) && (
                                             <button
-                                                onClick={() => openRegistrationModal(match)}
-                                                disabled={loading === match.id}
+                                                onClick={() => setRegistrationModal({ isOpen: true, competition })}
+                                                disabled={loading === competition.id}
                                                 className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-4 py-2 rounded font-medium text-sm transition-colors"
                                             >
-                                                {loading === match.id ? 'Bezig...' : 'Aanmelden'}
+                                                {loading === competition.id ? 'Bezig...' : 'Aanmelden'}
                                             </button>
                                         )}
                                         
-                                        {match.has_registration && !match.is_participant && match.status === 'binnenkort' && (
+                                        {canUnregister(competition) && (
                                             <button
-                                                onClick={() => handleRegistration(match.id, 'unregister')}
-                                                disabled={loading === match.id}
+                                                onClick={() => handleRegistration(competition.id, 'unregister')}
+                                                disabled={loading === competition.id}
                                                 className="flex-1 bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white px-4 py-2 rounded font-medium text-sm transition-colors"
                                             >
-                                                {loading === match.id ? 'Bezig...' : 'Aanmelding intrekken'}
+                                                {loading === competition.id ? 'Bezig...' : 'Afmelden'}
                                             </button>
                                         )}
                                         
-                                        {match.is_participant && (
+                                        {isUserRegistered(competition) && (
                                             <div className="flex-1 bg-blue-100 text-blue-700 px-4 py-2 rounded font-medium text-sm text-center">
-                                                Je bent deelnemer
-                                            </div>
-                                        )}
-                                        
-                                        {match.status === 'afgelopen' && (
-                                            <div className="flex-1 bg-gray-100 text-gray-500 px-4 py-2 rounded font-medium text-sm text-center">
-                                                Wedstrijd afgelopen
-                                            </div>
-                                        )}
-
-                                        {match.status === 'geannuleerd' && (
-                                            <div className="flex-1 bg-red-100 text-red-500 px-4 py-2 rounded font-medium text-sm text-center">
-                                                Wedstrijd geannuleerd
+                                                Aangemeld: {competition.user_caliber?.toUpperCase()}
                                             </div>
                                         )}
                                     </div>
                                     
                                     <div className="flex justify-between items-center">
                                         <Link 
-                                            href={`/wedstrijd/${match.id}`} 
+                                            href={`/wedstrijd/${competition.id}`} 
                                             className="text-blue-600 hover:text-blue-800 font-medium flex items-center text-sm"
                                         >
                                             Bekijk details
@@ -411,8 +375,8 @@ export default function Wedstrijden() {
                 isOpen={registrationModal.isOpen}
                 onClose={closeRegistrationModal}
                 onSubmit={handleRegistrationSubmit}
-                matchName={registrationModal.match?.naam || ''}
-                loading={loading === registrationModal.match?.id}
+                competitionName={registrationModal.competition?.naam || ''}
+                loading={loading === registrationModal.competition?.id}
             />
         </Layout>
     );

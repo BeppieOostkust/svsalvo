@@ -21,7 +21,7 @@ class MaintenanceCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Enable or disable maintenance mode for SSV De Moes website';
+    protected $description = 'Enable or disable maintenance mode for SV De Moes website';
 
     /**
      * Execute the console command.

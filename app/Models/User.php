@@ -221,6 +221,35 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * Get user's competition registrations (new system)
+     */
+    public function competitionRegistrations()
+    {
+        return $this->hasMany(CompetitionRegistration::class);
+    }
+
+    /**
+     * Get user's competition scores (new system)
+     */
+    public function competitionScores()
+    {
+        return $this->hasMany(CompetitionScore::class);
+    }
+
+    /**
+     * Get competitions this user is registered for (active only)
+     */
+    public function competitions()
+    {
+        return $this->belongsToMany(
+            Competition::class,
+            'competition_registrations',
+            'user_id',
+            'competition_id'
+        )->where('competition_registrations.status', 'actief');
+    }
+
+    /**
      * Scope for organization members (people to show on organization page)
      */
     public function scopeOrganizationMembers($query)

@@ -215,8 +215,8 @@ export default function Organisatie() {
                                             <svg className="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                             </svg>
-                                            <a href="mailto:info@ssvdemoes.nl" className="text-blue-600 hover:text-blue-800 transition-colors">
-                                                info@ssvdemoes.nl
+                                            <a href="mailto:secretaris@svsalvo.info" className="text-blue-600 hover:text-blue-800 transition-colors">
+                                                secretaris@svsalvo.info
                                             </a>
                                         </div>
                                     </div>
@@ -279,8 +279,8 @@ export default function Organisatie() {
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                         </svg>
                                         <div>
-                                            <div className="font-medium">De Schacht 5</div>
-                                            <div className="text-gray-600">5107 RD Dongen</div>
+                                            <div className="font-medium">Geerbunders 31</div>
+                                            <div className="text-gray-600">5461 XM Veghel</div>
                                             <div className="text-gray-600">Nederland</div>
                                         </div>
                                     </div>
@@ -293,7 +293,7 @@ export default function Organisatie() {
                                 <div className="w-full h-64 bg-gray-200 rounded-lg overflow-hidden">
                                     <iframe
                                         src={`https://www.google.com/maps?q=${encodeURIComponent(
-                                            'De Schacht 5, 5107 RD Dongen, Nederland'
+                                            'Geerbunders 31, 5461 XM Veghel, Nederland'
                                         )}&output=embed`}
                                         width="100%"
                                         height="100%"
@@ -308,7 +308,7 @@ export default function Organisatie() {
                                 {/* Google Maps Link */}
                                 <div className="flex justify-center">
                                     <a
-                                        href="https://maps.app.goo.gl/SGMjk71W4rH9JT7g7"
+                                        href="https://maps.app.goo.gl/pqRPcay68me4E91p8"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"

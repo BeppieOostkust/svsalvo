@@ -68,6 +68,6 @@ class PasswordChangeController extends Controller
             'password_change_required' => false,
         ]);
 
-        return redirect()->route('dashboard')->with('success', 'Wachtwoord succesvol gewijzigd! Welkom bij SSV de Moes.');
+        return redirect()->route('dashboard')->with('success', 'Wachtwoord succesvol gewijzigd! Welkom bij SV Salvo.');
     }
 }

@@ -116,8 +116,8 @@ export default function Header() {
             {/* Main Header - add top padding when urgent banner is present and not dismissed */}
             <div className={`my-2 lg:my-4 mx-auto p-2 lg:p-4 w-[95%] lg:w-[90%] border-gray-400 shadow-xl rounded-lg flex flex-row justify-between items-center transition-all duration-500 ease-in-out ${shouldShowBanner ? 'mt-20' : 'mt-2 lg:mt-4'}`}>
                 <Link href={route("dashboard.home")} className='flex flex-row items-center gap-2 lg:gap-4 hover:opacity-80 transition-opacity cursor-pointer min-w-0'>
-                    <img src="/images/logo.png" alt="SSV De Moes" className='rounded w-8 lg:w-12 flex-shrink-0'/>
-                    <span className='text-lg lg:text-2xl font-bold hidden lg:inline truncate'>SSV De Moes</span>
+                    <img src="/images/logo.png" alt="SV Salvo" className='rounded w-8 lg:w-12 flex-shrink-0'/>
+                    <span className='text-lg lg:text-2xl font-bold hidden lg:inline truncate'>SV Salvo</span>
                 </Link>
                 
                 {/* Mobile hamburger menu button */}

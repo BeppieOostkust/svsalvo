@@ -9,11 +9,10 @@ interface HomeProps extends SharedData {
     featuredNews: any;
     upcomingActivities: any[];
     upcomingMatches: any[];
-    partners: any[];
 }
 
 export default function Home() {
-    const { auth, latestNews, featuredNews, upcomingActivities, upcomingMatches, partners } = usePage<HomeProps>().props;
+    const { auth, latestNews, featuredNews, upcomingActivities, upcomingMatches } = usePage<HomeProps>().props;
 
     return (
         <Layout>
@@ -29,7 +28,7 @@ export default function Home() {
                     <div className="container mx-auto px-4">
                         <div className="max-w-4xl mx-auto text-center">
                             <h1 className="text-3xl md:text-5xl font-bold mb-6">
-                                Welkom bij<br />Schietvereniging De Moes
+                                Welkom bij<br />Schietvereniging Salvo
                             </h1>
                             <p className="text-xl mb-8 text-green-100">
                                 Een gezellige en professionele schietsportvereniging waar veiligheid, 
@@ -199,53 +198,6 @@ export default function Home() {
                     </div>
                 </section>
 
-                {/* Partners Section */}
-                <section className="py-16 bg-white">
-                    <div className="container mx-auto px-4">
-                        <div className="max-w-6xl mx-auto">
-                            <div className="text-center mb-12">
-                                <h2 className="text-3xl font-bold text-gray-900 mb-4">Onze Partners</h2>
-                                <p className="text-gray-600 max-w-2xl mx-auto">
-                                    Wij werken samen met betrouwbare partners die ons helpen 
-                                    de beste schietsportervaring te bieden aan onze leden.
-                                </p>
-                            </div>
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-                                {partners.map((partner, index) => (
-                                    <div key={index} className="group">
-                                        <a 
-                                            href={partner.website}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="block p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200 hover:shadow-md"
-                                        >
-                                            <div className="aspect-square flex items-center justify-center">
-                                                <img 
-                                                    src={partner.logo} 
-                                                    alt={partner.name}
-                                                    className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-200"
-                                                    onError={(e) => {
-                                                        // Fallback for missing images
-                                                        e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSIjOUI5QjlCIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Mb2dvPC90ZXh0Pgo8L3N2Zz4K';
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="mt-2 text-center">
-                                                <h4 className="text-sm font-semibold text-gray-800 group-hover:text-blue-600">
-                                                    {partner.name}
-                                                </h4>
-                                                <p className="text-xs text-gray-500 mt-1">
-                                                    {partner.description}
-                                                </p>
-                                            </div>
-                                        </a>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
                 {/* Call to Action */}
                 <section className="py-16 bg-green-700 text-white">
                     <div className="container mx-auto px-4">
@@ -259,7 +211,7 @@ export default function Home() {
                             </p>
                             <div className="flex flex-wrap justify-center gap-4">
                                 <a 
-                                    href="mailto:info@ssvdemoes.nl"
+                                    href="mailto:secretaris@svsalvo.info"
                                     className="bg-white text-green-700 px-8 py-3 rounded-lg font-semibold hover:bg-green-50 transition-colors"
                                 >
                                     Contact Opnemen

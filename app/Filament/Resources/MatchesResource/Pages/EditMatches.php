@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\MatchesResource\Pages;
 
+use App\Filament\Resources\CompetitionResource;
 use App\Filament\Resources\MatchesResource;
+use App\Models\Competition;
 use App\Models\User;
 use DateTime;
 use Illuminate\Support\Facades\Log;
@@ -79,6 +81,13 @@ class EditMatches extends EditRecord
 
     public function mount(int | string $record): void
     {
+        $competition = Competition::find($record);
+        if ($competition) {
+            $this->redirect(CompetitionResource::getUrl('edit', ['record' => $competition]));
+
+            return;
+        }
+
         parent::mount($record);
         
         // Initialize audio player
