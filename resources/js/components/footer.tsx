@@ -13,7 +13,7 @@ export default function Footer() {
                             <span className="text-lg font-semibold">SV Salvo</span>
                         </div>
                         <p className="max-w-sm text-sm text-gray-400">
-                            Al sinds 1997 de plek voor veilige en professionele schietsport in de regio.
+                            Al sinds 1967 de plek voor veilige en professionele schietsport in de regio.
                         </p>
                     </div>
 
