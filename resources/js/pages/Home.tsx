@@ -16,7 +16,7 @@ export default function Home() {
 
     return (
         <Layout>
-            <Head title="Schietvereniging De Moes - Home">
+            <Head title="Schietvereniging SV Salvo - Home">
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" />
                 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet" />

@@ -18,7 +18,7 @@ export default function PublicHome() {
 
     return (
         <>
-            <Head title="Schietvereniging De Moes - Welkom">
+            <Head title="Schietvereniging SV Salvo - Welkom">
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" />
                 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet" />
