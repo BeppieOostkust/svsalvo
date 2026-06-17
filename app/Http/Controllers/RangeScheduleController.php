@@ -25,6 +25,8 @@ class RangeScheduleController extends Controller
                         'discipline_label' => $item->discipline_label,
                         'day_of_week' => $item->day_of_week,
                         'day_of_week_label' => $item->day_of_week_label,
+                        'schedule_date' => $item->schedule_date->toDateString(),
+                        'schedule_date_label' => $item->schedule_date_label,
                         'is_open' => $item->is_open,
                         'start_time' => $item->start_time,
                         'end_time' => $item->end_time,

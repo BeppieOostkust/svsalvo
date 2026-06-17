@@ -7,6 +7,8 @@ interface PlanningItem {
     discipline_label: string;
     day_of_week: string;
     day_of_week_label: string;
+    schedule_date: string;
+    schedule_date_label: string;
     is_open: boolean;
     start_time: string | null;
     end_time: string | null;
@@ -72,7 +74,9 @@ export default function BaanplanningIndex() {
                                                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                                                     <div>
                                                         <h4 className="font-semibold text-gray-900">Week {item.week_number}</h4>
-                                                        <p className="text-sm text-gray-600">{item.discipline_label} - {item.day_of_week_label}</p>
+                                                        <p className="text-sm text-gray-600">
+                                                            {item.discipline_label} - {item.schedule_date_label}
+                                                        </p>
                                                     </div>
                                                     {item.is_open ? (
                                                         <div className="inline-flex items-center rounded-md bg-green-100 text-green-800 px-3 py-1 text-sm font-medium">

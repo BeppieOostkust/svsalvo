@@ -41,11 +41,14 @@ class PublicController extends Controller
             'established_year' => '1967',
             'member_count' => '45+',
             'disciplines' => [
-                'Luchtdruk pistool',
-                'Klein kaliber pistool', 
-                'Groot kaliber pistool',
-                'Luchtbuks',
-                'Klein kaliber geweer'
+                'Meesterkaart zwaar',
+                'Meesterkaart Licht', 
+                'KK Geweer Open richtm. 50 meter',
+                'KK Geweer Optisch 100 meter',
+                'Gr.Kal.Precisie Geweer Target 100 m',
+                'Militair Geweer Optisch 100 meter',
+                'Militair Geweer',
+                'Veteranen Geweer',
             ]
         ];
 
