@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Support\PublicStorage;
 
 class ClubWeapon extends Model
 {
@@ -37,6 +38,6 @@ class ClubWeapon extends Model
             return null;
         }
 
-        return asset('storage/' . $this->image);
+        return PublicStorage::url($this->image);
     }
 }

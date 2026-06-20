@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Competition;
+use App\Support\PublicStorage;
 use Inertia\Inertia;
 
 class PublicScoresController extends Controller
@@ -13,7 +14,8 @@ class PublicScoresController extends Controller
         $users = User::where('show_scores_public', true)
             ->where('is_active_member', true)
             ->select(['id', 'name', 'first_name', 'last_name', 'profile_image', 'preferred_discipline'])
-            ->get();
+            ->get()
+            ->map(fn (User $user) => PublicStorage::expose($user, 'profile_image'));
 
         return Inertia::render('scores/public', [
             'users' => $users,
@@ -49,7 +51,7 @@ class PublicScoresController extends Controller
             });
 
         return Inertia::render('scores/user', [
-            'user' => $user,
+            'user' => PublicStorage::expose($user, 'profile_image'),
             'scores' => $scores,
         ]);
     }
@@ -82,7 +84,7 @@ class PublicScoresController extends Controller
                     'name' => $user->name,
                     'first_name' => $user->first_name,
                     'last_name' => $user->last_name,
-                    'profile_image' => $user->profile_image,
+                    'profile_image' => PublicStorage::modelUrl($user, 'profile_image'),
                     'preferred_discipline' => $user->preferred_discipline,
                     'discipline_stats' => $stats,
                 ];

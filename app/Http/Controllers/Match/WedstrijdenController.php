@@ -10,6 +10,7 @@ use App\Models\CompetitionScore;
 use App\Models\Matches;
 use App\Models\MatchGebruikerScore;
 use App\Models\MatchRegistration;
+use App\Support\PublicStorage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -63,7 +64,7 @@ class WedstrijdenController extends Controller
                                 'user_name' => $score->user->name,
                                 'user_first_name' => $score->user->first_name,
                                 'user_last_name' => $score->user->last_name,
-                                'user_profile_image' => $score->user->profile_image,
+                                'user_profile_image' => PublicStorage::modelUrl($score->user, 'profile_image'),
                                 'kaliber' => $score->kaliber,
                                 'total_points' => 0,
                                 'scores_count' => 0,

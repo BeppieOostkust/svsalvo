@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use App\Support\PublicStorage;
 
 class User extends Authenticatable implements FilamentUser
 {
@@ -113,6 +114,7 @@ class User extends Authenticatable implements FilamentUser
      * @var array
      */
     protected $appends = [
+        'avatar',
         'full_name',
         'profile_image_url',
     ];
@@ -172,28 +174,16 @@ class User extends Authenticatable implements FilamentUser
             return null;
         }
         
-        // If the path already starts with http, return as is
-        if (str_starts_with($this->profile_image, 'http')) {
-            return $this->profile_image;
+        return PublicStorage::url($this->profile_image);
+    }
+
+    public function getAvatarAttribute(): ?string
+    {
+        if (!array_key_exists('profile_image', $this->attributes)) {
+            return null;
         }
-        
-        // Check if the file exists in storage
-        $storagePath = storage_path('app/public/' . $this->profile_image);
-        $publicPath = public_path('storage/' . $this->profile_image);
-        
-        // If file exists in public/storage (shared hosting fallback)
-        if (file_exists($publicPath)) {
-            return asset('storage/' . $this->profile_image);
-        }
-        
-        // If file exists in storage but not accessible via symlink, try direct access
-        if (file_exists($storagePath)) {
-            // For shared hosting, sometimes we need a different approach
-            return route('storage.image', ['path' => $this->profile_image]);
-        }
-        
-        // Otherwise, construct the standard storage URL
-        return asset('storage/' . $this->profile_image);
+
+        return PublicStorage::url($this->profile_image);
     }
 
     /**

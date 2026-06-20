@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Support\PublicStorage;
 
 class MarketplaceListing extends Model
 {
@@ -51,7 +52,7 @@ class MarketplaceListing extends Model
             return null;
         }
 
-        return asset('storage/' . $this->image);
+        return PublicStorage::url($this->image);
     }
 
     public function getImageUrlsAttribute(): array
@@ -63,7 +64,7 @@ class MarketplaceListing extends Model
         }
 
         return array_map(
-            fn (string $path) => asset('storage/' . $path),
+            fn (string $path) => PublicStorage::url($path),
             $paths,
         );
     }

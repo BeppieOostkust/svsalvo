@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Support\PublicStorage;
 
 class Facility extends Model
 {
@@ -23,6 +24,10 @@ class Facility extends Model
         'is_active' => 'boolean',
     ];
 
+    protected $appends = [
+        'image_url',
+    ];
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
@@ -36,7 +41,7 @@ class Facility extends Model
     public function getImageUrlAttribute()
     {
         if ($this->image) {
-            return asset('storage/' . $this->image);
+            return PublicStorage::url($this->image);
         }
         return null;
     }

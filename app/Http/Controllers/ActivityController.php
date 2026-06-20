@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\ActivityRegistration;
+use App\Support\PublicStorage;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -19,13 +20,15 @@ class ActivityController extends Controller
             ->whereIn('status', ['gepland', 'bevestigd'])
             ->where('start_date', '>=', now()->subDay()->startOfDay())
             ->orderBy('start_date', 'asc')
-            ->get();
+            ->get()
+            ->map(fn (Activity $activity) => PublicStorage::expose($activity, 'featured_image'));
 
         $pastActivities = Activity::with(['organizer'])
             ->where('status', 'afgelopen')
             ->orderBy('start_date', 'desc')
             ->limit(6)
-            ->get();
+            ->get()
+            ->map(fn (Activity $activity) => PublicStorage::expose($activity, 'featured_image'));
 
         return Inertia::render('Activiteiten', [
             'upcomingActivities' => $upcomingActivities,
@@ -41,6 +44,7 @@ class ActivityController extends Controller
         $activity = Activity::with(['organizer', 'registrations.user'])
             ->where('slug', $slug)
             ->firstOrFail();
+        PublicStorage::expose($activity, 'featured_image');
 
         $userRegistration = null;
         if (auth()->user()) {

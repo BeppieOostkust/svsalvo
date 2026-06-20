@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Support\PublicStorage;
 
 class BoardMember extends Model
 {
@@ -24,6 +25,10 @@ class BoardMember extends Model
         'is_active' => 'boolean',
     ];
 
+    protected $appends = [
+        'avatar_url',
+    ];
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
@@ -37,7 +42,7 @@ class BoardMember extends Model
     public function getAvatarUrlAttribute()
     {
         if ($this->avatar) {
-            return asset('storage/' . $this->avatar);
+            return PublicStorage::url($this->avatar);
         }
         return null;
     }

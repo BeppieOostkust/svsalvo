@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Feedback;
 use App\Models\FeedbackComment;
 use App\Models\FeedbackVote;
+use App\Models\User;
+use App\Support\PublicStorage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -45,6 +47,9 @@ class FeedbackController extends Controller
         }
 
         $feedback = $query->paginate(10);
+        $feedback->getCollection()->each(function (Feedback $item) {
+            $this->exposeFeedbackUserImages($item);
+        });
 
         return Inertia::render('Feedback/Index', [
             'feedback' => $feedback,
@@ -84,10 +89,10 @@ class FeedbackController extends Controller
         }
 
         return Inertia::render('Feedback/Show', [
-            'feedback' => $feedback,
+            'feedback' => $this->exposeFeedbackUserImages($feedback),
             'userVote' => $userVote,
             'auth' => [
-                'user' => Auth::user(),
+                'user' => Auth::user() ? PublicStorage::expose(Auth::user(), 'profile_image') : null,
             ],
         ]);
     }
@@ -194,5 +199,24 @@ class FeedbackController extends Controller
             'upvotes' => $upvotes,
             'downvotes' => $downvotes,
         ]);
+    }
+
+    private function exposeFeedbackUserImages(Feedback $feedback): Feedback
+    {
+        foreach (['user', 'moderator'] as $relation) {
+            if ($feedback->relationLoaded($relation) && $feedback->{$relation} instanceof User) {
+                PublicStorage::expose($feedback->{$relation}, 'profile_image');
+            }
+        }
+
+        if ($feedback->relationLoaded('comments')) {
+            $feedback->comments->each(function (FeedbackComment $comment) {
+                if ($comment->relationLoaded('user') && $comment->user instanceof User) {
+                    PublicStorage::expose($comment->user, 'profile_image');
+                }
+            });
+        }
+
+        return $feedback;
     }
 }

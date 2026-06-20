@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Article;
+use App\Support\PublicStorage;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -47,7 +48,8 @@ class HandleInertiaRequests extends Middleware
                 ->urgent()
                 ->orderBy('published_at', 'desc')
                 ->limit(3)
-                ->get(['id', 'title', 'excerpt', 'slug', 'published_at', 'author_id']);
+                ->get(['id', 'title', 'excerpt', 'slug', 'published_at', 'author_id', 'featured_image'])
+                ->map(fn (Article $article) => PublicStorage::expose($article, 'featured_image'));
         } catch (\Exception $e) {
             // If there's any database error, return empty array and log it
             \Log::warning('Failed to fetch urgent articles: ' . $e->getMessage());

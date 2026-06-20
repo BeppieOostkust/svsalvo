@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\DownloadResource\Pages;
 use App\Models\Download;
+use App\Support\PublicStorage;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -266,7 +267,7 @@ class DownloadResource extends Resource
                     ->label('Download')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
-                    ->url(fn (Download $record): string => asset('storage/' . $record->file_path))
+                    ->url(fn (Download $record): string => PublicStorage::url($record->file_path))
                     ->openUrlInNewTab(),
                 Tables\Actions\EditAction::make()
                     ->label('Bewerken'),
