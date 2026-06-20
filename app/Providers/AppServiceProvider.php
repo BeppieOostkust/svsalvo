@@ -23,7 +23,7 @@ class PublicStorage
             $path = Str::after($path, 'storage/');
         }
 
-        return route('storage.public', ['path' => $path]);
+        return url('storage/' . str_replace('%2F', '/', rawurlencode($path)));
     }
 
     public static function modelUrl(EloquentModel $model, string $attribute): ?string
